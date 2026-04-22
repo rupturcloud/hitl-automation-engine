@@ -1,111 +1,134 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { cn, BetType, ResultType } from '../types';
-import { Trophy } from 'lucide-react';
 
 interface BettingTableProps {
-  onPlaceBet: (type: BetType) => void;
-  currentBets: { [key in BetType]: number };
+  onBet: (type: BetType) => void;
+  activeBets: { type: BetType; amount: number }[];
   lastWinner: ResultType | null;
-  isActive: boolean;
+  disabled: boolean;
+  status: 'BETTING' | 'ROLLING' | 'RESULT' | 'WAITING_HOST';
 }
 
-const BettingTable: React.FC<BettingTableProps> = ({ onPlaceBet, currentBets, lastWinner, isActive }) => {
+const BettingTable: React.FC<BettingTableProps> = ({ onBet, activeBets, lastWinner, disabled, status }) => {
+  const isActive = !disabled;
+
+  const getBetAmount = (type: BetType) => {
+    return activeBets.filter(b => b.type === type).reduce((acc, b) => acc + b.amount, 0);
+  };
+
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 flex items-stretch gap-2 h-72">
-      {/* Player Section */}
-      <motion.button
-        whileHover={isActive ? { scale: 1.01 } : {}}
-        whileTap={isActive ? { scale: 0.99 } : {}}
-        onClick={() => isActive && onPlaceBet('PLAYER')}
-        disabled={!isActive}
-        className={cn(
-          "flex-1 rounded-l-[40px] relative overflow-hidden transition-all duration-500 border border-white/10",
-          "bg-player-evo flex flex-col items-center justify-center group",
-          lastWinner === 'PLAYER' && "ring-4 ring-yellow-400 shadow-[0_0_50px_rgba(59,130,246,0.5)]",
-          !isActive && "opacity-40 grayscale-[0.5]"
-        )}
-      >
-        <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent pointer-events-none" />
-        <div className="text-[10px] font-black tracking-[0.4em] text-white/50 mb-2">1:1</div>
-        <div className="editorial-title italic text-6xl text-white tracking-widest uppercase group-hover:scale-110 transition-transform duration-700">
-          Player
-        </div>
-        
-        {currentBets['PLAYER'] > 0 && (
-          <div className="absolute top-4 right-4 animate-in fade-in zoom-in duration-300">
-            <div className="w-12 h-12 rounded-full bg-blue-400 border-2 border-white flex items-center justify-center shadow-2xl">
-              <span className="text-[10px] font-black text-black">R$ {currentBets['PLAYER']}</span>
-            </div>
-          </div>
-        )}
-      </motion.button>
+    <div className="w-full max-w-5xl mx-auto flex flex-col gap-1 md:gap-2">
+      {/* Percentage Bar Above Table */}
+      <div className="flex w-full h-1 md:h-1.5 rounded-full overflow-hidden mb-1 md:mb-2 bg-white/5 border border-white/5">
+        <div className="bg-blue-600 transition-all duration-1000" style={{ width: '44%' }} />
+        <div className="bg-amber-500 transition-all duration-1000" style={{ width: '12%' }} />
+        <div className="bg-red-600 transition-all duration-1000" style={{ width: '44%' }} />
+      </div>
 
-      {/* Tie Section (Center) */}
-      <motion.button
-        whileHover={isActive ? { scale: 1.01 } : {}}
-        whileTap={isActive ? { scale: 0.99 } : {}}
-        onClick={() => isActive && onPlaceBet('TIE')}
-        disabled={!isActive}
-        className={cn(
-          "w-[30%] relative overflow-hidden transition-all duration-500 border-x border-white/5",
-          "bg-tie-evo flex flex-col items-center justify-center p-4 group",
-          lastWinner === 'TIE' && "ring-4 ring-yellow-400 shadow-[0_0_50px_rgba(197,160,89,0.5)]",
-          !isActive && "opacity-40"
-        )}
-      >
-        <div className="text-[10px] font-black tracking-[0.4em] text-gold/60 mb-2 uppercase italic">Multipliers</div>
-        <div className="text-gold-gradient text-4xl font-bold tracking-tighter uppercase mb-4">Tie</div>
-        
-        {/* Dynamic Tie Payouts visualization */}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[8px] font-black tracking-widest text-gold/40 border-t border-gold/10 pt-4 w-full px-4">
-          <div className="flex justify-between"><span>2/12</span> <span className="text-gold">88:1</span></div>
-          <div className="flex justify-between"><span>3/11</span> <span className="text-gold">25:1</span></div>
-          <div className="flex justify-between"><span>4/10</span> <span className="text-gold">10:1</span></div>
-          <div className="flex justify-between"><span>5/9</span> <span className="text-gold">6:1</span></div>
-          <div className="col-span-2 flex justify-between border-t border-gold/5 mt-1 pt-1 opacity-100">
-            <span>6-8</span> <span className="text-gold">4:1</span>
+      <div className="flex items-stretch gap-0.5 md:gap-1 h-32 md:h-44">
+        {/* PLAYER */}
+        <motion.button
+          whileTap={isActive ? { scale: 0.98 } : {}}
+          animate={lastWinner === 'PLAYER' ? { scale: [1, 1.02, 1] } : { scale: 1 }}
+          transition={lastWinner === 'PLAYER' ? { duration: 2, repeat: Infinity } : {}}
+          onClick={() => isActive && onBet('PLAYER')}
+          disabled={!isActive}
+          className={cn(
+            "flex-1 bg-blue-900/60 backdrop-blur-xl rounded-l-2xl md:rounded-l-[2rem] border border-blue-500/20 relative overflow-hidden group transition-all",
+            lastWinner === 'PLAYER' && "ring-4 ring-blue-400 ring-inset shadow-[0_0_50px_rgba(37,99,235,0.6)] z-10",
+            !isActive && status !== 'RESULT' && "opacity-50"
+          )}
+        >
+          {lastWinner === 'PLAYER' && (
+            <div className="absolute inset-0 bg-gradient-to-t from-blue-500/20 to-transparent pointer-events-none" />
+          )}
+          <div className="absolute top-1 md:top-2 left-2 md:left-4 text-[7px] md:text-[8px] font-black text-blue-400/60 uppercase">1:1</div>
+          <div className="flex flex-col items-center justify-center h-full gap-1">
+             {lastWinner === 'PLAYER' && (
+               <motion.span initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-[10px] font-black text-blue-300 uppercase tracking-widest mb-1">Vencedor</motion.span>
+             )}
+             <span className="text-lg md:text-2xl font-black italic tracking-tighter text-white uppercase">Jogador</span>
+             {getBetAmount('PLAYER') > 0 && (
+               <div className="px-2 md:px-3 py-0.5 md:py-1 bg-blue-500 rounded-full text-[8px] md:text-[10px] font-black shadow-lg animate-in zoom-in">
+                 R$ {getBetAmount('PLAYER')}
+               </div>
+             )}
           </div>
-        </div>
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 md:h-1 bg-blue-500/20" />
+        </motion.button>
 
-        {currentBets['TIE'] > 0 && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 animate-in fade-in zoom-in duration-300">
-            <div className="w-12 h-12 rounded-full bg-gold border-2 border-white flex items-center justify-center shadow-2xl">
-              <span className="text-[10px] font-black text-black">R$ {currentBets['TIE']}</span>
-            </div>
+        {/* TIE */}
+        <motion.button
+          whileTap={isActive ? { scale: 0.98 } : {}}
+          animate={lastWinner === 'TIE' ? { scale: [1, 1.02, 1] } : { scale: 1 }}
+          transition={lastWinner === 'TIE' ? { duration: 2, repeat: Infinity } : {}}
+          onClick={() => isActive && onBet('TIE')}
+          disabled={!isActive}
+          className={cn(
+            "w-[28%] md:w-[25%] bg-amber-900/40 backdrop-blur-xl border-x border-amber-500/20 relative overflow-hidden group transition-all",
+            lastWinner === 'TIE' && "ring-4 ring-amber-400 ring-inset shadow-[0_0_50px_rgba(245,158,11,0.6)] z-10",
+            !isActive && status !== 'RESULT' && "opacity-50"
+          )}
+        >
+          {lastWinner === 'TIE' && (
+            <div className="absolute inset-0 bg-gradient-to-t from-amber-500/20 to-transparent pointer-events-none" />
+          )}
+          <div className="flex flex-col items-center justify-center h-full py-2 md:py-4">
+             {lastWinner === 'TIE' && (
+               <motion.span initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-[10px] font-black text-amber-300 uppercase tracking-widest mb-1">Vencedor</motion.span>
+             )}
+             <span className="text-sm md:text-xl font-black italic tracking-tighter text-amber-500 uppercase">Empate</span>
+             <div className="hidden md:grid grid-cols-2 gap-x-4 gap-y-0.5 text-[7px] font-black text-amber-500/40 mt-2 uppercase">
+                <div className="flex justify-between gap-2"><span>2,12</span> <span>88:1</span></div>
+                <div className="flex justify-between gap-2"><span>3,11</span> <span>25:1</span></div>
+                <div className="flex justify-between gap-2"><span>4,10</span> <span>10:1</span></div>
+                <div className="flex justify-between gap-2"><span>5,9</span> <span>8:1</span></div>
+             </div>
+             <span className="md:hidden text-[8px] font-black text-amber-500/40 mt-1 uppercase">8:1</span>
+             {getBetAmount('TIE') > 0 && (
+               <div className="mt-1 md:mt-2 px-2 md:px-3 py-0.5 md:py-1 bg-amber-500 rounded-full text-[8px] md:text-[10px] font-black text-black shadow-lg animate-in zoom-in">
+                 R$ {getBetAmount('TIE')}
+               </div>
+             )}
           </div>
-        )}
-      </motion.button>
+        </motion.button>
 
-      {/* Banker Section */}
-      <motion.button
-        whileHover={isActive ? { scale: 1.01 } : {}}
-        whileTap={isActive ? { scale: 0.99 } : {}}
-        onClick={() => isActive && onPlaceBet('BANKER')}
-        disabled={!isActive}
-        className={cn(
-          "flex-1 rounded-r-[40px] relative overflow-hidden transition-all duration-500 border border-white/10",
-          "bg-banker-evo flex flex-col items-center justify-center group",
-          lastWinner === 'BANKER' && "ring-4 ring-yellow-400 shadow-[0_0_50px_rgba(239,68,68,0.5)]",
-          !isActive && "opacity-40 grayscale-[0.5]"
-        )}
-      >
-        <div className="absolute inset-0 bg-gradient-to-tl from-black/20 to-transparent pointer-events-none" />
-        <div className="text-[10px] font-black tracking-[0.4em] text-white/50 mb-2">1:1</div>
-        <div className="editorial-title italic text-6xl text-white tracking-widest uppercase group-hover:scale-110 transition-transform duration-700">
-          Banker
-        </div>
-
-        {currentBets['BANKER'] > 0 && (
-          <div className="absolute top-4 left-4 animate-in fade-in zoom-in duration-300">
-            <div className="w-12 h-12 rounded-full bg-red-400 border-2 border-white flex items-center justify-center shadow-2xl">
-              <span className="text-[10px] font-black text-black">R$ {currentBets['BANKER']}</span>
-            </div>
+        {/* BANKER */}
+        <motion.button
+          whileTap={isActive ? { scale: 0.98 } : {}}
+          animate={lastWinner === 'BANKER' ? { scale: [1, 1.02, 1] } : { scale: 1 }}
+          transition={lastWinner === 'BANKER' ? { duration: 2, repeat: Infinity } : {}}
+          onClick={() => isActive && onBet('BANKER')}
+          disabled={!isActive}
+          className={cn(
+            "flex-1 bg-red-900/60 backdrop-blur-xl rounded-r-2xl md:rounded-r-[2rem] border border-red-500/20 relative overflow-hidden group transition-all",
+            lastWinner === 'BANKER' && "ring-4 ring-red-400 ring-inset shadow-[0_0_50px_rgba(220,38,38,0.6)] z-10",
+            !isActive && status !== 'RESULT' && "opacity-50"
+          )}
+        >
+          {lastWinner === 'BANKER' && (
+            <div className="absolute inset-0 bg-gradient-to-t from-red-500/20 to-transparent pointer-events-none" />
+          )}
+          <div className="absolute top-1 md:top-2 right-2 md:right-4 text-[7px] md:text-[8px] font-black text-red-400/60 uppercase text-right">1:1</div>
+          <div className="flex flex-col items-center justify-center h-full gap-1">
+             {lastWinner === 'BANKER' && (
+               <motion.span initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-[10px] font-black text-red-300 uppercase tracking-widest mb-1">Vencedor</motion.span>
+             )}
+             <span className="text-lg md:text-2xl font-black italic tracking-tighter text-white uppercase">Banca</span>
+             {getBetAmount('BANKER') > 0 && (
+               <div className="px-2 md:px-3 py-0.5 md:py-1 bg-red-500 rounded-full text-[8px] md:text-[10px] font-black shadow-lg animate-in zoom-in">
+                 R$ {getBetAmount('BANKER')}
+               </div>
+             )}
           </div>
-        )}
-      </motion.button>
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 md:h-1 bg-red-500/20" />
+        </motion.button>
+      </div>
     </div>
   );
 };
 
 export default BettingTable;
+
+

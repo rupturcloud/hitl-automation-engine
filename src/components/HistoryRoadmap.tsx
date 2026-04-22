@@ -55,13 +55,14 @@ const Roadmap: React.FC<RoadmapProps> = ({ history }) => {
                 return (
                   <div
                     key={i}
-                    className={cn(
-                      "w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-black transition-all",
-                      !h ? "bg-white/5 border border-white/5" : 
-                      h.winner === 'PLAYER' ? "bead-blue shadow-[0_0_10px_rgba(59,130,246,0.3)]" : 
-                      h.winner === 'BANKER' ? "bead-red shadow-[0_0_10px_rgba(239,68,68,0.3)]" : 
-                      "bead-gold"
-                    )}
+                      className={cn(
+                        "w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-black transition-all",
+                        !h ? "bg-white/5 border border-white/5" : 
+                        h.winner === 'PLAYER' ? "bead-blue shadow-[0_0_10px_rgba(59,130,246,0.3)]" : 
+                        h.winner === 'BANKER' ? "bead-red shadow-[0_0_10px_rgba(239,68,68,0.3)]" : 
+                        "bead-gold"
+                      )}
+                      data-betia-result={h?.winner}
                   >
                     {h?.winner === 'PLAYER' ? 'P' : h?.winner === 'BANKER' ? 'B' : h?.winner === 'TIE' ? 'T' : ''}
                   </div>
