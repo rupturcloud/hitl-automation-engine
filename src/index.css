@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;400;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-gold: #c5a059;
+  --color-editorial-bg: #050505;
+}
+
+.editorial-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.bead-red { background: radial-gradient(circle at 30% 30%, #ff4b4b, #8b0000); }
+.bead-blue { background: radial-gradient(circle at 30% 30%, #4b7bff, #001f8b); }
+.bead-gold { background: radial-gradient(circle at 30% 30%, #ffd700, #c5a059); }
+
+.bg-player-evo {
+  background: linear-gradient(135deg, #004191 0%, #1457a3 100%);
+}
+
+.bg-banker-evo {
+  background: linear-gradient(135deg, #7b000b 0%, #a20815 100%);
+}
+
+.bg-tie-evo {
+  background: linear-gradient(135deg, #3d2b1f 0%, #5c4033 100%);
+  position: relative;
+}
+
+.bg-tie-evo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(197, 160, 89, 0.15) 1px, transparent 1px);
+  background-size: 8px 8px;
+  pointer-events: none;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
