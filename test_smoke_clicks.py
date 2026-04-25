@@ -40,16 +40,11 @@ class SmokeTestClicks:
         log(f'✅ {len(self.cookies)} cookies carregados', 'LOAD')
         return True
 
-    def abrir_navegador(self):
+    def rodar_testes(self):
         log('🌐 Abrindo navegador...', 'SETUP')
-        try:
-            self.sb = SB(
-                uc=True,
-                headless=False,
-                block_images=False,
-                user_data_dir=self.profile_dir,
-                version_main=None
-            )
+
+        with SB(uc=True, headless=False, block_images=False, user_data_dir=self.profile_dir) as sb:
+            self.sb = sb
             log('✅ Navegador aberto', 'SETUP')
 
             self.sb.open('https://betboom.bet.br')
@@ -73,11 +68,22 @@ class SmokeTestClicks:
             self.visualizer.injetar_css_cursor_duplo()
 
             log('✅ MESA PRONTA', 'SETUP')
-            return True
 
-        except Exception as e:
-            log(f'❌ Erro: {e}', 'ERR')
-            return False
+            log('⏳ Aguardando 8 segundos pra mesa abrir...', 'SETUP')
+            time.sleep(8)
+            log('✅ Iniciando testes...', 'SETUP')
+            print()
+
+            self.teste_tier_click()
+            print()
+            self.teste_tier_untie()
+            print()
+            self.teste_player_click()
+            print()
+            self.teste_banker_click()
+            print()
+            self.teste_chip_selection()
+            print()
 
     def fazer_screenshot(self, stage):
         ts = datetime.now().strftime('%Y%m%d_%H%M%S_%f')[:18]
@@ -291,29 +297,14 @@ class SmokeTestClicks:
 
         if not self.carregar_sessao():
             return
-        if not self.abrir_navegador():
+
+        try:
+            self.rodar_testes()
+        except Exception as e:
+            log(f'❌ Erro durante testes: {e}', 'ERR')
+            import traceback
+            traceback.print_exc()
             return
-
-        print('\n⏳ Aguarde abrir a janela de click...\n')
-        input('Pressione ENTER quando a mesa de Bac Bo estiver ABERTA: ')
-        print()
-
-        self.teste_tier_click()
-        print()
-        self.teste_tier_untie()
-        print()
-        self.teste_player_click()
-        print()
-        self.teste_banker_click()
-        print()
-        self.teste_chip_selection()
-        print()
-
-        if self.sb:
-            try:
-                self.sb.quit()
-            except:
-                pass
 
         self.gerar_relatorio()
 
