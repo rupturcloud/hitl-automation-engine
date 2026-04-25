@@ -1,0 +1,272 @@
+[
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1777223337,
+    "httpOnly": false,
+    "name": "_ym_isad",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "1"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1811711343,
+    "httpOnly": false,
+    "name": "mindboxDeviceUUID",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "2b6b4428-f921-4a80-823b-6eaec291c15d"
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1777153167,
+    "httpOnly": false,
+    "name": "bbSessionId",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "1777151332050"
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1779743330,
+    "httpOnly": false,
+    "name": "cf-region",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "Minas%20Gerais"
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1808687330,
+    "httpOnly": false,
+    "name": "locale",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "pt-BR"
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1777237767,
+    "httpOnly": false,
+    "name": "JWT",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzIjoiYjViNzhjMWQtM2M1Ni00Y2Q2LWJkYzEtMmYwN2Y1N2YxNzkzIiwic3RhdHVzIjoidmVyaWZpZWQiLCJwdWJsaWNJZCI6IjYxLTY4NTA3NCIsIm1hc2siOiJkKioqKipjQGdtYWlsLmNvbSIsImNyZWF0ZWREYXRldGltZSI6IjIwMjYtMDQtMjVUMjE6MDk6MjcuMzE5WiIsImV4cGlyZWREYXRldGltZSI6IjIwMjYtMDQtMjZUMjE6MDk6MjcuMzE5WiIsImlhdCI6MTc3NzE1MTM2N30.qDTQsbEJLAx7YzRom67yWyCl8MnYGE4tHtRUhxrdqbc"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1808687335,
+    "httpOnly": false,
+    "name": "_ym_uid",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "1777151335779641224"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1808687335,
+    "httpOnly": false,
+    "name": "_ym_d",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "1777151335"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1810847337,
+    "httpOnly": false,
+    "name": "_ttp",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "01KQ37JRR50C74E2CWYQRCC9BW_.tt.2"
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1777756145,
+    "httpOnly": false,
+    "name": "adult",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "true"
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1777756167,
+    "httpOnly": false,
+    "name": "gamblerStatus",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "verified"
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1777756167,
+    "httpOnly": false,
+    "name": "sigapBlockEnabled",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "true"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1811711343,
+    "httpOnly": false,
+    "name": "directCrm-session",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "%7B%22deviceGuid%22%3A%222b6b4428-f921-4a80-823b-6eaec291c15d%22%7D"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1810847367,
+    "httpOnly": false,
+    "name": "ttcsid_D54K2HJC77U9VM5798Q0",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "1777151337246::uQCuqbte3SQYR_zcN-eD.1.1777151367728.1"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1810847337,
+    "httpOnly": false,
+    "name": "_tt_enable_cookie",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "1"
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1808687456,
+    "httpOnly": false,
+    "name": "cfidsbb-w-int",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "bc+LtnQ3gYDwkDi+4xzX+VOse+lDSKEtwb7WanVfCiu2+hhd02RL0i2q4qGwxegRXzyes7DZD6xCHgIsqVPnqYTdY4b8oGj+yGocIBksq5OB8eXD7O2Nc6BPvIWCcI3qg+OJJDbzOLpkDWVoj/FxXq8zFKtTRtxfL+Iu"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1808687455,
+    "httpOnly": false,
+    "name": "__zzatbb-w-int",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "MDA0dC0cTApcfEJcdGswPi17CT4VHThHKHIzd2VbQB8kZ3paU0BYCH4rFhUyJylMOT8WPj5vMSlCIyJmfVomTFg/dRdZRkE2XBpLdWUJCzowJS0xViR8SylEXFQIJh4SenEqVwkUVy8QLj9hTixcIggWEU0hF0ZaFXtDPGMMcRVNfX0mNGd/ImUrOS4bNQx8HUQwKh0iR2QvL01HFF9BWncyUlFRSyRMVk55KSF7c11jDElOHAgNX31tfTJSWzklWAgSPwsmIBh+bChQChFiRURtbxsKJmEfWiBefhYKay9dU0QoH0FLVCNyM3dlaXceViUTFmcPRyJOKpfOqA=="
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1808687332,
+    "httpOnly": false,
+    "name": "bbCookieId",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "X_5B0yQOqGICAOlPcTjiW"
+  },
+  {
+    "domain": "betboom.bet.br",
+    "expiry": 1777756167,
+    "httpOnly": false,
+    "name": "userIsExistInSystem",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "true"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1811711369,
+    "httpOnly": false,
+    "name": "_ga_Y3TDW3M2WF",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "GS2.1.s1777151334$o1$g1$t1777151369$j25$l0$h1847400692"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1808687456,
+    "httpOnly": false,
+    "name": "cfidsbb-w-int",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "bc+LtnQ3gYDwkDi+4xzX+VOse+lDSKEtwb7WanVfCiu2+hhd02RL0i2q4qGwxegRXzyes7DZD6xCHgIsqVPnqYTdY4b8oGj+yGocIBksq5OB8eXD7O2Nc6BPvIWCcI3qg+OJJDbzOLpkDWVoj/FxXq8zFKtTRtxfL+Iu"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1811711334,
+    "httpOnly": false,
+    "name": "_ga",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "GA1.1.344629623.1777151335"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1792703342,
+    "httpOnly": false,
+    "name": "popmechanic_sbjs_migrations",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "popmechanic_1418474375998%3D1%7C%7C%7C1471519752600%3D1%7C%7C%7C1471519752605%3D1"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1777153139,
+    "httpOnly": false,
+    "name": "_ym_visorc",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "b"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1811711343,
+    "httpOnly": false,
+    "name": "maestraDeviceUUID",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "2b6b4428-f921-4a80-823b-6eaec291c15d"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1784927335,
+    "httpOnly": false,
+    "name": "_gcl_au",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "1.1.438101803.1777151335.170059783.1777151359.1777151358"
+  },
+  {
+    "domain": ".betboom.bet.br",
+    "expiry": 1810847367,
+    "httpOnly": false,
+    "name": "ttcsid",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "1777151337247::daMo41Ybc4ziPFpJINDT.1.1777151367728.0::1.30240.0::29182.7.0.0::0.0.0"
+  }
+]

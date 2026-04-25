@@ -1,0 +1,22 @@
+{
+  "session_id": "OMEGA-20260419-game-iframe-main-initialization",
+  "status": "active",
+  "mode": "full_mode_party",
+  "mission": "Bootstrap and stabilization of game-iframe-main",
+  "house": "/Users/diego/dev/ruptur-cloud/game-iframe-main/",
+  "liveness": "high",
+  "timestamp": "2026-04-19T02:22:54-03:00",
+  "agents": ["jarvis", "ops", "vcfo", "vcvo", "eggs", "iazinha"],
+  "checkpoints": [
+    {
+      "time": "02:27:00",
+      "action": "Bootstrap files materialized: AGENTS.md, JARVIS.md, GEMINI.md, CLAUDE.md",
+      "by": "Maestro"
+    },
+    {
+      "time": "02:28:00",
+      "action": "State linkage and internal protocols materialized in .agents/maestro_ativo",
+      "by": "Maestro"
+    }
+  ]
+}

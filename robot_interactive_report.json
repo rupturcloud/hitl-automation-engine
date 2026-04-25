@@ -1,0 +1,164 @@
+{
+  "session": [
+    {
+      "ts": "15:28:41",
+      "tag": "INIT",
+      "msg": "\ud83e\udd16 Will Dados Pro \u2014 VOC\u00ca FAZ LOGIN"
+    },
+    {
+      "ts": "15:28:41",
+      "tag": "INIT",
+      "msg": "Link: https://betboom.bet.br/casino/game/bac_bo-26281/"
+    },
+    {
+      "ts": "15:28:43",
+      "tag": "INIT",
+      "msg": "Abrindo link..."
+    },
+    {
+      "ts": "15:28:49",
+      "tag": "LOGIN",
+      "msg": "\u23f3 AGUARDANDO SEU LOGIN..."
+    },
+    {
+      "ts": "15:28:49",
+      "tag": "LOGIN",
+      "msg": "\ud83d\udcf1 Voc\u00ea tem 120 segundos para:"
+    },
+    {
+      "ts": "15:28:49",
+      "tag": "LOGIN",
+      "msg": "   1. Clicar em \"Fazer login\""
+    },
+    {
+      "ts": "15:28:49",
+      "tag": "LOGIN",
+      "msg": "   2. Digitar email e senha"
+    },
+    {
+      "ts": "15:28:49",
+      "tag": "LOGIN",
+      "msg": "   3. Fazer login"
+    },
+    {
+      "ts": "15:28:49",
+      "tag": "LOGIN",
+      "msg": ""
+    },
+    {
+      "ts": "15:28:49",
+      "tag": "LOGIN",
+      "msg": "Depois o rob\u00f4 clica automaticamente em BANKER!"
+    },
+    {
+      "ts": "15:28:49",
+      "tag": "LOGIN",
+      "msg": ""
+    },
+    {
+      "ts": "15:30:54",
+      "tag": "LOGIN",
+      "msg": "\u2705 Tempo acabou! Verificando se logou..."
+    },
+    {
+      "ts": "15:30:57",
+      "tag": "SCREENSHOT",
+      "msg": "bac_bo_after_login.png"
+    },
+    {
+      "ts": "15:30:57",
+      "tag": "BET",
+      "msg": "\ud83d\udcb0 Procurando bot\u00e3o BANKER..."
+    },
+    {
+      "ts": "15:30:57",
+      "tag": "BET",
+      "msg": "Tentando: XPath Banker"
+    },
+    {
+      "ts": "15:31:00",
+      "tag": "BET",
+      "msg": "Tentando: XPath contains"
+    },
+    {
+      "ts": "15:31:02",
+      "tag": "BET",
+      "msg": "Tentando: Class selector"
+    },
+    {
+      "ts": "15:31:04",
+      "tag": "BET",
+      "msg": "Tentando dentro de iframes..."
+    },
+    {
+      "ts": "15:31:04",
+      "tag": "BET",
+      "msg": "Total de iframes: 5"
+    },
+    {
+      "ts": "15:31:04",
+      "tag": "BET",
+      "msg": "Iframe #0..."
+    },
+    {
+      "ts": "15:31:06",
+      "tag": "BET",
+      "msg": "  Bot\u00f5es: 0"
+    },
+    {
+      "ts": "15:31:06",
+      "tag": "BET",
+      "msg": "Iframe #1..."
+    },
+    {
+      "ts": "15:31:07",
+      "tag": "BET",
+      "msg": "  Bot\u00f5es: 0"
+    },
+    {
+      "ts": "15:31:07",
+      "tag": "BET",
+      "msg": "Iframe #2..."
+    },
+    {
+      "ts": "15:31:08",
+      "tag": "BET",
+      "msg": "  Bot\u00f5es: 0"
+    },
+    {
+      "ts": "15:31:08",
+      "tag": "BET",
+      "msg": "Iframe #3..."
+    },
+    {
+      "ts": "15:31:09",
+      "tag": "BET",
+      "msg": "  Bot\u00f5es: 0"
+    },
+    {
+      "ts": "15:31:09",
+      "tag": "BET",
+      "msg": "Iframe #4..."
+    },
+    {
+      "ts": "15:31:10",
+      "tag": "BET",
+      "msg": "  Bot\u00f5es: 0"
+    },
+    {
+      "ts": "15:31:10",
+      "tag": "BET",
+      "msg": "\u26a0\ufe0f N\u00e3o encontrei bot\u00e3o BANKER"
+    },
+    {
+      "ts": "15:31:10",
+      "tag": "FINAL",
+      "msg": "Aguardando resultado da aposta..."
+    },
+    {
+      "ts": "15:31:20",
+      "tag": "FINAL",
+      "msg": "\u2705 Execu\u00e7\u00e3o conclu\u00edda!"
+    }
+  ]
+}
