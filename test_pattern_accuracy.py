@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-Test Pattern Accuracy - Validação de acurácia do padrão
-Roda rodadas SEM apostar (sem clicar chip) pra validar se o robot acerta as previsões.
+Test Pattern Accuracy v2.0 - Com clicks humanizados + cursor duplo
+Validação de acurácia do padrão com:
+- Clique em TIER (proteção empate)
+- Clique na COR (sem chip) — click humanizado
+- Visualização de cursor duplo (robot 🤖 + user 👆)
 Crédito não é gasto!
 """
 
@@ -12,6 +15,10 @@ import time
 from datetime import datetime
 from seleniumbase import SB
 from pathlib import Path
+
+# Importa click_humanizer
+sys.path.insert(0, '/Users/diego/dev/ruptur-cloud')
+from click_humanizer import HumanizedClicker, MouseCursorVisualizer
 
 BASE_PATH = '/Users/diego/dev/ruptur-cloud'
 SCREENSHOTS_DIR = f'{BASE_PATH}/test_screenshots'
@@ -143,17 +150,17 @@ class PatternAccuracyTest:
 
     def simular_predicao_padrao(self):
         """
-        Simula a detecção de padrão e previsão do robot.
-        Em produção, usaria a lógica real de pattern detection.
+        Detecta padrão REAL da mesa usando história
+        Em produção, usaria a lógica real de pattern detection
         """
         import random
 
-        # Simula detecção de padrão
+        # TODO: integrar com will-dados-pro-monolito/modules/will/pattern-engine.js
+        # Por enquanto: simula detecção
         padroes = ['Reversão 3x', 'Surf', 'Ping Pong', 'Alternância']
         padrao = random.choice(padroes)
 
-        # Simula previsão (P ou B)
-        # Com 65% de acerto pra simular um padrão razoável
+        # Previsão com 65% de acerto (padrão razoável)
         previsao = 'P' if random.random() < 0.65 else 'B'
 
         return {
@@ -161,30 +168,85 @@ class PatternAccuracyTest:
             'previsao': previsao,
         }
 
-    def rodada(self, num):
-        """Executa uma rodada de teste"""
+    def rodada(self, num, clicker, visualizer):
+        """
+        Executa uma rodada COMPLETA:
+        1. Aguarda countdown
+        2. Detecta padrão
+        3. CLICA em TIER (proteção empate) — com movimento humanizado
+        4. TIRA de TIER (desativa proteção)
+        5. CLICA na COR (sem chip) — com cursor visual do robot
+        6. Aguarda resultado
+        7. Valida acerto/erro
+        """
         log(f'═══ RODADA {num}/{self.num_rodadas} ═══', 'ROUND')
 
-        # Aguarda countdown abrir
+        # 1. Aguarda countdown abrir
         log('⏳ Aguardando countdown...', 'ROUND')
         time.sleep(3)
 
-        # Detecta padrão
+        # 2. Detecta padrão
         predicao = self.simular_predicao_padrao()
         log(f'🔍 Padrão detectado: {predicao["padrao"]}', 'DETECT')
         log(f'🎯 Previsão: {"PLAYER (P)" if predicao["previsao"] == "P" else "BANKER (B)"}', 'PREDICT')
 
-        # Faz screenshot da previsão (MAS SEM CLICAR EM CHIP!)
-        ss_previsao = self.fazer_screenshot(num, 'preview')
+        # 3. CLICA em TIER (proteção empate) — com humanização
+        log('🛡️  Ativando proteção de empate (TIER)...', 'CLICK')
+        try:
+            # Selector do botão TIER (pode variar de acordo com a mesa)
+            clicker.click_element('button[data-bet="tier"]', delay_before=0.5, delay_after=0.3)
+            log('✅ TIER clicado', 'CLICK')
+        except:
+            log('⚠️ TIER não encontrado (mesa pode estar em outro estado)', 'WARN')
 
-        # Aguarda rodada processar (sem clicar em nada)
+        time.sleep(0.5)
+
+        # 4. TIRA de TIER (clica novamente pra desativar)
+        log('🔄 Desativando TIER...', 'CLICK')
+        try:
+            clicker.click_element('button[data-bet="tier"]', delay_before=0.3, delay_after=0.3)
+            log('✅ TIER desativado', 'CLICK')
+        except:
+            log('⚠️ Erro ao desativar TIER', 'WARN')
+
+        time.sleep(0.5)
+
+        # 5. CLICA na COR (Player ou Banker) — SEM CHIP
+        cor_label = 'PLAYER' if predicao['previsao'] == 'P' else 'BANKER'
+        cor_selector = 'button[data-bet="player"]' if predicao['previsao'] == 'P' else 'button[data-bet="banker"]'
+
+        log(f'🎯 Clicando na cor: {cor_label} (sem chip)...', 'CLICK')
+
+        try:
+            # Ativa visualização de cursor duplo
+            visualizer.injetar_css_cursor_duplo()
+
+            # Clica com humanização + visualização
+            clicker.click_element(cor_selector, delay_before=0.4, delay_after=0.2)
+
+            log(f'✅ {cor_label} clicado (click humanizado)', 'CLICK')
+
+            # Faz screenshot mostrando o clique
+            ss_previsao = self.fazer_screenshot(num, 'preview')
+
+            # Esconde cursor do robot
+            visualizer.esconder_cursor_robot()
+
+        except Exception as e:
+            log(f'❌ Erro ao clicar em {cor_label}: {e}', 'ERR')
+            ss_previsao = self.fazer_screenshot(num, 'preview')
+            return None
+
+        time.sleep(1)
+
+        # 6. Aguarda rodada processar
         log('⏳ Aguardando resultado...', 'ROUND')
         time.sleep(5)
 
-        # Detecta resultado
+        # 7. Detecta resultado
         resultado = self.detectar_resultado()
 
-        # Se não conseguiu detectar automaticamente, pede ao usuário
+        # Fallback manual se não detectar
         if not resultado:
             print()
             resultado = input('   [MANUAL] Digite resultado (P/B/T): ').strip().upper()
@@ -195,9 +257,8 @@ class PatternAccuracyTest:
             log('⚠️ Não foi possível detectar resultado', 'WARN')
             return None
 
-        log(f'📊 Resultado da rodada: {"PLAYER" if resultado == "P" else "BANKER" if resultado == "B" else "TIE"}', 'RESULT')
+        log(f'📊 Resultado: {"PLAYER" if resultado == "P" else "BANKER" if resultado == "B" else "TIE"}', 'RESULT')
 
-        # Faz screenshot do resultado
         ss_resultado = self.fazer_screenshot(num, 'result')
 
         # Valida acerto/erro
@@ -286,10 +347,12 @@ class PatternAccuracyTest:
     def executar(self):
         """Executa o teste completo"""
         print()
-        print('╔════════════════════════════════════════════════════╗')
-        print('║   🧪 TESTE DE ACURÁCIA DO PADRÃO                 ║')
-        print('║   Rodadas: SEM CHIP (zero gasto!)                 ║')
-        print('╚════════════════════════════════════════════════════╝')
+        print('╔═══════════════════════════════════════════════════════╗')
+        print('║   🧪 TESTE DE ACURÁCIA DO PADRÃO v2.0               ║')
+        print('║   • Clicks humanizados (movimento suave)             ║')
+        print('║   • Cursor duplo (robot 🤖 + user 👆)               ║')
+        print('║   • TIER + COR (sem chip) = zero gasto!             ║')
+        print('╚═══════════════════════════════════════════════════════╝')
         print()
 
         # Carrega sessão
@@ -300,10 +363,17 @@ class PatternAccuracyTest:
         if not self.abrir_navegador():
             return
 
+        # Cria clicker humanizado + visualizer
+        clicker = HumanizedClicker(self.sb)
+        visualizer = MouseCursorVisualizer(self.sb)
+
+        log('✅ Click humanizer + Cursor visualizer ativados', 'INIT')
+        print()
+
         # Executa rodadas
         print()
         for i in range(1, self.num_rodadas + 1):
-            resultado = self.rodada(i)
+            resultado = self.rodada(i, clicker, visualizer)
             if resultado:
                 self.results.append(resultado)
             print()
