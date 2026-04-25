@@ -17,6 +17,42 @@ from datetime import datetime
 BASE_PATH = '/Users/diego/dev/ruptur-cloud'
 USUARIOS_FILE = f'{BASE_PATH}/.usuarios'
 
+# Estado do robot (compartilhado entre threads)
+class RobotState:
+    def __init__(self):
+        self.running = False
+        self.timer = 0
+        self.max_timer = 60
+        self.drive_state = 'idle'  # idle, detecting, betting, waiting, win, loss, gale
+        self.wins = 0
+        self.losses = 0
+        self.balance = 0
+        self.pnl = 0
+        self.history = []  # últimos 10 resultados
+        self.lock = threading.Lock()
+
+    def update(self, **kwargs):
+        with self.lock:
+            for key, value in kwargs.items():
+                if hasattr(self, key):
+                    setattr(self, key, value)
+
+    def to_dict(self):
+        with self.lock:
+            return {
+                'running': self.running,
+                'timer': self.timer,
+                'maxTimer': self.max_timer,
+                'state': self.drive_state,
+                'wins': self.wins,
+                'losses': self.losses,
+                'balance': self.balance,
+                'pnl': self.pnl,
+                'history': self.history,
+            }
+
+robot_state = RobotState()
+
 # Variáveis globais
 sb_global = None
 session_file_global = None
@@ -32,24 +68,43 @@ def limpar_tela():
 
 class ServerHandler(BaseHTTPRequestHandler):
     usuario = None  # Atributo da classe
-    
-    def do_GET(self):
+
+    def do_POST(self):
+        global robot_state
+
         if self.path == '/start':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"status": "OK"}).encode())
-            
-            if self.usuario:
+
+            if self.usuario and not robot_state.running:
+                robot_state.running = True
                 log('✅ [GO] acionado!')
                 log('🚀 Executando robot...')
                 subprocess.Popen(['python3', f'{BASE_PATH}/will_robot_hybrid.py', self.usuario])
-            else:
-                log('❌ Usuário não definido!')
+
+        elif self.path == '/stop':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "stopped"}).encode())
+
+            robot_state.running = False
+            log('⏹ Robot parado')
+
+    def do_GET(self):
+        global robot_state
+
+        if self.path == '/sync':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(robot_state.to_dict()).encode())
         else:
             self.send_response(404)
             self.end_headers()
-    
+
     def log_message(self, format, *args):
         pass
 

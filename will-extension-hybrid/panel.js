@@ -1,176 +1,222 @@
-// Estado global
+// panel.js — Will Dados Pró (sincronizado com will_dados_pro.py via HTTP)
+
 const state = {
   running: false,
-  sessionWins: 0,
-  sessionLosses: 0,
-  sessionBalance: 0,
-  currentTimer: 0,
+  timer: 0,
   maxTimer: 60,
-  driveState: 'idle', // idle, detecting, betting, waiting, win, loss, gale
+  driveState: 'idle',
+  wins: 0,
+  losses: 0,
+  balance: 0,
+  pnl: 0,
+  lastResult: null,
+  history: [], // últimos 10 resultados
 };
 
-// Elementos DOM
-const goBtn = document.getElementById('go-btn');
-const cancelBtn = document.getElementById('cancel-btn');
-const logEl = document.getElementById('log');
-const countdownProgress = document.getElementById('countdown-progress');
+// Elementos
+const btnPower = document.getElementById('btn-power');
+const btnCancel = document.getElementById('btn-cancel');
+const cancelSection = document.getElementById('cancel-section');
+const countdownBar = document.getElementById('countdown-bar');
+const countdownNumber = document.getElementById('countdown-number');
 const countdownTime = document.getElementById('countdown-time');
-const countdownStatus = document.getElementById('countdown-status');
-const stateIcon = document.getElementById('state-icon');
-const stateValue = document.getElementById('state-value');
-const statSaldo = document.getElementById('stat-saldo');
-const statPnL = document.getElementById('stat-pnl');
-const statWins = document.getElementById('stat-wins');
-const statLosses = document.getElementById('stat-losses');
-
-const LOG_LIMIT = 4;
-let logLines = [];
+const driveStateEl = document.getElementById('drive-state');
+const driveIcon = document.getElementById('drive-icon');
+const driveText = document.getElementById('drive-text');
+const driveSubtext = document.getElementById('drive-subtext');
+const activityLog = document.getElementById('activity-log');
+const valBalance = document.getElementById('val-balance');
+const valPnL = document.getElementById('val-pnl');
+const valWins = document.getElementById('val-wins');
+const valLosses = document.getElementById('val-losses');
+const valWinrate = document.getElementById('val-winrate');
+const historyGrid = document.getElementById('history-grid');
 
 // Configuração de estados
 const stateConfig = {
-  idle: { icon: '💤', label: 'Aguardando...', color: '#888' },
-  detecting: { icon: '🔍', label: 'Detectando padrão', color: '#0088ff' },
-  betting: { icon: '🎯', label: 'Apostando', color: '#ffaa00' },
-  waiting: { icon: '⏳', label: 'Aguardando resultado', color: '#aa00ff' },
-  win: { icon: '🏆', label: 'Ganhou!', color: '#00dd00' },
-  loss: { icon: '💀', label: 'Perdeu', color: '#ff4444' },
-  gale: { icon: '↗', label: 'Gale ativo', color: '#ff8800' },
+  idle: { icon: '💤', text: 'Aguardando ativação', subtext: 'Clique em Ligar para iniciar' },
+  detecting: { icon: '🔍', text: 'Detectando padrão', subtext: 'Analisando sequência' },
+  betting: { icon: '🎯', text: 'Apostando', subtext: 'Enviando aposta' },
+  waiting: { icon: '⏳', text: 'Aguardando resultado', subtext: 'Processando mesa' },
+  win: { icon: '🏆', text: 'Ganhou!', subtext: 'Resultado positivo' },
+  loss: { icon: '💀', text: 'Perdeu', subtext: 'Resultado negativo' },
+  gale: { icon: '↗', text: 'Gale ativo', subtext: 'Dobrando aposta' },
 };
 
-function log(msg, type = 'info') {
+function log(msg, type = '') {
+  const div = document.createElement('div');
+  div.className = `log-entry ${type}`;
   const ts = new Date().toLocaleTimeString('pt-BR', { hour12: false }).slice(0, 8);
-  const line = `[${ts}] ${msg}`;
-  logLines.unshift(line);
-  logLines = logLines.slice(0, LOG_LIMIT);
+  div.textContent = `[${ts}] ${msg}`;
 
-  logEl.innerHTML = logLines.map(l => {
-    let cls = 'info';
-    if (l.includes('✅') || l.includes('🏆')) cls = 'ok';
-    else if (l.includes('❌') || l.includes('💀')) cls = 'error';
-    else if (l.includes('⚠️')) cls = 'warn';
-    return `<div class="log-line ${cls}">${escapeHtml(l)}</div>`;
-  }).join('');
+  // Adiciona no início (FIFO - novas mensagens no topo)
+  activityLog.insertBefore(div, activityLog.firstChild);
+
+  // Mantém apenas 6 linhas visíveis
+  while (activityLog.children.length > 6) {
+    activityLog.removeChild(activityLog.lastChild);
+  }
 }
 
-function escapeHtml(text) {
-  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-  return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-function updateDriveState(newState, extra = '') {
+function updateDriveState(newState) {
   state.driveState = newState;
   const cfg = stateConfig[newState] || stateConfig.idle;
-  stateIcon.textContent = cfg.icon;
-  stateValue.textContent = cfg.label + (extra ? ` (${extra})` : '');
-  stateValue.style.color = cfg.color;
+
+  // Remove todas as classes de estado
+  Object.keys(stateConfig).forEach(s => driveStateEl.classList.remove(s));
+  // Adiciona a nova classe
+  driveStateEl.classList.add(newState);
+
+  driveIcon.textContent = cfg.icon;
+  driveText.textContent = cfg.text;
+  driveSubtext.textContent = cfg.subtext;
 }
 
 function updateCountdown(current, max) {
-  state.currentTimer = current;
-  state.maxTimer = max || 60;
-  const pct = Math.max(0, Math.min(100, (current / state.maxTimer) * 100));
-  countdownProgress.style.width = pct + '%';
+  state.timer = current;
+  state.maxTimer = max;
 
-  const mins = Math.floor(current / 60);
-  const secs = current % 60;
-  countdownTime.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-  countdownTime.style.color = current > 20 ? '#00ff00' : (current > 10 ? '#ffaa00' : '#ff4444');
+  const pct = Math.max(0, Math.min(100, (current / max) * 100));
+  countdownBar.style.width = pct + '%';
+  countdownNumber.textContent = Math.ceil(current);
+  countdownTime.textContent = `${Math.ceil(current)}s`;
+
+  // Animação de scanning quando ativo
+  if (state.running && current > 0 && current < 5) {
+    countdownBar.classList.add('scanning');
+  } else {
+    countdownBar.classList.remove('scanning');
+  }
 }
 
 function updateStats(wins, losses, balance, pnl) {
-  state.sessionWins = wins;
-  state.sessionLosses = losses;
-  state.sessionBalance = balance;
+  state.wins = wins;
+  state.losses = losses;
+  state.balance = balance;
+  state.pnl = pnl;
 
-  statWins.textContent = wins;
-  statLosses.textContent = losses;
-  statSaldo.textContent = `R$ ${balance.toFixed(2)}`;
+  valWins.textContent = wins;
+  valLosses.textContent = losses;
+  valBalance.textContent = `R$ ${balance.toFixed(2).replace('.', ',')}`;
 
-  const pnlText = pnl >= 0 ? `+R$ ${pnl.toFixed(2)}` : `-R$ ${Math.abs(pnl).toFixed(2)}`;
-  statPnL.textContent = pnlText;
-  statPnL.style.color = pnl >= 0 ? '#00dd00' : '#ff4444';
+  // P&L com cor
+  const pnlText = pnl >= 0 ? `R$ ${pnl.toFixed(2).replace('.', ',')}` : `-R$ ${Math.abs(pnl).toFixed(2).replace('.', ',')}`;
+  valPnL.textContent = pnlText;
+  valPnL.classList.remove('green', 'red');
+  valPnL.classList.add(pnl >= 0 ? 'green' : 'red');
+
+  // Win rate
+  const total = wins + losses;
+  const wr = total > 0 ? Math.round((wins / total) * 100) : 0;
+  valWinrate.textContent = `${wr}%`;
 }
 
-// Listeners de botões
-goBtn.addEventListener('click', () => {
+function addToHistory(result) {
+  // P = Player (azul), B = Banker (vermelho), T = Tie (laranja)
+  state.history.unshift(result);
+  if (state.history.length > 10) state.history.pop();
+
+  // Renderiza grid
+  historyGrid.innerHTML = state.history.map(r => {
+    const cellClass = r === 'P' ? 'P' : (r === 'B' ? 'B' : 'T');
+    return `<div class="h-cell ${cellClass}">${r}</div>`;
+  }).join('');
+}
+
+async function syncWithServer() {
+  if (!state.running) return;
+
+  try {
+    const res = await fetch('http://localhost:9999/sync', { method: 'GET' });
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    // Atualiza countdown
+    if (data.timer !== undefined) {
+      updateCountdown(data.timer, data.maxTimer || 60);
+    }
+
+    // Atualiza estado do drive
+    if (data.state) {
+      updateDriveState(data.state);
+    }
+
+    // Atualiza stats
+    if (data.wins !== undefined) {
+      updateStats(data.wins, data.losses, data.balance, data.pnl);
+    }
+
+    // Atualiza histórico
+    if (data.history && data.history.length > 0) {
+      data.history.forEach(r => {
+        if (!state.history.includes(r)) {
+          addToHistory(r);
+        }
+      });
+    }
+
+  } catch (e) {
+    console.error('[sync]', e.message);
+  }
+}
+
+// Event Listeners
+btnPower.addEventListener('click', async () => {
   if (state.running) return;
 
   state.running = true;
-  goBtn.disabled = true;
-  cancelBtn.classList.add('active');
+  btnPower.disabled = true;
+  cancelSection.classList.add('active');
 
-  log('🚀 Iniciando robô...', 'info');
-  updateDriveState('detecting', 'conectando');
+  log('🚀 Iniciando robô...', 'success');
+  updateDriveState('detecting');
 
-  fetch('http://localhost:9999/start', { method: 'POST' })
-    .then(() => {
-      log('✅ Robô iniciado', 'ok');
-      updateDriveState('detecting', 'aguardando dados');
-      startPolling();
-    })
-    .catch(err => {
-      log(`❌ Erro: ${err.message}`, 'error');
-      state.running = false;
-      goBtn.disabled = false;
-      cancelBtn.classList.remove('active');
-      updateDriveState('idle');
-    });
+  try {
+    const res = await fetch('http://localhost:9999/start', { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    log('✅ Robô iniciado', 'success');
+
+    // Inicia polling a cada 500ms
+    pollInterval = setInterval(syncWithServer, 500);
+
+  } catch (err) {
+    log(`❌ Erro: ${err.message}`, 'error');
+    state.running = false;
+    btnPower.disabled = false;
+    cancelSection.classList.remove('active');
+    updateDriveState('idle');
+  }
 });
 
-cancelBtn.addEventListener('click', () => {
+btnCancel.addEventListener('click', async () => {
   if (!state.running) return;
 
   state.running = false;
-  goBtn.disabled = false;
-  cancelBtn.classList.remove('active');
+  btnPower.disabled = false;
+  cancelSection.classList.remove('active');
 
-  log('⏹ Robô parado pelo usuário', 'warn');
+  log('⏹ Parado pelo usuário', 'warn');
   updateDriveState('idle');
   updateCountdown(0, 60);
 
-  fetch('http://localhost:9999/stop', { method: 'POST' }).catch(() => {});
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
+  }
+
+  try {
+    await fetch('http://localhost:9999/stop', { method: 'POST' });
+  } catch (e) {
+    console.error('[stop]', e.message);
+  }
 });
 
-// Simula recebimento de dados (em produção virá do servidor)
-let pollInterval = null;
-function startPolling() {
-  let timerCounter = 50;
-  let phase = 0;
-
-  pollInterval = setInterval(() => {
-    if (!state.running) {
-      clearInterval(pollInterval);
-      return;
-    }
-
-    timerCounter--;
-    if (timerCounter < 0) {
-      timerCounter = 60;
-      phase = (phase + 1) % 4;
-    }
-
-    updateCountdown(timerCounter, 60);
-
-    // Simula fases diferentes
-    if (phase === 0) updateDriveState('detecting', 'Reversão 3x');
-    else if (phase === 1) updateDriveState('betting', 'R$ 50 em BANKER');
-    else if (phase === 2) updateDriveState('waiting', 'resultado...');
-    else {
-      const win = Math.random() > 0.3;
-      if (win) {
-        updateDriveState('win', '+R$ 45');
-        updateStats(state.sessionWins + 1, state.sessionLosses, state.sessionBalance + 45, 45);
-        log('🏆 Ganhou R$ 45', 'ok');
-      } else {
-        updateDriveState('loss', '-R$ 50');
-        updateStats(state.sessionWins, state.sessionLosses + 1, state.sessionBalance - 50, -50);
-        log('💀 Perdeu R$ 50', 'error');
-      }
-    }
-  }, 1000);
-}
-
 // Inicialização
-log('🟢 Painel pronto', 'ok');
+let pollInterval = null;
+
+log('🟢 Painel pronto', 'success');
 updateStats(0, 0, 0, 0);
 updateCountdown(0, 60);
+updateDriveState('idle');
