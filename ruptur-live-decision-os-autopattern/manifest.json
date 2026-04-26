@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "BetBoom Auto Pattern v1.0.0",
+  "version": "1.0.0",
+  "description": "Robô automático de padrões Bac Bo com 18 estratégias — RUPTUR Decision OS.",
+  "permissions": ["sidePanel", "tabs", "scripting", "activeTab", "storage", "debugger", "tabGroups"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_title": "BetBoom Auto Pattern"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["modules/content/ws-interceptor-main.js"],
+      "world": "MAIN",
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "modules/content/state.js",
+        "modules/content/platform-detector.js",
+        "modules/content/ws-interceptor-isolated.js",
+        "modules/content/dom-observer.js",
+        "modules/content/vision.js",
+        "modules/content/data-fusion.js",
+        "modules/content/overlay.js",
+        "modules/content/bridge.js",
+        "modules/content/index.js"
+      ],
+      "world": "ISOLATED",
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["modules/content/ws-interceptor-main.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

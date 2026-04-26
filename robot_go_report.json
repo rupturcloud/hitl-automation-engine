@@ -1,0 +1,149 @@
+{
+  "session": [
+    {
+      "ts": "15:39:00",
+      "tag": "INIT",
+      "msg": "\ud83e\udd16\ud83d\ude80 Will Dados Pro \u2014 GO!"
+    },
+    {
+      "ts": "15:39:03",
+      "tag": "FASE1",
+      "msg": "\ud83d\udcf1 FASE 1: Login"
+    },
+    {
+      "ts": "15:39:08",
+      "tag": "LOGIN",
+      "msg": "\u23f3 VOC\u00ca TEM 120 SEGUNDOS PARA FAZER LOGIN"
+    },
+    {
+      "ts": "15:39:08",
+      "tag": "LOGIN",
+      "msg": "\u23f3 120s restantes..."
+    },
+    {
+      "ts": "15:39:28",
+      "tag": "LOGIN",
+      "msg": "\u23f3 100s restantes..."
+    },
+    {
+      "ts": "15:39:48",
+      "tag": "LOGIN",
+      "msg": "\u23f3 80s restantes..."
+    },
+    {
+      "ts": "15:40:08",
+      "tag": "LOGIN",
+      "msg": "\u23f3 60s restantes..."
+    },
+    {
+      "ts": "15:40:28",
+      "tag": "LOGIN",
+      "msg": "\u23f3 40s restantes..."
+    },
+    {
+      "ts": "15:40:48",
+      "tag": "LOGIN",
+      "msg": "\u23f3 20s restantes..."
+    },
+    {
+      "ts": "15:41:03",
+      "tag": "LOGIN",
+      "msg": "\u23f3 5s restantes..."
+    },
+    {
+      "ts": "15:41:04",
+      "tag": "LOGIN",
+      "msg": "\u23f3 4s restantes..."
+    },
+    {
+      "ts": "15:41:05",
+      "tag": "LOGIN",
+      "msg": "\u23f3 3s restantes..."
+    },
+    {
+      "ts": "15:41:06",
+      "tag": "LOGIN",
+      "msg": "\u23f3 2s restantes..."
+    },
+    {
+      "ts": "15:41:07",
+      "tag": "LOGIN",
+      "msg": "\u23f3 1s restantes..."
+    },
+    {
+      "ts": "15:41:08",
+      "tag": "LOGIN",
+      "msg": "\u2705 Tempo: FIM! Continuando..."
+    },
+    {
+      "ts": "15:41:11",
+      "tag": "FASE2",
+      "msg": "\ud83c\udfae FASE 2: Carregando jogo"
+    },
+    {
+      "ts": "15:41:11",
+      "tag": "RELOAD",
+      "msg": "Recarregando link com sess\u00e3o autenticada..."
+    },
+    {
+      "ts": "15:41:20",
+      "tag": "SCREENSHOT",
+      "msg": "bac_bo_game_loaded.png"
+    },
+    {
+      "ts": "15:41:20",
+      "tag": "FASE3",
+      "msg": "\ud83d\udcb0 FASE 3: Clicando BANKER"
+    },
+    {
+      "ts": "15:41:20",
+      "tag": "BET",
+      "msg": "\ud83d\udd0d Procurando BANKER..."
+    },
+    {
+      "ts": "15:41:20",
+      "tag": "BET",
+      "msg": "XPath: //button[contains(text(), 'Banker')]..."
+    },
+    {
+      "ts": "15:41:23",
+      "tag": "BET",
+      "msg": "XPath: //button[contains(translate(., 'ABCDEFGHIJKLMNOPQR..."
+    },
+    {
+      "ts": "15:41:26",
+      "tag": "BET",
+      "msg": "XPath: //*[contains(text(), 'Banker')]//button..."
+    },
+    {
+      "ts": "15:41:30",
+      "tag": "BET",
+      "msg": "XPath: //div[contains(text(), 'Banker')]/ancestor::button..."
+    },
+    {
+      "ts": "15:41:37",
+      "tag": "BET",
+      "msg": "\ud83d\udd0e Procurando em iframes..."
+    },
+    {
+      "ts": "15:41:39",
+      "tag": "BET",
+      "msg": "Total iframes: 0"
+    },
+    {
+      "ts": "15:41:39",
+      "tag": "BET",
+      "msg": "\u26a0\ufe0f N\u00e3o consegui clicar BANKER"
+    },
+    {
+      "ts": "15:41:39",
+      "tag": "PHASE4",
+      "msg": "\u23f3 Aguardando resultado (10s)..."
+    },
+    {
+      "ts": "15:41:49",
+      "tag": "FINAL",
+      "msg": "\ud83c\udfc6 \u2705 EXECU\u00c7\u00c3O COMPLETA!"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "diego": {
+    "criado": "2026-04-25T19:22:10.059694",
+    "script": "/Users/diego/dev/ruptur-cloud/will_bot_diego.py"
+  },
+  "leticia": {
+    "criado": "2026-04-25T19:22:10.199967",
+    "script": "/Users/diego/dev/ruptur-cloud/will_bot_leticia.py"
+  }
+}

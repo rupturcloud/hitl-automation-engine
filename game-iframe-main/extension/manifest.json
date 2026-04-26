@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "J.A.R.V.I.S. Bac Bo",
+  "version": "1.0.0",
+  "description": "Automação inteligente para Bac Bo da Evolution",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "ws://localhost:8765/*",
+    "ws://127.0.0.1:8765/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "J.A.R.V.I.S. Bac Bo"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.betboom.com/*",
+        "*://betboom.com/*",
+        "*://*.evolution.com/*",
+        "*://evolution.com/*",
+        "*://localhost/*",
+        "*://127.0.0.1/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
