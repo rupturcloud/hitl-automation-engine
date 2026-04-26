@@ -45,9 +45,29 @@ daemon.log
 *.gif
 *.ico
 
+# IA & Agents
+.agents/
+.claude/
+.gemini/
+.playwright-mcp/
+.cursor/
+**/.agents/
+**/.claude/
+**/.gemini/
+
 # Project Specific
 tiatendeai/
 scratch/
+contexts/
+knowledge/
+**/*.doc
+**/*.docx
+**/*.xls
+**/*.xlsx
+**/*.ppt
+**/*.pptx
+**/*.rtf
+**/*.txt
 *_output/
 robo_*/
 visual_output/
