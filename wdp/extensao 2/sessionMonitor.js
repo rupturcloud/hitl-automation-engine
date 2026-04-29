@@ -33,6 +33,7 @@
 
   function detectSessionExpiry() {
     // Sinais de que sessão expirou:
+
     // 1. Página redireciona para login
     if (document.title?.toLowerCase().includes('login') ||
         document.location.href?.toLowerCase().includes('login')) {
@@ -45,18 +46,15 @@
       return { expired: true, reason: 'Session expired modal visible' };
     }
 
-    // 3. Nenhum elemento do jogo visível por 10+ segundos
+    // 3. Nenhum elemento do jogo visível
     const gameElements = document.querySelectorAll('[class*="table"], [class*="game"], [class*="betting"], iframe');
     const visibleGame = Array.from(gameElements).some(el => el.offsetParent !== null);
     if (!visibleGame) {
       return { expired: true, reason: 'No game elements visible' };
     }
 
-    // 4. Balance desapareceu do DOM
-    const balanceEl = document.querySelector('[class*="balance"], [class*="wallet"]');
-    if (!balanceEl?.textContent?.trim()) {
-      return { expired: true, reason: 'Balance element disappeared' };
-    }
+    // Balance é opcional - pode estar em lugares diferentes por plataforma
+    // Não marca como expirado só porque não achou balance
 
     return { expired: false };
   }
@@ -82,8 +80,48 @@
   }
 
   function detectBalance() {
-    const balanceEl = document.querySelector('[class*="balance"], [class*="wallet"], [class*="saldo"]');
-    if (!balanceEl) return null;
+    // Tentar primeiro com calibração (se chipCalibrator já detectou)
+    let balanceEl = null;
+
+    // Seletores em cascata (por ordem de especificidade)
+    const selectors = [
+      '[class*="balance"]',
+      '[class*="wallet"]',
+      '[class*="saldo"]',
+      '[class*="account"]',
+      '[class*="funds"]',
+      '[class*="credit"]',
+      '[data-role*="balance"]',
+      '[aria-label*="balance" i]',
+      '[aria-label*="saldo" i]',
+      '[aria-label*="account" i]',
+      // Betboom específico
+      '[class*="AccountBalance"]',
+      '[class*="account-balance"]',
+      '[class*="player-balance"]'
+    ];
+
+    for (const sel of selectors) {
+      const els = document.querySelectorAll(sel);
+      for (const el of els) {
+        if (el.offsetParent && el.textContent?.trim()) { // Visível e com conteúdo
+          balanceEl = el;
+          break;
+        }
+      }
+      if (balanceEl) break;
+    }
+
+    if (!balanceEl) {
+      // Fallback: buscar por regex no texto visível
+      const bodyText = document.body.innerText || '';
+      const match = bodyText.match(/R\$\s*([\d.,]+)/);
+      if (match) {
+        const raw = match[1].replace(/[.,]/g, '');
+        return parseFloat(raw) || null;
+      }
+      return null;
+    }
 
     const text = balanceEl.textContent || '';
     const match = text.match(/[\d.,]+/);
