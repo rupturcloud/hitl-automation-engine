@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações - Will Dados Robô</title>
+  <style>
+    body {
+      width: 460px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #ddd;
+    }
+    h1 {
+      color: #00ff88;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .section {
+      background: #2a2a2a;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 4px;
+      font-size: 14px;
+    }
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      background: #333;
+      border: 1px solid #555;
+      border-radius: 4px;
+      color: white;
+    }
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background: #0066ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    button:hover { background: #3388ff; }
+    .save-success {
+      color: #00ff88;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Configurações do Robô</h1>
+
+  <div class="section">
+    <h2>Bankroll e Risco</h2>
+    <label>Banca Inicial / Atual (R$)</label>
+    <input type="number" id="bankroll" value="30000">
+
+    <label>Stake Base (R$)</label>
+    <input type="number" id="stakeBase" value="25">
+
+    <label>Meta de Lucro (R$)</label>
+    <input type="number" id="metaLucro" value="1500">
+
+    <label>Stop Loss (R$)</label>
+    <input type="number" id="stopLoss" value="800">
+
+    <label>Máximo de Gales</label>
+    <input type="number" id="maxGales" value="2" min="1" max="5">
+  </div>
+
+  <div class="section">
+    <h2>Proteção</h2>
+    <label>
+      <input type="checkbox" id="protecaoEmpate" checked>
+      Proteção no Empate (Tie)
+    </label>
+    <label>Valor da Proteção (R$)</label>
+    <input type="number" id="valorProtecao" value="5">
+  </div>
+
+  <div class="section">
+    <h2>Padrões Ativos</h2>
+    <div class="checkbox-group">
+      <label><input type="checkbox" id="padraoXadrez" checked> Xadrez</label>
+      <label><input type="checkbox" id="padraoCasadinho" checked> Casadinho</label>
+      <label><input type="checkbox" id="padraoDiagonal" checked> Diagonal</label>
+      <label><input type="checkbox" id="padraoLinhaDevedora" checked> Linha Devedora</label>
+      <label><input type="checkbox" id="padraoPosEmpate" checked> Pós-Empate</label>
+      <label><input type="checkbox" id="padraoTrasPraFrente" checked> Trás pra Frente</label>
+      <label><input type="checkbox" id="padraoSurf"> Surf (Cuidado)</label>
+    </div>
+  </div>
+
+  <button id="btnSalvar">SALVAR CONFIGURAÇÕES</button>
+  <div id="msgSuccess" class="save-success">✅ Configurações salvas com sucesso!</div>
+
+  <script src="options.js"></script>
+</body>
+</html>
