@@ -14,8 +14,6 @@
   
   // --- Sistema Visual do Robô ---
   let robotCursor = null;
-  let lastRobotX = 0;
-  let lastRobotY = 0;
 
   function initRobotVisuals() {
     if (robotCursor || !document.body) return;
@@ -408,5 +406,99 @@
     return { ok: true, motivo: `Aposta ${acao} enviada: ${chip.motivo} -> ${area.motivo}` };
   }
 
-  globalThis.WillDadosAposta = { realizarAposta, selecionarChip, clicarNaArea, humanClick, decomporStake, encontrarChip };
+  // ── Sistema de Keep-Alive (mantém sessão viva) ─────────────────────────────
+
+  const KEEP_ALIVE_INTERVAL = 4 * 60 * 1000; // 4 minutos
+  let keepAliveInterval = null;
+  let keepAliveAttempts = 0;
+
+  function encontrarPontoNeutro() {
+    const candidatos = [
+      document.querySelector('[class*="close"][aria-label]'),
+      document.querySelector('[class*="close"]'),
+      document.querySelector('[class*="dismiss"]'),
+      document.querySelector('[role="button"][aria-label*="fechar"]'),
+      document.querySelector('[role="button"][aria-label*="close"]'),
+      document.querySelector('button[title*="close" i]'),
+      document.querySelector('button[title*="fechar" i]'),
+      document.querySelector('[class*="menu"]'),
+      document.querySelector('[class*="icon-close"]'),
+      document.querySelector('.modal-close'),
+      document.querySelector('.popup-close'),
+      document.body
+    ];
+
+    return candidatos.find(el =>
+      el && el.offsetParent !== null && isVisible(el)
+    );
+  }
+
+  function executarKeepAlive() {
+    try {
+      const spot = encontrarPontoNeutro();
+      if (spot) {
+        keepAliveAttempts++;
+        console.log(`[WDP KEEP-ALIVE] Tentativa #${keepAliveAttempts} em ${new Date().toLocaleTimeString()}`);
+
+        spot.dispatchEvent(new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          clientX: Math.random() * 10,
+          clientY: Math.random() * 10
+        }));
+
+        console.log(`[WDP KEEP-ALIVE] ✓ Clique executado (${spot.tagName} ${spot.className})`);
+      } else {
+        console.warn('[WDP KEEP-ALIVE] ✗ Nenhum ponto neutro encontrado');
+      }
+    } catch (e) {
+      console.error('[WDP KEEP-ALIVE] Erro:', e.message);
+    }
+  }
+
+  function iniciarKeepAlive() {
+    if (keepAliveInterval) {
+      console.log('[WDP KEEP-ALIVE] Já iniciado');
+      return;
+    }
+
+    console.log(`[WDP KEEP-ALIVE] Iniciando (intervalo: ${KEEP_ALIVE_INTERVAL / 1000 / 60} min)`);
+    keepAliveInterval = setInterval(executarKeepAlive, KEEP_ALIVE_INTERVAL);
+  }
+
+  function pararKeepAlive() {
+    if (keepAliveInterval) {
+      clearInterval(keepAliveInterval);
+      keepAliveInterval = null;
+      console.log('[WDP KEEP-ALIVE] Parado');
+    }
+  }
+
+  // Iniciar keep-alive apenas se estamos em um contexto de jogo (Evolution Gaming)
+  // COMENTADO: Aguardando testes antes de ativar automaticamente
+  // Descomente a linha abaixo para ativar:
+  /*
+  if (document.location.href.includes('evolutiongaming') ||
+      document.location.href.includes('evo-games') ||
+      document.location.href.includes('betboom')) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', iniciarKeepAlive);
+    } else {
+      iniciarKeepAlive();
+    }
+  }
+  */
+
+  globalThis.WillDadosAposta = {
+    realizarAposta,
+    selecionarChip,
+    clicarNaArea,
+    humanClick,
+    decomporStake,
+    encontrarChip,
+    // Controle de keep-alive
+    iniciarKeepAlive,
+    pararKeepAlive
+  };
 })();
