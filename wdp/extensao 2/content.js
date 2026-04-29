@@ -351,14 +351,23 @@
     return best;
   }
 
-  function enviarComandoParaFrame(frameId, payload, timeoutMs = 6000) {
+  /**
+   * Envia comando (ex: PERFORM_BET) para o iframe que possui a mesa do jogo, 
+   * e aguarda sua conclusão com timeout.
+   *
+   * @param {string} frameId - ID do frame injetado.
+   * @param {Object} payload - Dados do comando.
+   * @param {number} timeoutMs - Tempo máximo de espera da resposta. Aumentado para 15000ms devido a retries de renderização.
+   * @returns {Promise<Object>} Promessa resolvendo com resultado ou falha de timeout.
+   */
+  function enviarComandoParaFrame(frameId, payload, timeoutMs = 15000) {
     const snap = frameSnapshots.get(frameId);
     if (!snap?.sourceWindow) return Promise.resolve({ ok: false, motivo: 'Frame alvo não encontrado na bridge' });
     const commandId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     return new Promise((resolve) => {
       const timer = setTimeout(() => {
         pendingCommands.delete(commandId);
-        resolve({ ok: false, motivo: 'Timeout aguardando iframe' });
+        resolve({ ok: false, motivo: 'Timeout aguardando resposta do iframe (timeoutMs expirado)' });
       }, timeoutMs);
       pendingCommands.set(commandId, {
         resolve: (value) => {

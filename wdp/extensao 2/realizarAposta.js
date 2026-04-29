@@ -3,10 +3,24 @@
 (function () {
   'use strict';
 
+  // Fichas (chips) padrão da Evolution Gaming no Bac Bo (em ordem decrescente para decomposição gulosa)
   const BAC_BO_CHIPS = [2500, 500, 125, 25, 10, 5];
+  
+  /**
+   * Pausa a execução de uma thread async.
+   * @param {number} ms - Milissegundos a pausar
+   */
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  
+  /**
+   * Gera um valor randômico (jitter) para simular tempo de reação humano e variação natural.
+   * Ajuda contra anti-bots.
+   */
   const jitter = (min = 250, max = 750) => min + Math.random() * (max - min);
 
+  /**
+   * Verifica se o elemento do DOM está visível em tela (possui dimensões).
+   */
   function isVisible(el) {
     if (!el) return false;
     const rect = el.getBoundingClientRect();
@@ -14,12 +28,18 @@
     return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none';
   }
 
+  /**
+   * Executa um clique humanizado, englobando eventos pointer, mouse down e up com delays realistas.
+   * 
+   * @param {Element} el - Elemento DOM alvo do clique.
+   */
   async function humanClick(el) {
     if (!el) return false;
     try { window.focus(); el.focus(); } catch (_) {}
     el.scrollIntoView({ block: 'center', inline: 'center' });
     await sleep(jitter(60, 160));
     
+    // Obtém a coordenada do centro absoluto do elemento na tela atual
     const rect = el.getBoundingClientRect();
     const x = Math.round(rect.left + rect.width / 2);
     const y = Math.round(rect.top + rect.height / 2);
@@ -30,6 +50,7 @@
        pointerId: 1, pointerType: 'mouse', isPrimary: true
     };
     
+    // Simula movimentação do mouse e clique
     el.dispatchEvent(new PointerEvent('pointermove', optsBase));
     el.dispatchEvent(new MouseEvent('mousemove', optsBase));
     await sleep(jitter(20, 70));
@@ -47,14 +68,27 @@
     return true;
   }
 
+  /**
+   * Obtém todo texto associado a um elemento para realizar parsing de heurística (buscando labels, aria, data).
+   */
   function textOf(el) {
     return `${el.textContent || ''} ${el.getAttribute('aria-label') || ''} ${el.getAttribute('title') || ''} ${el.getAttribute('data-value') || ''} ${el.getAttribute('data-amount') || ''}`.trim();
   }
 
+  /**
+   * Remove formatação de dinheiro/caracteres especiais, mantendo apenas números.
+   */
   function normalizarNumeroTexto(text) {
     return String(text || '').replace(/\s/g, '').replace(/[R$.,]/g, '');
   }
 
+  /**
+   * Procura o elemento HTML da ficha (chip) com o valor exato no painel de apostas.
+   * Utiliza RegExp para isolar o número (evita clicar no 500 se quer o 5).
+   * 
+   * @param {number} valor - O valor do chip buscado.
+   * @returns {Element|undefined} Elemento DOM correspondente à ficha ou undefined.
+   */
   function encontrarChip(valor) {
     const normalizedStake = String(Math.round(Number(valor)));
     const selectors = [
@@ -93,6 +127,13 @@
     });
   }
 
+  /**
+   * Decompõe um valor monetário em fichas permitidas na mesa do Bac Bo.
+   * Exemplo: R$ 35 se torna [25, 10].
+   * 
+   * @param {number} stake - Valor total da aposta.
+   * @returns {number[]} Lista de valores das fichas a serem clicadas sequencialmente.
+   */
   function decomporStake(stake) {
     let restante = Math.round(Number(stake));
     if (!Number.isFinite(restante) || restante < 5) return [];
@@ -106,11 +147,24 @@
     return restante === 0 ? chips : [];
   }
 
+  async function encontrarComRetry(fnBusca, retries = 6, ms = 500) {
+    let el = null;
+    let tentativas = retries;
+    while (tentativas > 0 && !el) {
+      el = fnBusca();
+      if (!el) {
+        tentativas--;
+        if (tentativas > 0) await sleep(ms);
+      }
+    }
+    return el;
+  }
+
   async function selecionarChip(stake) {
     const valor = Math.round(Number(stake));
     if (!Number.isFinite(valor) || valor < 5) return { ok: false, motivo: `Valor mínimo de chip é R$ 5` };
 
-    const exato = encontrarChip(valor);
+    const exato = await encontrarComRetry(() => encontrarChip(valor), 6, 500);
     if (exato) {
       await humanClick(exato);
       await sleep(jitter(250, 550));
@@ -123,8 +177,8 @@
     const clicados = [];
     const infoAlvos = [];
     for (const chip of composicao) {
-      const el = encontrarChip(chip);
-      if (!el) return { ok: false, motivo: `Chip R$ ${chip} não encontrado para compor R$ ${valor}`, chips: clicados };
+      const el = await encontrarComRetry(() => encontrarChip(chip), 4, 400);
+      if (!el) return { ok: false, motivo: `Chip R$ ${chip} não encontrado na UI para compor R$ ${valor} após aguardar`, chips: clicados };
       await humanClick(el);
       clicados.push(chip);
       infoAlvos.push(`<${el.tagName.toLowerCase()} class="${el.className || ''}">`);
@@ -181,9 +235,26 @@
       .map((item) => item);
   }
 
+  /**
+   * Clica na área de aposta específica da mesa (Player, Banker ou Tie).
+   * Possui sistema de tentativas caso a área demore a ser renderizada.
+   *
+   * @param {string} acao - 'P' (Player), 'B' (Banker) ou 'T' (Tie).
+   * @returns {Promise<Object>} Retorna o status do clique.
+   */
   async function clicarNaArea(acao) {
-    const areasObj = candidatosArea(acao);
-    if (!areasObj.length) return { ok: false, motivo: `Área ${acao} não encontrada` };
+    let areasObj = [];
+    let tentativas = 6; // Tenta achar a área por até 3 segundos (6 * 500ms)
+    
+    while (tentativas > 0 && !areasObj.length) {
+      areasObj = candidatosArea(acao);
+      if (!areasObj.length) {
+        tentativas--;
+        if (tentativas > 0) await sleep(500); // Aguarda renderização da mesa
+      }
+    }
+
+    if (!areasObj.length) return { ok: false, motivo: `Área ${acao} não encontrada na UI após aguardar` };
 
     // Preferir elementos com maior score de "bet spot", depois por tamanho razoável (nem muito pequeno, nem tela inteira)
     areasObj.sort((a, b) => {
@@ -204,7 +275,7 @@
 
     const alvo = areasObj[0].el;
     await humanClick(alvo);
-    await sleep(jitter(300, 700));
+    await sleep(jitter(300, 700)); // Simula delay do usuário ao remover o dedo/mouse
     const detalhesAlvo = `<${alvo.tagName.toLowerCase()} class="${alvo.className || ''}" id="${alvo.id || ''}">`;
     return { ok: true, motivo: `Clique em ${acao} [${detalhesAlvo}]` };
   }

@@ -324,7 +324,7 @@ function inicializarManualPanel() {
     document.getElementById('btn-manual-cancel').disabled = false;
     document.getElementById('btn-manual-cancel').classList.remove('disabled');
     
-    let tempo = 5;
+    let tempo = 2; // Reduzido de 5 para 2 para garantir que não passe o tempo da UI da Evolution
     const sideName = manualSide === 'P' ? 'AZUL' : manualSide === 'B' ? 'VERMELHO' : 'EMPATE';
     document.getElementById('manual-status').innerHTML = `<span style="color:#ef4444;font-weight:bold">Enviando aposta para ${sideName} em ${tempo}s...</span>`;
     document.getElementById('btn-manual-cancel').textContent = `CANCELAR (${tempo}s)`;
