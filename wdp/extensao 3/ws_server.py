@@ -33,35 +33,43 @@ except ImportError:
 
 clients = set()
 
+async def broadcast(data, exclude=None):
+    if not clients:
+        print("⚠️  Nenhum cliente conectado.")
+        return
+    msg = json.dumps(data)
+    enviados = 0
+    for ws in clients.copy():
+        if ws is exclude:
+            continue
+        try:
+            await ws.send(msg)
+            enviados += 1
+        except:
+            clients.discard(ws)
+    print(f"📤 Repassado para {enviados} cliente(s)")
+
 async def handler(websocket):
     clients.add(websocket)
     remote = websocket.remote_address
-    print(f"\n🟢 [{datetime.now().strftime('%H:%M:%S')}] Extensão conectada: {remote}")
+    print(f"\n🟢 [{datetime.now().strftime('%H:%M:%S')}] Cliente conectado: {remote}")
     try:
         async for message in websocket:
             try:
                 data = json.loads(message)
                 tipo = data.get("type", "?")
                 print(f"📩 [{datetime.now().strftime('%H:%M:%S')}] {tipo}: {json.dumps(data, ensure_ascii=False, indent=2)}")
+                # Hub: tudo que chega de um cliente é repassado para os demais.
+                # Ex.: extensão → PERFORM_BET → selenium_driver.py
+                #      selenium_driver.py → BET_RESULT → extensão
+                await broadcast(data, exclude=websocket)
             except json.JSONDecodeError:
                 print(f"📩 [{datetime.now().strftime('%H:%M:%S')}] Raw: {message[:200]}")
     except websockets.ConnectionClosed:
         pass
     finally:
         clients.discard(websocket)
-        print(f"🔴 [{datetime.now().strftime('%H:%M:%S')}] Extensão desconectada: {remote}")
-
-async def broadcast(data):
-    if not clients:
-        print("⚠️  Nenhuma extensão conectada.")
-        return
-    msg = json.dumps(data)
-    for ws in clients.copy():
-        try:
-            await ws.send(msg)
-        except:
-            clients.discard(ws)
-    print(f"📤 Enviado para {len(clients)} cliente(s)")
+        print(f"🔴 [{datetime.now().strftime('%H:%M:%S')}] Cliente desconectado: {remote}")
 
 async def input_loop():
     loop = asyncio.get_event_loop()
