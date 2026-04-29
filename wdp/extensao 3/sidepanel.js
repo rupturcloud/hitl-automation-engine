@@ -268,6 +268,16 @@ async function atualizar() {
     }
   }
 
+  const entryWindowEl = document.getElementById('entry-window');
+  if (entryWindowEl) {
+    entryWindowEl.classList.toggle('hidden', !mostrarOperacao);
+    const janela = status.janelaEntrada || {};
+    document.getElementById('entry-dot').style.background = janela.cor || '#d1d5db';
+    document.getElementById('entry-title').textContent = janela.titulo || 'AGUARDANDO JANELA';
+    document.getElementById('entry-count').textContent = Number.isFinite(janela.segundos) ? `${janela.segundos}s` : '--';
+    document.getElementById('entry-msg').textContent = janela.mensagem || 'O countdown aparece a cada nova rodada, mesmo sem gatilho.';
+  }
+
   // Mostrar painel manual
   document.getElementById('manual-panel')?.classList.toggle('hidden', !mostrarOperacao);
 }

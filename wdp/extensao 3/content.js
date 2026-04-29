@@ -34,6 +34,7 @@
   let observerStarted = false;
   let lastActionAt = 0;
   let lastHistoryHash = '';
+  let lastStatusAnalysisHash = '';
   let lastHistoryCount = 0;
   let ultimoPadrao = '';
   let overlayPinnedLeft = true;
@@ -882,6 +883,82 @@
     return wsState.lastResult || (history?.length ? history[history.length - 1] : null);
   }
 
+  function extrairCountdownApostaDaTela() {
+    const candidates = Array.from(document.querySelectorAll('[class*="timer" i], [class*="count" i], [class*="clock" i], [class*="bet" i], [aria-label], [role="timer"]'))
+      .filter(isVisible)
+      .slice(0, 180);
+    for (const el of candidates) {
+      const hay = `${el.textContent || ''} ${el.getAttribute('aria-label') || ''} ${el.getAttribute('title') || ''}`.trim();
+      const mmss = hay.match(/\b([0-5]?\d):([0-5]\d)\b/);
+      if (mmss) return (Number(mmss[1]) * 60) + Number(mmss[2]);
+      const seconds = hay.match(/\b([1-9]|[1-5]\d)\s*(?:s|seg|sec|segundos|seconds)?\b/i);
+      if (seconds && /timer|count|clock|bet|aposta|entrada|tempo|seg|sec/i.test(hay)) return Number(seconds[1]);
+    }
+    return null;
+  }
+
+  function calcularJanelaEntrada() {
+    const countdownTela = extrairCountdownApostaDaTela();
+    const now = Date.now();
+    const idadeWs = now - Number(wsState.lastMessageAt || 0);
+    const wsRecente = idadeWs < 20000;
+    const aberto = wsState.bettingOpen === true && wsRecente;
+    const fechado = wsState.bettingOpen === false && idadeWs < 9000;
+    const segundos = Number.isFinite(countdownTela)
+      ? countdownTela
+      : aberto
+        ? Math.max(0, Math.ceil((15000 - idadeWs) / 1000))
+        : null;
+
+    if (aberto || segundos != null) {
+      const fim = Number.isFinite(segundos) && segundos <= 5;
+      return {
+        aberta: true,
+        fase: fim ? 'finalizando' : 'aberta',
+        segundos,
+        cor: fim ? '#f59e0b' : '#10b981',
+        titulo: fim ? 'ABREVIAR ENTRADA' : 'ENTRADA ABERTA',
+        mensagem: fim
+          ? 'Finalize agora; não inicie aposta nova no fim da janela.'
+          : 'Antecipe a aposta no início para sincronizar com a banca.'
+      };
+    }
+
+    if (fechado) {
+      return {
+        aberta: false,
+        fase: 'fechada',
+        segundos: null,
+        cor: '#ef4444',
+        titulo: 'ENTRADA FECHADA',
+        mensagem: 'Aguarde a próxima rodada; não envie aposta agora.'
+      };
+    }
+
+    return {
+      aberta: false,
+      fase: 'aguardando',
+      segundos: null,
+      cor: '#d1d5db',
+      titulo: 'AGUARDANDO JANELA',
+      mensagem: 'O countdown aparece a cada nova rodada, mesmo sem gatilho.'
+    };
+  }
+
+  function atualizarAnalisePainel() {
+    limparSnapshotsVelhos();
+    const best = getBestHistory();
+    const history = best.history || [];
+    lastHistoryCount = history.length;
+    const historyHash = history.join('');
+    if (!history.length || historyHash === lastStatusAnalysisHash) return best;
+    lastStatusAnalysisHash = historyHash;
+    const resultado = Core.detectarPadrao(history);
+    ultimoPadrao = resultado.motivo;
+    Core.estadoRobo.ultimaAnalise = resultado;
+    return best;
+  }
+
   function estaEmFaseDeAposta() {
     if (wsState.bettingOpen === true && Date.now() - Number(wsState.lastMessageAt || 0) < 15000) return true;
     if (wsState.bettingOpen === false && Date.now() - Number(wsState.lastMessageAt || 0) < 7000) return false;
@@ -1010,9 +1087,11 @@
   }
 
   function getStatus() {
+    atualizarAnalisePainel();
     const minConfianca = Number(Core.estadoRobo.config.minConfianca) || 58;
     const isBacBo = isLikelyBacBoPage();
     let semaforo = { status: 'AGUARDANDO', cor: '#d1d5db', confianca: 0, p: 0, b: 0 };
+    const janelaEntrada = calcularJanelaEntrada();
 
     if (Core.estadoRobo.ultimaAnalise) {
       const res = Core.estadoRobo.ultimaAnalise;
@@ -1049,6 +1128,7 @@
       ultimaApostaStatus: Core.estadoRobo.ultimaAposta?.status || null,
       ultimaApostaAcao: Core.estadoRobo.ultimaAposta?.acao || null,
       semaforo,
+      janelaEntrada,
       isBacBo,
       bridgeFrames: frameSnapshots.size,
       historyCount: lastHistoryCount,
