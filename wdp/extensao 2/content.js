@@ -106,7 +106,7 @@
         document.querySelectorAll(selector).forEach((el) => {
           if (!candidates.includes(el) && isVisible(el)) candidates.push(el);
         });
-      } catch (_) {}
+      } catch (_) { }
     }
 
     const mapped = candidates
@@ -144,10 +144,10 @@
     if (typeof data !== 'string') return null;
     const trimmed = data.trim();
     if (!trimmed) return null;
-    try { return JSON.parse(trimmed); } catch (_) {}
+    try { return JSON.parse(trimmed); } catch (_) { }
     const jsonStart = Math.min(...[trimmed.indexOf('{'), trimmed.indexOf('[')].filter((i) => i >= 0));
     if (Number.isFinite(jsonStart) && jsonStart >= 0) {
-      try { return JSON.parse(trimmed.slice(jsonStart)); } catch (_) {}
+      try { return JSON.parse(trimmed.slice(jsonStart)); } catch (_) { }
     }
     return null;
   }
@@ -275,7 +275,7 @@
         canClick: Boolean(Clicker?.realizarAposta),
         ts: Date.now()
       }, '*');
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function instalarCommandListenerNoFrame() {
@@ -472,7 +472,7 @@
     overlay = null;
     try {
       chrome.runtime.sendMessage({ action: 'OPEN_SIDE_PANEL' });
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function calcularUiState(status, resultado) {
@@ -496,7 +496,7 @@
       return { step: '7/7 • Stop atingido', message: statusText, showMetrics: true, tone: 'alert' };
     }
 
-    if (/ganhou|perdeu|empate/i.test(statusText) || ['GANHOU','PERDEU','EMPATE'].includes(Core.estadoRobo.ultimaAposta?.status)) {
+    if (/ganhou|perdeu|empate/i.test(statusText) || ['GANHOU', 'PERDEU', 'EMPATE'].includes(Core.estadoRobo.ultimaAposta?.status)) {
       return { step: '6/7 • Resultado processado', message: statusText || Core.estadoRobo.ultimaAcao, showMetrics: true, tone: 'on' };
     }
 
@@ -667,7 +667,7 @@
           timestamp: now
         }
       }, () => void chrome.runtime.lastError);
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function toggleRobo(force) {
@@ -731,11 +731,11 @@
       const mudouRodada = Boolean(aposta.roundId && wsState.roundId) && wsState.roundId !== aposta.roundId;
       const podeProcessarResultado = mudouHistorico || mudouRodada;
       if (podeProcessarResultado && historyHash !== Core.estadoRobo.ultimoResultadoProcessadoHash) {
-      const resultadoFinal = inferirResultadoMaisRecente(history);
-      if (resultadoFinal) {
-        Core.estadoRobo.ultimoResultadoProcessadoHash = historyHash;
-        Core.atualizarAposResultado(resultadoFinal);
-      }
+        const resultadoFinal = inferirResultadoMaisRecente(history);
+        if (resultadoFinal) {
+          Core.estadoRobo.ultimoResultadoProcessadoHash = historyHash;
+          Core.atualizarAposResultado(resultadoFinal);
+        }
       }
     }
 
@@ -812,7 +812,7 @@
     const minConfianca = Number(Core.estadoRobo.config.minConfianca) || 58;
     const isBacBo = isLikelyBacBoPage();
     let semaforo = { status: 'AGUARDANDO', cor: '#d1d5db', confianca: 0, p: 0, b: 0 };
-    
+
     if (Core.estadoRobo.ultimaAnalise) {
       const res = Core.estadoRobo.ultimaAnalise;
       semaforo.confianca = res.confianca || 0;
@@ -881,7 +881,7 @@
     if (request.action === 'MANUAL_BET') {
       const best = getBestHistory();
       const resultadoManual = {
-        acao: request.acao, 
+        acao: request.acao,
         motivo: 'Aposta Manual via Painel',
         confianca: 100,
         scoreP: 0,
@@ -890,7 +890,7 @@
         stake: request.stake
       };
       const apostaBackup = Core.estadoRobo.ultimaAposta;
-      
+
       Core.estadoRobo.ultimaAposta = {
         id: `manual-${Date.now()}`,
         acao: request.acao,
@@ -902,14 +902,14 @@
         historyHash: best.history?.join(''),
         roundId: wsState.roundId
       };
-      
+
       executarApostaNoMelhorFrame(best, resultadoManual).then(exec => {
-         if (!exec || !exec.ok) {
-            Core.adicionarLog('ERRO', `Falha ao executar aposta manual: ${exec?.motivo || 'erro desconhecido'}`, exec);
-            Core.estadoRobo.ultimaAposta = apostaBackup;
-         } else {
-            Core.adicionarLog('INFO', `Aposta manual executada: ${request.acao} com Stake R$${request.stake}`);
-         }
+        if (!exec || !exec.ok) {
+          Core.adicionarLog('ERRO', `Falha ao executar aposta manual: ${exec?.motivo || 'erro desconhecido'}`, exec);
+          Core.estadoRobo.ultimaAposta = apostaBackup;
+        } else {
+          Core.adicionarLog('INFO', `Aposta manual executada: ${request.acao} com Stake R$${request.stake}`);
+        }
       });
       sendResponse({ success: true });
       return true;

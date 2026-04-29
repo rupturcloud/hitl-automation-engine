@@ -259,7 +259,7 @@ async function atualizar() {
     if (status.semaforo) {
       document.getElementById('semaforo-luz').style.background = status.semaforo.cor;
       document.getElementById('semaforo-texto').textContent = status.semaforo.status;
-      document.getElementById('semaforo-score').textContent = `Confiança: ${status.semaforo.confianca}% (P:${status.semaforo.p} B:${status.semaforo.b})`;
+      document.getElementById('semaforo-score').textContent = `Confiança: ${status.semaforo.confianca}% (Pts P:${status.semaforo.p} B:${status.semaforo.b})`;
 
       document.querySelectorAll('.m-btn').forEach(btn => {
         const isIndicated = status.semaforo.status === 'INDICADO' && btn.getAttribute('data-side') === status.semaforo.acao;
@@ -302,45 +302,31 @@ function inicializarManualPanel() {
   // Stake padrao 5
   document.querySelector('.m-chip[data-val="5"]')?.classList.add('selected');
 
-  // Seleção de Cor
+  // Seleção de Cor (Modo SMOKE TEST - Gatilho Imediato)
   document.querySelectorAll('.m-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (manualCountdown) return; // Nao deixa trocar durante countdown
+    btn.addEventListener('click', async () => {
+      if (manualCountdown) return; // Proteção
+      
       document.querySelectorAll('.m-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       manualSide = btn.getAttribute('data-side');
-      document.getElementById('btn-manual-bet').disabled = false;
-      document.getElementById('btn-manual-bet').classList.remove('disabled');
       const sideName = manualSide === 'P' ? 'AZUL' : manualSide === 'B' ? 'VERMELHO' : 'EMPATE';
-      document.getElementById('manual-status').innerHTML = `Pronto para apostar <b>R$ ${manualStake}</b> no <b>${sideName}</b>.`;
+      
+      // Feedback imediato no painel
+      document.getElementById('manual-status').innerHTML = `<span style="color:#10b981;font-weight:bold">SMOKE TEST: Disparando aposta R$ ${manualStake} para ${sideName}!</span>`;
+      
+      // Dispara diretamente o comando de aposta para a ponte/iframe
+      await send('MANUAL_BET', { acao: manualSide, stake: manualStake, gale: 0 });
+      
+      // Volta ao estado inicial após 2.5s
+      setTimeout(resetManualPanel, 2500);
     });
   });
 
-  // Botão Apostar
+  // Botão Apostar original agora é desnecessário no modo de teste, mas manteremos o listener sem o countdown apenas por segurança
   document.getElementById('btn-manual-bet')?.addEventListener('click', () => {
     if (!manualSide) return;
-    document.getElementById('btn-manual-bet').disabled = true;
-    document.getElementById('btn-manual-bet').classList.add('disabled');
-    document.getElementById('btn-manual-cancel').disabled = false;
-    document.getElementById('btn-manual-cancel').classList.remove('disabled');
-    
-    let tempo = 2; // Reduzido de 5 para 2 para garantir que não passe o tempo da UI da Evolution
-    const sideName = manualSide === 'P' ? 'AZUL' : manualSide === 'B' ? 'VERMELHO' : 'EMPATE';
-    document.getElementById('manual-status').innerHTML = `<span style="color:#ef4444;font-weight:bold">Enviando aposta para ${sideName} em ${tempo}s...</span>`;
-    document.getElementById('btn-manual-cancel').textContent = `CANCELAR (${tempo}s)`;
-
-    manualCountdown = setInterval(async () => {
-      tempo--;
-      if (tempo > 0) {
-        document.getElementById('manual-status').innerHTML = `<span style="color:#ef4444;font-weight:bold">Enviando aposta para ${sideName} em ${tempo}s...</span>`;
-        document.getElementById('btn-manual-cancel').textContent = `CANCELAR (${tempo}s)`;
-      } else {
-        clearInterval(manualCountdown);
-        document.getElementById('manual-status').innerHTML = `<span style="color:#10b981;font-weight:bold">Aposta enviada!</span>`;
-        await send('MANUAL_BET', { acao: manualSide, stake: manualStake, gale: 0 });
-        setTimeout(resetManualPanel, 2000);
-      }
-    }, 1000);
+    document.getElementById('manual-status').innerHTML = `<span style="color:#ef4444;font-weight:bold">Use os botões de cor (Azul/Tie/Vermelho) para testar os cliques diretamente!</span>`;
   });
 
   // Botão Cancelar
