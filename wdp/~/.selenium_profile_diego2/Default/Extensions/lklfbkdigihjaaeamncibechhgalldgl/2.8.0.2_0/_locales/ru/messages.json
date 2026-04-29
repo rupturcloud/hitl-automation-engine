@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "Установите расширение Новая вкладка MSN для быстрого доступа к последним новостям, ваших любимым веб-сайтам, поиску в Интернете и другим возможностям."
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "ru-ru"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "Новая вкладка MSN"
+   }
+}

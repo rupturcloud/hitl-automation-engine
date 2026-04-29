@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "Dodaj rozszerzenie Nowa karta MSN, aby mieć szybki dostęp do m.in. najnowszych wiadomości, najczęściej odwiedzanych witryn oraz wyszukiwania w sieci web."
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "pl-pl"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "Nowa karta MSN"
+   }
+}

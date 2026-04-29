@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "הוסף את הכרטיסיה החדשה של MSN עבור גישה מהירה לחדשות האחרונות, האתרים שבהם ביקרת הכי הרבה, חיפוש באינטרנט ועוד."
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "he-il"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "כרטיסיה חדשה של MSN"
+   }
+}

@@ -16,8 +16,8 @@ Dependências instaladas automaticamente se faltarem:
 
 import asyncio
 import json
-import os
 import queue
+import random
 import sys
 import threading
 import time
@@ -26,9 +26,22 @@ from pathlib import Path
 BAC_BO_CHIPS = [2500, 500, 125, 25, 10, 5]
 WS_SERVER    = "ws://localhost:8765"
 EXT_PATH     = str(Path(__file__).parent.resolve())
-URL_PADRAO   = "https://betboom.bet.br"
-PROFILE_NAME = os.environ.get("WDP_PROFILE", "diegoizac")
-PROFILE_DIR  = Path(__file__).resolve().parents[1] / ".wdp_chrome_profiles" / PROFILE_NAME
+URL_PADRAO   = "https://betboom.bet.br/casino/game/bac_bo-26281/"
+# Perfil Selenium dedicado com sessão betboom do Diego já salva
+PROFILE_DIR  = Path.home() / ".selenium_profile_diego"
+
+
+def _preparar_perfil():
+    """Cria o diretório e remove lock files do Chrome (evita erro se fechou sem sair corretamente)."""
+    PROFILE_DIR.mkdir(parents=True, exist_ok=True)
+    for lock in ["SingletonLock", "SingletonCookie", "SingletonSocket"]:
+        p = PROFILE_DIR / lock
+        if p.exists():
+            try:
+                p.unlink()
+                print(f"[WDP] Lock removido: {lock}")
+            except Exception:
+                pass
 
 
 # ── dependências ──────────────────────────────────────────────────────────────
@@ -53,6 +66,10 @@ def _importavel(nome):
 _garantir_deps()
 
 import websockets
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from seleniumbase import Driver
 
 
@@ -72,21 +89,50 @@ def decompor_stake(stake: float) -> list:
 
 class BacBoClicker:
     def __init__(self, url: str):
+        self._url = url
+        self.driver = self._abrir_driver()
+
+    def _abrir_driver(self):
+        _preparar_perfil()
         print(f"[WDP] Abrindo Chrome com extensão: {EXT_PATH}")
-        PROFILE_DIR.mkdir(parents=True, exist_ok=True)
         print(f"[WDP] Perfil persistente: {PROFILE_DIR}")
-        self.driver = Driver(
+        d = Driver(
             uc=True,
             headed=True,
             extension_dir=EXT_PATH,
             user_data_dir=str(PROFILE_DIR),
         )
-        self.driver.open(url)
-        print(f"[WDP] ✓ Chrome aberto → {url}")
+        d.open(self._url)
+        print(f"[WDP] ✓ Chrome aberto → {self._url}")
+        return d
+
+    def _driver_vivo(self) -> bool:
+        try:
+            self.driver.current_url  # noqa: B018
+            return True
+        except Exception:
+            return False
+
+    def _reconectar(self) -> bool:
+        print("[WDP] Chrome desconectado — tentando reabrir...")
+        try:
+            self.driver.quit()
+        except Exception:
+            pass
+        try:
+            self.driver = self._abrir_driver()
+            return True
+        except Exception as e:
+            print(f"[WDP] ✗ Falha ao reabrir Chrome: {e}")
+            return False
 
     # ── ponto de entrada ──────────────────────────────────────────────────────
 
     def realizar_aposta(self, acao: str, stake: float, options: dict) -> dict:
+        if not self._driver_vivo():
+            if not self._reconectar():
+                return {"ok": False, "motivo": "Chrome desconectado e não foi possível reabrir."}
+            time.sleep(2)  # aguarda página carregar após reconexão
         try:
             return self._realizar(acao, stake, options)
         except Exception as e:
@@ -143,7 +189,7 @@ class BacBoClicker:
 
         # atributo direto
         for sel in [f'[data-value="{valor}"]', f'[data-amount="{valor}"]', f'button[value="{valor}"]']:
-            if self._uc_click_safe(sel):
+            if self._human_click_safe(sel):
                 time.sleep(0.32)
                 return {"ok": True, "motivo": f"Chip R${valor}"}
 
@@ -152,7 +198,7 @@ class BacBoClicker:
             f'//button[normalize-space(text())="{valor}"]',
             f'//*[contains(@class,"chip") and normalize-space(text())="{valor}"]',
         ]:
-            if self._uc_click_safe(xp):
+            if self._human_click_safe(xp):
                 time.sleep(0.32)
                 return {"ok": True, "motivo": f"Chip R${valor} (xpath)"}
 
@@ -164,7 +210,7 @@ class BacBoClicker:
             ok = False
             for sel in [f'[data-value="{chip}"]', f'[data-amount="{chip}"]',
                         f'//button[normalize-space(text())="{chip}"]']:
-                if self._uc_click_safe(sel):
+                if self._human_click_safe(sel):
                     time.sleep(0.26)
                     ok = True
                     break
@@ -179,7 +225,7 @@ class BacBoClicker:
         termos   = {"P": ["player","jogador"], "B": ["banker","banca"], "T": ["tie","empate"]}.get(acao, [])
 
         for sel in [f'[data-bet="{data_bet}"]', f'[data-role*="{data_bet}" i]']:
-            if self._uc_click_safe(sel):
+            if self._human_click_safe(sel):
                 time.sleep(0.42)
                 return {"ok": True, "motivo": f"Área {acao} ({sel})"}
 
@@ -192,7 +238,7 @@ class BacBoClicker:
                 f' and not(contains(@class,"road"))'
                 f' and not(contains(@class,"score"))]'
             )
-            if self._uc_click_safe(xp):
+            if self._human_click_safe(xp):
                 time.sleep(0.42)
                 return {"ok": True, "motivo": f"Área {acao} ('{termo}')"}
 
@@ -200,13 +246,82 @@ class BacBoClicker:
 
     # ── click helper ─────────────────────────────────────────────────────────
 
-    def _uc_click_safe(self, selector: str, timeout: int = 4) -> bool:
+    def _human_click_safe(self, selector: str, timeout: int = 4) -> bool:
+        """Move + clique via ActionChains (CDP → isTrusted: true). Funciona em iframes cross-origin."""
         try:
-            self.driver.wait_for_element_visible(selector, timeout=timeout)
-            self.driver.uc_click(selector)
+            by = By.XPATH if selector.startswith("//") else By.CSS_SELECTOR
+            el = WebDriverWait(self.driver, timeout).until(
+                EC.element_to_be_clickable((by, selector))
+            )
+
+            # Scroll suave para o centro
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView({block:'center',inline:'center'});", el
+            )
+            time.sleep(0.08)
+
+            sz = el.size
+            w = max(sz.get("width", 10), 1)
+            h = max(sz.get("height", 10), 1)
+
+            # Movimento humanizado: vai ao elemento → leve overshoot → corrige → clica
+            ac = ActionChains(self.driver)
+            ac.move_to_element(el)
+            ac.pause(random.uniform(0.10, 0.22))
+            # overshoot pequeno
+            ac.move_to_element_with_offset(
+                el,
+                random.uniform(-w * 0.18, w * 0.18),
+                random.uniform(-h * 0.18, h * 0.18),
+            )
+            ac.pause(random.uniform(0.04, 0.10))
+            # corrige para centro
+            ac.move_to_element(el)
+            ac.pause(random.uniform(0.03, 0.07))
+            ac.click()
+            ac.perform()
+
+            # Ripple visual injetado no DOM do frame
+            self._ripple(el)
             return True
-        except Exception:
+        except Exception as e:
+            print(f"[WDP]   ✗ selector {selector!r}: {e}")
             return False
+
+    def _ripple(self, el) -> None:
+        """Injeta animação de clique no elemento (círculo que expande e some)."""
+        try:
+            self.driver.execute_script(
+                """
+                (function(el){
+                    var r = el.getBoundingClientRect();
+                    var cx = r.left + r.width/2, cy = r.top + r.height/2;
+                    [
+                        {s:'8px',  e:'64px',  ms:450, c:'rgba(239,68,68,0.0)',  b:'2px solid rgba(239,68,68,0.85)'},
+                        {s:'6px',  e:'22px',  ms:220, c:'rgba(239,68,68,0.55)', b:'none'}
+                    ].forEach(function(cfg){
+                        var d = document.createElement('div');
+                        var half = parseInt(cfg.s)/2;
+                        d.style.cssText =
+                            'position:fixed;pointer-events:none;z-index:2147483647;border-radius:50%;' +
+                            'left:'+(cx-half)+'px;top:'+(cy-half)+'px;' +
+                            'width:'+cfg.s+';height:'+cfg.s+';' +
+                            'background:'+cfg.c+';border:'+cfg.b+';' +
+                            'transition:all '+cfg.ms+'ms ease-out;';
+                        document.body.appendChild(d);
+                        requestAnimationFrame(function(){
+                            var eHalf = parseInt(cfg.e)/2;
+                            d.style.left=(cx-eHalf)+'px'; d.style.top=(cy-eHalf)+'px';
+                            d.style.width=cfg.e; d.style.height=cfg.e; d.style.opacity='0';
+                        });
+                        setTimeout(function(){ d.remove(); }, cfg.ms);
+                    });
+                })(arguments[0]);
+                """,
+                el,
+            )
+        except Exception:
+            pass
 
     def fechar(self):
         try:

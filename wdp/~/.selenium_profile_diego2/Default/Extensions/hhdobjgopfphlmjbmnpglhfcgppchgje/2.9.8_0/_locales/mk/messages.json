@@ -1,0 +1,1238 @@
+{
+    "name": {
+        "message": "AdGuard VPN: бесплатен и безбеден прокси"
+    },
+    "description": {
+        "description": "TEXT MAX LENGTH: 132",
+        "message": "Користете AdGuard VPN за да сурфате на интернет безбедно. Заштитете ја вашата приватност и останете анонимни со нашиот VPN прокси."
+    },
+    "short_name": {
+        "message": "AdGuard VPN"
+    },
+    "a11y_go_back": {
+        "message": "Врати се назад"
+    },
+    "about_title": {
+        "message": "За програмата"
+    },
+    "all_rights_reserved": {
+        "message": "Сите права се задржани."
+    },
+    "options_support_title": {
+        "message": "Поддршка"
+    },
+    "options_support_faq_title": {
+        "message": "ЧПП"
+    },
+    "options_support_faq_description": {
+        "message": "Прашања и одговори"
+    },
+    "options_support_report_title": {
+        "message": "Пријавете грешка"
+    },
+    "options_support_report_description": {
+        "message": "Испратете ни извештај за потенцијална грешка"
+    },
+    "options_support_feedback_title": {
+        "message": "Оставете повратни информации"
+    },
+    "options_support_feedback_description": {
+        "message": "Испратете барања и предлози за функции"
+    },
+    "options_report_bug_title": {
+        "message": "Пријавете грешка"
+    },
+    "options_bug_report_email_label": {
+        "message": "Е-пошта"
+    },
+    "options_bug_report_include_log_label": {
+        "message": "Вклучете го дијагностичкиот извештај во пораката"
+    },
+    "options_bug_report_email_invalid": {
+        "message": "Неточна адреса на е-пошта"
+    },
+    "options_bug_report_textarea_invalid": {
+        "message": "Ова поле е задолжително"
+    },
+    "options_bug_report_request_error": {
+        "message": "Настана грешка, обидете се повторно подоцна."
+    },
+    "options_bug_report_send_button": {
+        "message": "Испрати извештај"
+    },
+    "options_bug_report_sending_button": {
+        "message": "Испраќање на извештајот..."
+    },
+    "options_bug_report_textarea_placeholder": {
+        "message": "Наведете детали"
+    },
+    "options_bug_report_page_success": {
+        "message": "Ви благодариме, вашата порака беше успешно испратена!"
+    },
+    "options_bug_report_new_report_button": {
+        "message": "Нов извештај"
+    },
+    "options_bug_report_textarea_label": {
+        "message": "Порака"
+    },
+    "account_title": {
+        "message": "Сметка"
+    },
+    "account_edit": {
+        "message": "Отворете ги поставките за сметката"
+    },
+    "account_version": {
+        "message": "Верзија"
+    },
+    "account_free": {
+        "message": "Бесплатна верзија"
+    },
+    "account_unlimited": {
+        "message": "Неограничена претплата"
+    },
+    "account_monthly_paid": {
+        "message": "Месечна платена претплата"
+    },
+    "account_yearly_paid": {
+        "message": "Годишна платена претплата"
+    },
+    "account_two_year_paid": {
+        "message": "Двегодишна платена претплата"
+    },
+    "account_get_subscription": {
+        "message": "Земете претплата"
+    },
+    "account_max_devices_count": {
+        "message": "До <b>%num%</b> симултани уреди"
+    },
+    "account_valid_until": {
+        "message": "Валидност до <b>%date%</b>"
+    },
+    "account_logged_in_as": {
+        "message": "Најавени како <b>%username%</b>"
+    },
+    "account_sign_out": {
+        "message": "Одјави се"
+    },
+    "account_sign_out_question": {
+        "message": "Одјави се?"
+    },
+    "account_sign_out_popup_cancel": {
+        "message": "Откажи"
+    },
+    "account_sign_out_description": {
+        "message": "Ќе бидете одјавени од вашата сметка. VPN заштита ќе биде запрена"
+    },
+    "account_unlimited_title": {
+        "message": "Добијте ја неограничената верзија!"
+    },
+    "rate_description": {
+        "message": "Уживате во AdGuard VPN?"
+    },
+    "rate_hide": {
+        "message": "Сокриј"
+    },
+    "official_website": {
+        "message": "Официјална веб страна"
+    },
+    "eula": {
+        "message": "EULA"
+    },
+    "privacy_policy": {
+        "message": "Политика за приватност"
+    },
+    "settings_general_title": {
+        "message": "Општи"
+    },
+    "referral_get_free_traffic": {
+        "message": "Добијте бесплатни ГБ!"
+    },
+    "settings_referral_info_friends": {
+        "message": "Испратете поканувачка врска до вашиот пријател. Кога ќе се регистрираат на AdGuard VPN преку вашата врска, двајцата ќе добиете %your_gb% GB од брз VPN. Неискористената количина не истекува — можете да ја користите преку месеците. Поканете до %max_friends% пријатели и добијте до %total_gb% GB вкупно."
+    },
+    "settings_referral_invited_friends": {
+        "message": "Поканети пријатели %count%/%limit%"
+    },
+    "settings_referral_invite_link": {
+        "message": "Линк за покана"
+    },
+    "settings_referral_copy_link": {
+        "message": "Копирај го линкот за покана"
+    },
+    "settings_referral_link_copied": {
+        "message": "Линкот за покана е копира во таблата со исечоци"
+    },
+    "settings_free_gbs": {
+        "message": "Бесплатни ГБ"
+    },
+    "settings_free_gbs_subtitle": {
+        "message": "Еве како можете да добиете дополнителен VPN сообраќај"
+    },
+    "settings_free_gbs_join_adguard": {
+        "message": "Придружете се на AdGuard VPN"
+    },
+    "settings_free_gbs_get_GB": {
+        "message": "Добијте %num% ГБ"
+    },
+    "settings_free_gbs_task_complete": {
+        "message": "Добивте %num% ГБ"
+    },
+    "settings_free_gbs_add_device": {
+        "message": "Додадете нов уред"
+    },
+    "settings_free_gbs_add_device_title_gb": {
+        "message": "Додадете нов уред и добијте %your_gb% GB бесплатно"
+    },
+    "settings_free_gbs_add_device_info_gb": {
+        "message": "Најавете се на AdGuard VPN на друг уред со %email% за да добиете еднократен бонус од %your_gb% GB"
+    },
+    "settings_free_gbs_add_device_wait_to_update": {
+        "message": "Вашиот месечен лимит може да треба време да се ажурира — почекајте неколку минути или рестартирајте ја апликацијата"
+    },
+    "settings_free_gbs_devices_added_title_gb": {
+        "message": "Добијте %your_gb% GB за додавање нов уред"
+    },
+    "settings_free_gbs_devices_added_info": {
+        "message": "Неискористениот сообраќај се префрла во следните месеци. А со AdGuard VPN Unlimited можете да уживате во брзо пребарување без ограничувања"
+    },
+    "settings_free_gbs_add_device_products_button": {
+        "message": "Изберете производ"
+    },
+    "settings_free_gbs_invite_friend_count": {
+        "message": "Поканете пријател (%invited_count%/%max_invites%)"
+    },
+    "settings_free_gbs_invite_friend_title": {
+        "message": "Поканете пријател и добијте %your_gb% GB брз VPN"
+    },
+    "settings_free_gbs_invite_friend_title_success": {
+        "message": "Поканивте %total_invites% пријатели и добивте %total_gbs% GB вкупно"
+    },
+    "settings_free_gbs_invite_friend_get_GB": {
+        "message": "Добијте до %num% ГБ"
+    },
+    "settings_free_gbs_invite_friend_complete": {
+        "message": "Добивте %num% ГБ"
+    },
+    "settings_free_gbs_invite_friend_completed_thank_you": {
+        "message": "Ви благодариме што ни помагате да растеме! Дознајте како да добиете повеќе бонуси во секцијата Бесплатни GB. Или набавете AdGuard VPN Unlimited за да уживате во брзо пребарување без ограничувања"
+    },
+    "settings_free_gbs_upgrade": {
+        "message": "Надградба на Unlimited"
+    },
+    "settings_free_gbs_promote_socials": {
+        "message": "Промовирајте го AdGuard VPN на социјалните мрежи"
+    },
+    "settings_free_gbs_promote_socials_title": {
+        "message": "Промовирајте го AdGuard VPN на социјалните мрежи и добијте %your_gb%GB"
+    },
+    "settings_free_gbs_promote_socials_info": {
+        "message": "Напишете објава на X или Facebook и споделете го линкот со нас. Ќе го разгледаме и ќе додадеме %your_gb% GB на вашата сметка. Можете да заработите до %total_gb% GB вкупно"
+    },
+    "settings_free_gbs_promote_socials_button": {
+        "message": "Доби бонус"
+    },
+    "settings_free_gbs_promote_socials_get_gb": {
+        "message": "Добијте %num% ГБ"
+    },
+    "settings_rate_us": {
+        "message": "Оценете не"
+    },
+    "settings_webrtc_label": {
+        "message": "Блокирај WebRTC"
+    },
+    "settings_webrtc_desc": {
+        "message": "Блокира WebRTC кој може да ја открие вашата вистинска IP адреса дури и ако користите прокси или VPN"
+    },
+    "settings_webrtc_warning": {
+        "message": "Некои апликации за пораки, платформи за стриминг или игри може да престанат да работат правилно"
+    },
+    "settings_context_menus_title": {
+        "message": "Прикажи AdGuard VPN во контекстното мени на прелистувачот"
+    },
+    "settings_context_menus_description": {
+        "message": "Ви овозможува да управувате со VPN исклучоци за одредена веб-страница"
+    },
+    "settings_help_us_improve_title": {
+        "message": "Помогнете да се подобрат AdGuard VPN"
+    },
+    "settings_help_us_improve_modal_title": {
+        "message": "Податоци за користење на екстензија"
+    },
+    "settings_help_us_improve_modal_desc_data": {
+        "message": "Овие податоци вклучуваат:"
+    },
+    "settings_help_us_improve_modal_desc_data_screens": {
+        "message": "Имиња на екраните со кои комуницирате",
+        "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks"
+    },
+    "settings_help_us_improve_modal_desc_data_buttons": {
+        "message": "Имиња на копчињата што ги кликнувате",
+        "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks"
+    },
+    "settings_help_us_improve_modal_desc_data_sessions": {
+        "message": "Идентификатори на сесии"
+    },
+    "settings_help_us_improve_modal_desc_improve": {
+        "message": "Н ни треба овие информации за да анализираме и подобриме функционалноста на AdGuard VPN",
+        "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks"
+    },
+    "settings_help_us_improve_modal_desc_internally": {
+        "message": "Овие податоци се анонимни и се користат само внатрешно. Никогаш не го споделуваме со трети страни",
+        "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks"
+    },
+    "settings_help_us_improve_modal_button": {
+        "message": "Добро"
+    },
+    "settings_help_us_improve_modal_privacy_policy": {
+        "message": "Политика за приватност",
+        "description": "Contains non-breaking space ( ) to prevent unwanted line breaks"
+    },
+    "context_menu_selective_mode": {
+        "message": "Селективен режим"
+    },
+    "context_menu_general_mode": {
+        "message": "Општ режим"
+    },
+    "context_menu_export_logs": {
+        "message": "Извезете дневници"
+    },
+    "context_menu_debug_level": {
+        "message": "Ниво на евиденција при дебагирање"
+    },
+    "settings_dns_label": {
+        "message": "DNS сервер"
+    },
+    "settings_dns_description": {
+        "message": "Овозможува да изберете сервер DNS за решавање на барањата за DNS, блокирање реклами и тракери и шифрирање на сообраќајот DNS кога сте поврзани на VPN"
+    },
+    "settings_dns_description_current": {
+        "message": "Тековна: %dnsServerName%"
+    },
+    "settings_dns_popular_servers": {
+        "message": "Популарни DNS сервери"
+    },
+    "settings_dns_custom_servers": {
+        "message": "Прилагодени DNS сервери"
+    },
+    "settings_dns_add_custom_server": {
+        "message": "Додајте сопствен DNS сервер"
+    },
+    "settings_dns_edit_custom_server": {
+        "message": "Уредете прилагоден DNS сервер"
+    },
+    "settings_dns_add_custom_server_info": {
+        "message": "Познати DNS провајдери"
+    },
+    "settings_dns_add_custom_server_name": {
+        "message": "Име на серверот"
+    },
+    "settings_dns_add_custom_server_name_placeholder": {
+        "message": "Мој DNS сервер"
+    },
+    "settings_dns_add_custom_server_address": {
+        "message": "Адреса на серверот"
+    },
+    "settings_dns_add_custom_server_address_placeholder": {
+        "message": "IP адреса или tls://"
+    },
+    "settings_dns_add_custom_server_invalid_address": {
+        "message": "Неважечка адреса на сервер"
+    },
+    "settings_dns_add_custom_server_duplicate_address": {
+        "message": "DNS-серверот е веќе додаден"
+    },
+    "settings_dns_add_custom_server_too_long_name": {
+        "message": "Името на серверот ја надминува лимита од %max% карактери (моментално %current%)"
+    },
+    "settings_dns_add_custom_server_save_and_select": {
+        "message": "Зачувајте и изберете"
+    },
+    "settings_dns_add_custom_server_save": {
+        "message": "Зачувај"
+    },
+    "settings_dns_delete_custom_server_notification": {
+        "message": "Прилагодениот DNS-сервер е избришан"
+    },
+    "settings_dns_selector_default_title": {
+        "message": "Стандардно"
+    },
+    "settings_dns_selector_default_desc": {
+        "message": "Користи DNS сервери обезбедени од AdGuard VPN"
+    },
+    "settings_dns_selector_adguard_title": {
+        "message": "AdGuard DNS"
+    },
+    "settings_dns_selector_adguard_desc": {
+        "message": "Ги отстранува рекламите и тракерите од вашиот уред"
+    },
+    "settings_dns_selector_adguard_nonfiltering_title": {
+        "message": "AdGuard DNS не-филтрирање"
+    },
+    "settings_dns_selector_adguard_nonfiltering_desc": {
+        "message": "Безбеден DNS без евиденција на активности (не филтрира реклами и тракери)"
+    },
+    "settings_dns_selector_adguard_family_title": {
+        "message": "DNS семејна заштита на AdGuard"
+    },
+    "settings_dns_selector_adguard_family_desc": {
+        "message": "AdGuard DNS + SafeSearch и блокирање на содржина за возрасни"
+    },
+    "settings_dns_selector_google_title": {
+        "message": "Google DNS"
+    },
+    "settings_dns_selector_google_desc": {
+        "message": "Бесплатна алтернативна DNS услуга од Google"
+    },
+    "settings_dns_selector_cloudflare_title": {
+        "message": "Cloudflare DNS"
+    },
+    "settings_dns_selector_cloudflare_desc": {
+        "message": "Бесплатна DNS услуга од Cloudflare"
+    },
+    "settings_dns_selector_cisco_title": {
+        "message": "Cisco OpenDNS"
+    },
+    "settings_dns_selector_cisco_desc": {
+        "message": "DNS сервер кој го штити вашиот уред од злонамеренсофтвер"
+    },
+    "settings_dns_selector_quad9_title": {
+        "message": "Quad9"
+    },
+    "settings_dns_selector_quad9_desc": {
+        "message": "Бесплатна алтернативна DNS услуга со заштита од фишинг и шпионски софтвер"
+    },
+    "settings_theme_label": {
+        "message": "Тема"
+    },
+    "settings_theme_system": {
+        "message": "Стандардно за прелистувачот"
+    },
+    "settings_theme_dark": {
+        "message": "Темна"
+    },
+    "settings_theme_light": {
+        "message": "Светла"
+    },
+    "settings_language_label": {
+        "message": "Јазик"
+    },
+    "settings_language_browser_default": {
+        "message": "Стандардно за прелистувачот"
+    },
+    "settings_quick_connect_title": {
+        "message": "Брзо поврзување"
+    },
+    "settings_quick_connect_subtitle": {
+        "message": "Избрана VPN локација кога ќе кликнете „Поврзи“"
+    },
+    "settings_quick_connect_last_used": {
+        "message": "Последно користена локација"
+    },
+    "settings_quick_connect_fastest": {
+        "message": "Најбрза локација"
+    },
+    "settings_exclusion_add": {
+        "message": "Додади"
+    },
+    "settings_exclusion_add_website": {
+        "message": "Додадете веб-локација"
+    },
+    "settings_exclusion_actions": {
+        "message": "Дејства"
+    },
+    "settings_exclusion_add_subdomain": {
+        "message": "Додадете поддомен"
+    },
+    "settings_exclusion_invalid_subdomain": {
+        "message": "Неважечки поддомен"
+    },
+    "settings_exclusion_status_domain": {
+        "message": "домен"
+    },
+    "settings_exclusion_status_subdomain": {
+        "message": "поддомен"
+    },
+    "settings_exclusion_status_all_subdomains": {
+        "message": "сите поддомени"
+    },
+    "settings_exclusion_group_settings_subtitle_regular_mode": {
+        "message": "AdGuard VPN е исклучен за проверените домени и поддомени"
+    },
+    "settings_exclusion_group_settings_subtitle_selective_mode": {
+        "message": "AdGuard VPN е вклучен за проверените домени и поддомени"
+    },
+    "settings_exclusion_domain_name": {
+        "message": "Име на домен"
+    },
+    "settings_exclusion_subdomain_name": {
+        "message": "Поддомен"
+    },
+    "settings_exclusion_add_from_list": {
+        "message": "Од списокот"
+    },
+    "settings_exclusion_add_manually": {
+        "message": "Рачно"
+    },
+    "settings_exclusion_add_manually_add": {
+        "message": "Додај рачно"
+    },
+    "settings_exclusions_add_invalid_domain": {
+        "message": "„%url%“ не е валиден домен. Дали сакате да го додадете на списокот?"
+    },
+    "settings_exclusion_modal_cancel": {
+        "message": "Откажи"
+    },
+    "settings_exclusion_modal_remove": {
+        "message": "Отстрани"
+    },
+    "settings_exclusion_modal_save": {
+        "message": "Зачувај"
+    },
+    "settings_exclusion_reset_to_default": {
+        "message": "Враќање на стандардно"
+    },
+    "settings_exclusion_reset_button": {
+        "message": "Ресетирај"
+    },
+    "settings_exclusions_undo": {
+        "message": "Врати"
+    },
+    "settings_exclusion_reset_service_confirmation_message": {
+        "message": "Ресетирај ги стандардните поставки за %hostname%? Ова ќе ги врати сите домени што недостасуваат и ќе ги постави сите ознаки за проверка на вклучени."
+    },
+    "settings_exclusion_search_website": {
+        "message": "Пребарајте веб-локација"
+    },
+    "settings_exclusion_placeholder_search": {
+        "message": "Пребарување"
+    },
+    "settings_exclusion_nothing_found": {
+        "message": "Не се пронајдени резултати"
+    },
+    "settings_exclusion_connection_problem": {
+        "message": "Проблем со поврзувањето"
+    },
+    "settings_exclusions_action_export": {
+        "message": "Извезете исклучоци"
+    },
+    "settings_exclusions_action_import": {
+        "message": "Увезете исклучоци"
+    },
+    "settings_exclusions_action_remove_all": {
+        "message": "Отстранете ги сите"
+    },
+    "settings_exclusions_remove_all_exclusions": {
+        "message": "Отстранете ги сите исклучоци"
+    },
+    "settings_exclusions_remove_all_exclusions_message": {
+        "message": "Дали сакате да го избришете целиот список на исклучоци?"
+    },
+    "settings_exclusion_title": {
+        "message": "Исклучоци"
+    },
+    "settings_exclusion_change_mode_modal_title": {
+        "message": "Каде што е вклучен VPN"
+    },
+    "settings_exclusion_general_title": {
+        "message": "Секаде освен исклучените веб-страници"
+    },
+    "settings_exclusion_general_mode_info": {
+        "message": "VPN е на <span>насекаде</span> освен за веб-локациите подолу"
+    },
+    "settings_exclusion_selective_title": {
+        "message": "Само на избрани веб-локации"
+    },
+    "settings_exclusion_selective_mode_info": {
+        "message": "VPN е наместен на <span>селективно</span>: само за веб-локациите подолу"
+    },
+    "settings_exclusion_selective_mode_warning": {
+        "message": "Ако ја оставите оваа листа празна, се оневозможува VPN за сите веб-локации"
+    },
+    "settings_exclusion_import_button": {
+        "message": "Увези"
+    },
+    "global_error_title": {
+        "message": "Настана грешка"
+    },
+    "global_error_description": {
+        "message": "Ве молиме контактирајте со нас ако постојано ја гледате оваа порака"
+    },
+    "global_error_learn_more": {
+        "message": "Дознај повеќе"
+    },
+    "global_error_try_again": {
+        "message": "Обиди се повторно"
+    },
+    "authentication_successful_notification": {
+        "message": "Потврдата беше успешна! Можете да го отворите AdGuard VPN и да започнете да го користите."
+    },
+    "control_error_title": {
+        "message": "Оневозможи друга VPN екстензија за да се поврзеш"
+    },
+    "control_error_description": {
+        "message": "Изгледа дека друга VPN екстензија го контролира твоето поврзување. За да користиш AdGuard VPN, исклучи ја другата екстензија"
+    },
+    "control_error_disable": {
+        "message": "Оневозможи"
+    },
+    "popup_skeleton_status": {
+        "message": "Пребарување на локации..."
+    },
+    "popup_no_locations_title": {
+        "message": "Локациите не се пронајдени"
+    },
+    "popup_no_locations_button": {
+        "message": "Пребарајте повторно"
+    },
+    "popup_settings_enable_vpn_short": {
+        "message": "Овозможи"
+    },
+    "popup_settings_disable_vpn": {
+        "message": "Оневозможете VPN за оваа веб-локација"
+    },
+    "popup_settings_other_products": {
+        "message": "Други производи"
+    },
+    "popup_settings_feedback": {
+        "message": "Повратни информации"
+    },
+    "popup_settings_open_settings": {
+        "message": "Поставки"
+    },
+    "popup_settings_stats": {
+        "message": "Статистика"
+    },
+    "popup_settings_free_description": {
+        "message": "Достапно во AdGuard VPN Unlimited"
+    },
+    "context_menu_enable_vpn": {
+        "message": "Овозможете VPN на оваа веб-локација"
+    },
+    "context_menu_disable_vpn": {
+        "message": "Оневозможете VPN на оваа веб-локација"
+    },
+    "endpoints_countries": {
+        "message": "Локации"
+    },
+    "endpoints_location_virtual": {
+        "message": "Виртуелна"
+    },
+    "endpoints_fastest": {
+        "message": "Најбрза"
+    },
+    "endpoints_all": {
+        "message": "Сите локации"
+    },
+    "endpoints_saved": {
+        "message": "Зачувано"
+    },
+    "endpoints_search": {
+        "message": "Пребарајте локација"
+    },
+    "endpoints_not_found": {
+        "message": "Локациите не се пронајдени"
+    },
+    "endpoints_empty_saved": {
+        "message": "За да видите локации тука, изберете <b>Сите</b> и кликнете на иконата до локацијата",
+        "description": "Respect spaces between text and tags. Use <b> tag for bold text"
+    },
+    "endpoints_tab_all": {
+        "message": "Сите"
+    },
+    "endpoints_tab_saved": {
+        "message": "Зачувано"
+    },
+    "endpoints_saved_location_deleted": {
+        "message": "Локацијата е избришана од Зачувани"
+    },
+    "popup_streaming_icon_title": {
+        "message": "Добро за стриминг сервиси"
+    },
+    "popup_streaming_modal_title": {
+        "message": "Достапни стримови на оваа локација"
+    },
+    "popup_streaming_modal_button_ok": {
+        "message": "Добро"
+    },
+    "popup_traffic_limit_reached": {
+        "message": "Достигнат е месечниот лимит за податоци"
+    },
+    "popup_traffic_limited_speed": {
+        "message": "Ограничена брзина"
+    },
+    "premium_upgrade": {
+        "message": "Надградба"
+    },
+    "settings_disconnect": {
+        "message": "Исклучете се"
+    },
+    "settings_vpn_connecting": {
+        "message": "Поврзување..."
+    },
+    "settings_connect": {
+        "message": "Поврзете се"
+    },
+    "settings_vpn_enabled": {
+        "message": "Поврзан"
+    },
+    "settings_vpn_disabled": {
+        "message": "Исклучен"
+    },
+    "popup_traffic_limit_exceeded_title": {
+        "message": "Брзината е намалена"
+    },
+    "popup_traffic_limit_exceeded_description": {
+        "message": "Го достигнавте лимитот за бесплатни податоци, а AdGuard VPN работи бавно"
+    },
+    "popup_traffic_limit_exceeded_cta_btn": {
+        "message": "Надгради"
+    },
+    "popup_paywall_b_title": {
+        "message": "Достигнат е лимитот на податоци — содржината се вчитува подолго"
+    },
+    "popup_paywall_b_description": {
+        "message": "Проверете го AdGuard VPN Unlimited. Со годишниот план зачувај 67%%"
+    },
+    "popup_paywall_b_column_free": {
+        "message": "Беспл.",
+        "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine."
+    },
+    "popup_paywall_b_column_unlimited": {
+        "message": "Unlimited",
+        "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine."
+    },
+    "popup_paywall_b_row_vpn_data": {
+        "message": "VPN податоци",
+        "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine."
+    },
+    "popup_paywall_b_row_vpn_data_free": {
+        "message": "%gb% GB<span>/мес</span>"
+    },
+    "popup_paywall_b_row_speed": {
+        "message": "Брзина",
+        "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine."
+    },
+    "popup_paywall_b_row_speed_free": {
+        "message": "Намалено",
+        "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine."
+    },
+    "popup_paywall_b_row_locations": {
+        "message": "Локации на сервери",
+        "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine."
+    },
+    "popup_paywall_b_row_locations_unlimited": {
+        "message": "%count%+"
+    },
+    "popup_paywall_b_row_devices": {
+        "message": "Уреди",
+        "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine."
+    },
+    "popup_paywall_b_row_dns": {
+        "message": "AdGuard DNS",
+        "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine."
+    },
+    "popup_paywall_b_btn_upgrade": {
+        "message": "Надгради"
+    },
+    "popup_paywall_b_btn_maybe_later": {
+        "message": "Можеби подоцна"
+    },
+    "popup_upgrade_b_title_line1": {
+        "message": "AdGuard VPN Unlimited"
+    },
+    "popup_upgrade_b_description": {
+        "message": "Нуди поврзувања со голема брзина, пристап до сите локации и повеќе"
+    },
+    "popup_upgrade_b_feature_speed": {
+        "message": "Стримувај со големи брзини без ограничувања"
+    },
+    "popup_upgrade_b_feature_locations": {
+        "message": "Гледајте содржина од %count%+ локации на серверот"
+    },
+    "popup_upgrade_b_feature_devices": {
+        "message": "Користете AdGuard VPN на %count% уреди истовремено"
+    },
+    "popup_upgrade_b_feature_dns": {
+        "message": "Сокријте ја вашата веб активност со AdGuard DNS како бонус"
+    },
+    "popup_upgrade_b_btn_get_unlimited": {
+        "message": "Добиј Unlimited"
+    },
+    "popup_upgrade_b_btn_maybe_later": {
+        "message": "Можеби подоцна"
+    },
+    "popup_feedback_title": {
+        "message": "Би сакале да ги слушнеме вашите повратни информации"
+    },
+    "popup_feedback_button": {
+        "message": "Оставете повратни информации"
+    },
+    "popup_compare_button": {
+        "message": "Зошто апликацијата е подобра"
+    },
+    "popup_rate_modal_title": {
+        "message": "Колку е одличен AdGuard VPN?"
+    },
+    "popup_rate_modal_subtitle": {
+        "message": "Ве молиме оценете не"
+    },
+    "popup_rate_modal_send_button": {
+        "message": "Испрати"
+    },
+    "popup_rate_modal_cancel_button": {
+        "message": "Откажи"
+    },
+    "popup_confirm_rate_modal_feedback_title": {
+        "message": "Помогнете ни да се подобриме"
+    },
+    "popup_confirm_rate_modal_feedback_subtitle": {
+        "message": "Кажете ни што тргна наопаку"
+    },
+    "popup_confirm_rate_modal_leave_feedback_button": {
+        "message": "Оставете повратни информации"
+    },
+    "popup_confirm_rate_modal_rate_title": {
+        "message": "Леле! Можете ли да не оцените и во продавницата за наставки?"
+    },
+    "popup_confirm_rate_modal_confirm_button": {
+        "message": "Одете во продавницата за екстензии"
+    },
+    "popup_server_error_popup_title": {
+        "message": "Не може да се поврзе со серверот"
+    },
+    "popup_server_error_popup_info": {
+        "message": "Најверојатно, VPN е блокиран во вашата земја или имало техничка грешка. Веќе се обидуваме да го поправиме"
+    },
+    "popup_server_error_popup_action": {
+        "message": "Поттикнете го тимот на AdGuard"
+    },
+    "popup_server_error_popup_cancel": {
+        "message": "Откажи"
+    },
+    "popup_server_error_popup_thankyou_title": {
+        "message": "Работиме на тоа"
+    },
+    "popup_server_error_popup_thankyou_message": {
+        "message": "Ви благодариме што не известивте!"
+    },
+    "popup_server_error_popup_close": {
+        "message": "Затвори"
+    },
+    "popup_host_permission_error_title": {
+        "message": "Дозволете пристап до веб-локациите"
+    },
+    "popup_host_permission_error_info": {
+        "message": "За да користите AdGuard VPN, дозволете му да пристапува до вашите податоци на веб-локациите. Ние не ги складираме овие податоци и не ги споделуваме со никого. <privacy>Политика за приватност</privacy>"
+    },
+    "popup_host_permission_error_btn_allow": {
+        "message": "Дозволи"
+    },
+    "options_title": {
+        "message": "Опции за VPN на AdGuard"
+    },
+    "offline_title": {
+        "message": "Офлајн"
+    },
+    "popup_site_status_unaccessible": {
+        "message": "се наоѓа во вашата локална мрежа и е недостапен преку VPN"
+    },
+    "popup_site_status_vpn_disabled": {
+        "message": "VPN е оневозможена на оваа веб-локација"
+    },
+    "popup_auth_policy_agreement_title": {
+        "message": "Добредојдовте"
+    },
+    "popup_auth_policy_agreement": {
+        "message": "Ја прифаќам <eula>EULA</eula> и <privacy>Политика за приватност</privacy> на AdGuard VPN",
+        "description": "WARNING! Respect spaces between tags"
+    },
+    "popup_auth_help_us_improve_agreement": {
+        "message": "Испраќа анонимизирани <link>податоци за користење на екстензијата</link>"
+    },
+    "popup_auth_policy_agreement_continue_button": {
+        "message": "Најавете се или креирајте сметка"
+    },
+    "popup_newsletter_title": {
+        "message": "Билтен на AdGuard"
+    },
+    "popup_newsletter_info": {
+        "message": "Испраќајте ми е-пошта со специјални понуди и новости за AdGuard"
+    },
+    "popup_newsletter_subscribe": {
+        "message": "Претплатете се"
+    },
+    "popup_newsletter_no_subscribe": {
+        "message": "Не, благодарам"
+    },
+    "popup_onboarding_unique_protocol": {
+        "message": "Уникатен VPN протокол"
+    },
+    "popup_onboarding_unique_protocol_info": {
+        "message": "Протоколот TrustTunnel работи брзо и го прави вашиот VPN сообраќај незабележлив"
+    },
+    "popup_onboarding_sites_apps_exclusions": {
+        "message": "Исклучоци на сајтови и апликации"
+    },
+    "popup_onboarding_sites_apps_exclusions_info": {
+        "message": "Исклучоците ви помагаат брзо да ги одредите сајтовите или апликациите за заштита на AdGuard VPN"
+    },
+    "popup_onboarding_no_logging_policy": {
+        "message": "Политика за незапишување на активностите"
+    },
+    "popup_onboarding_no_logging_policy_info": {
+        "message": "AdGuard VPN ве прави анонимни. Никогаш не ги собира или споделува вашите податоци со трети страни"
+    },
+    "popup_onboarding_next": {
+        "message": "Следно"
+    },
+    "popup_upgrade_screen_title": {
+        "message": "Надградба на Unlimited"
+    },
+    "popup_upgrade_screen_info_with_devices": {
+        "message": "Пристапете до сите локации, пребарувајте без ограничувања на брзината и поврзете до %maxDevicesAllowed% уреди истовремено"
+    },
+    "popup_upgrade_screen_unlimited_data": {
+        "message": "Неограничени податоци"
+    },
+    "popup_upgrade_screen_unlimited_data_desc": {
+        "message": "Единственото ограничување е дека вашите податоци никогаш не се споделуваат. Сурфајте колку што сакате!"
+    },
+    "popup_upgrade_screen_unlimited_speed": {
+        "message": "Неограничена брзина"
+    },
+    "popup_upgrade_screen_unlimited_speed_desc": {
+        "message": "Нема ограничувања за брзина. Извлечете го максимумот од вашиот давател на услуги!"
+    },
+    "popup_upgrade_screen_all_locations": {
+        "message": "Сите локации"
+    },
+    "popup_upgrade_screen_all_locations_desc": {
+        "message": "6 континенти и десетици земји. Изберете град и безбедно сурфајте на мрежата!"
+    },
+    "popup_upgrade_screen_connect_devices": {
+        "message": "До %potential_num% уреди"
+    },
+    "popup_upgrade_screen_connect_devices_desc": {
+        "message": "Поврзете ги сите ваши уреди со AdGuard VPN во исто време - или заштитете го целото семејство!"
+    },
+    "popup_upgrade_screen_upgrade_button": {
+        "message": "Надградба"
+    },
+    "popup_upgrade_screen_continue_free": {
+        "message": "Продолжете бесплатно"
+    },
+    "popup_free_traffic_info_left": {
+        "message": "Преостанаа %value% %unit%",
+        "description": "Respect spaces between text, tags and placeholders"
+    },
+    "popup_free_traffic_info_days_left": {
+        "message": "Сообраќајот денеска е обновен | Сообраќајот се обновува за %days% ден | Сообраќајот се обновува за %days% дена",
+        "description": "Respect spaces between text, tags and placeholders. 40 characters max limit for every plural form"
+    },
+    "popup_hint_popup_content": {
+        "message": "Поради тоа, можете да го оневозможите VPN за една веб-страница и да го задржите овозможен за другите"
+    },
+    "popup_hint_popup_button": {
+        "message": "Добро"
+    },
+    "popup_vpn_blocked_error_notice": {
+        "message": "Не можете да се поврзете?"
+    },
+    "popup_vpn_blocked_error_notice_alt": {
+        "message": "Префрлете се на десктоп верзија за постабилна врска"
+    },
+    "popup_vpn_blocked_error_notice_alt_mobile": {
+        "message": "Префрлете се на мобилна верзија за постабилна врска"
+    },
+    "popup_vpn_blocked_error_notice_alt_linux": {
+        "message": "Префрлете се на AdGuard VPN за Linux за постабилна врска"
+    },
+    "popup_vpn_blocked_error_details_title": {
+        "message": "Префрлете се на десктоп верзија за постабилна врска"
+    },
+    "popup_vpn_blocked_error_details_title_mobile": {
+        "message": "Префрлете се на мобилна верзија за постабилна врска"
+    },
+    "popup_vpn_blocked_error_details_title_linux": {
+        "message": "Префрлете се на AdGuard VPN за Linux за постабилна врска"
+    },
+    "popup_vpn_blocked_error_details_description": {
+        "message": "Ако забележите проблеми со поврзувањето, препорачуваме да се префрлите на десктоп верзијата. Таа работи понепречено"
+    },
+    "popup_vpn_blocked_error_details_description_mobile": {
+        "message": "Ако забележите проблеми со поврзувањето, препорачуваме да се префрлите на мобилната верзија. Таа работи понепречено"
+    },
+    "popup_vpn_blocked_error_details_description_linux": {
+        "message": "Ако забележите проблеми со поврзувањето, го препорачуваме нашиот Linux VPN клиент. Тој работи понепречено"
+    },
+    "popup_vpn_blocked_error_details_get_app_button": {
+        "message": "Преземи"
+    },
+    "popup_vpn_blocked_error_details_get_app_button_linux": {
+        "message": "Како да инсталирате"
+    },
+    "popup_vpn_blocked_error_details_later_button": {
+        "message": "Подоцна"
+    },
+    "limited_offer_notification_title": {
+        "message": "Попуст %discount%%% на AdGuard VPN",
+        "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign"
+    },
+    "limited_offer_notification_desc": {
+        "message": "Брз попуст: само 6 часа. Детали во екстензијата AdGuard VPN"
+    },
+    "popup_limited_offer_notice": {
+        "message": "Попуст %discount%%%: <span>%time_left%</span>",
+        "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign"
+    },
+    "popup_limited_offer_details_time_left": {
+        "message": "Преостанато време: %time_left%"
+    },
+    "popup_limited_offer_details_title": {
+        "message": "| AdGuard VPN Unlimited за %count% година со <span>%discount%%% попуст</span> | AdGuard VPN Unlimited за %count% години со <span>%discount%%% попуст</span>",
+        "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign"
+    },
+    "popup_limited_offer_details_btn": {
+        "message": "Зграби го договорот"
+    },
+    "options_exclusions_import_select_title": {
+        "message": "Како да се користи оваа листа на исклучоци?"
+    },
+    "options_exclusions_import_select_subtitle": {
+        "message": "Веб-страниците од увезената листа ќе бидат додадени на постоечките исклучоци"
+    },
+    "options_exclusions_import_select_regular": {
+        "message": "Сакам исклучен VPN за овие веб-локации"
+    },
+    "options_exclusions_import_select_selective": {
+        "message": "Сакам вклучен VPN за овие веб-локации"
+    },
+    "options_exclusions_delete_cancel_button": {
+        "message": "Откажи"
+    },
+    "options_exclusions_import_successful": {
+        "message": "Увезени исклучоци: %count%"
+    },
+    "options_exclusions_deleted_exclusions": {
+        "message": "Избришани исклучоци: %count%"
+    },
+    "options_exclusions_added_exclusions": {
+        "message": "Додадени исклучоци: %count%"
+    },
+    "options_exclusions_remove_all_success": {
+        "message": "Сите исклучоци за тековниот режим успешно се отстранети."
+    },
+    "options_exclusions_import_error_wrong_extensions": {
+        "message": "Датотеката со исклучоци треба да има една од следниве наставки: %extensions%"
+    },
+    "options_exclusions_import_error_wrong_extensions_in_zip": {
+        "message": "Zip архива: „%filename%“ не содржи датотеки со екстензии: %extensions%",
+        "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations"
+    },
+    "options_exclusions_import_error_invalid_zip": {
+        "message": "Датотеката „%filename%“ не е валидна zip архива",
+        "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations"
+    },
+    "popup_connections_limit_description_start": {
+        "message": "Можете да се поврзете до %maxDevicesAllowed% уреди во исто време."
+    },
+    "popup_connections_limit_description_end_free": {
+        "message": "За да користите VPN на ова, разгледајте го купувањето на AdGuard VPN Unlimited"
+    },
+    "popup_connections_limit_description_end_premium": {
+        "message": "За да користите VPN на ова, исклучете друг уред"
+    },
+    "popup_connections_limit_description_cta_button_free": {
+        "message": "Надгради"
+    },
+    "popup_connections_limit_description_cta_button_premium": {
+        "message": "Дознај повеќе"
+    },
+    "popup_connections_limit_title": {
+        "message": "Достигнат е ограничувањето на уреди"
+    },
+    "popup_mobile_edge_promo_text": {
+        "message": "Добијте VPN екстензија за Android"
+    },
+    "popup_mobile_edge_promo_modal_title": {
+        "message": "AdGuard VPN за Edge — сега на Android"
+    },
+    "popup_mobile_edge_promo_modal_description": {
+        "message": "Скенирајте го QR кодот за да ја инсталирате Edge на вашиот телефон или таблет. AdGuard VPN ќе се појави во предлозите"
+    },
+    "popup_mobile_edge_promo_modal_got_it_btn": {
+        "message": "Добро"
+    },
+    "popup_mobile_edge_promo_modal_do_not_show_btn": {
+        "message": "Не го покажувај ова повторно"
+    },
+    "popup_stats": {
+        "message": "Статистика"
+    },
+    "popup_stats_disabled_notice": {
+        "message": "Статистиките се оневозможени"
+    },
+    "popup_stats_enable_btn": {
+        "message": "Овозможи"
+    },
+    "popup_stats_data_usage": {
+        "message": "Податоци"
+    },
+    "popup_stats_most_used_locations": {
+        "message": "Најупотребувани локации"
+    },
+    "popup_stats_usage_time": {
+        "message": "Време"
+    },
+    "popup_stats_menu_why_safe_title": {
+        "message": "За вашите статистики"
+    },
+    "popup_stats_data_since": {
+        "message": "Од %startDate%",
+        "description": "IMPORTANT: Be careful with percent sign around startDate. StartDate will be replaced with the date when stats collection started. For example on - 17 Sept 2025, date format respects locale."
+    },
+    "popup_stats_menu_why_safe_description_1": {
+        "message": "Статистиката покажува колку VPN податоци сте користеле и ги рангира вашите најдобри локации"
+    },
+    "popup_stats_menu_why_safe_description_2": {
+        "message": "Статистиките никогаш не ја вклучуваат вашата историја на прелистување. Криптирано е, така што никој не може да ве следи"
+    },
+    "popup_stats_menu_why_safe_description_3": {
+        "message": "Ако користите AdGuard VPN во неколку прелистувачи, вашите статистики ќе бидат различни за секој од нив. Тие се зачувани на уредот и само вие можете да пристапите до нив"
+    },
+    "popup_stats_menu_why_safe_got_it": {
+        "message": "Добро"
+    },
+    "popup_stats_menu_enable_stats_btn": {
+        "message": "Овозможи статистика"
+    },
+    "popup_stats_menu_disable_stats_btn": {
+        "message": "Оневозможи статистики"
+    },
+    "popup_stats_menu_disable_stats_title": {
+        "message": "Оневозможи статистики?"
+    },
+    "popup_stats_menu_disable_stats_description": {
+        "message": "Нови статистики нема да се собираат. Сеуште можете да пристапите до постоечките статистики"
+    },
+    "popup_stats_menu_disable_stats_disable_btn": {
+        "message": "Оневозможи"
+    },
+    "popup_stats_menu_disable_stats_cancel_btn": {
+        "message": "Откажи"
+    },
+    "popup_stats_menu_clear_stats_btn": {
+        "message": "Избришете ја статистиката"
+    },
+    "popup_stats_menu_clear_stats_title": {
+        "message": "Избришете ја статистиката?"
+    },
+    "popup_stats_menu_clear_stats_description": {
+        "message": "Сите статистики ќе бидат трајно избришани"
+    },
+    "popup_stats_menu_clear_stats_clear_btn": {
+        "message": "Избриши"
+    },
+    "popup_stats_menu_clear_stats_cancel_btn": {
+        "message": "Откажи"
+    },
+    "popup_stats_range_hours_24": {
+        "message": "24 часа"
+    },
+    "popup_stats_range_days_7": {
+        "message": "7 дена"
+    },
+    "popup_stats_range_days_30": {
+        "message": "30 дена"
+    },
+    "popup_stats_range_all_time": {
+        "message": "Отсекогаш"
+    },
+    "popup_stats_data_usage_downloaded": {
+        "message": "преземени"
+    },
+    "popup_stats_data_usage_uploaded": {
+        "message": "прикачени"
+    },
+    "popup_stats_empty": {
+        "message": "Сè уште нема статистика - продолжете да го користите AdGuard VPN за да ги видите"
+    },
+    "popup_stats_view_all_locations": {
+        "message": "Прикажи ги сите локации"
+    },
+    "popup_stats_connection_to_vpn": {
+        "message": "Поврзано со VPN"
+    },
+    "popup_stats_connection_to_vpn_days": {
+        "message": "%days% д",
+        "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!"
+    },
+    "popup_stats_connection_to_vpn_hours": {
+        "message": "%hours% ч",
+        "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!"
+    },
+    "popup_stats_connection_to_vpn_minutes": {
+        "message": "%minutes% мин",
+        "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!"
+    },
+    "popup_stats_locations": {
+        "message": "Локации"
+    },
+    "options_signedout_page_title": {
+        "message": "Се одјавивте од AdGuard VPN"
+    },
+    "options_signedout_page_description_not_secure": {
+        "message": "Вашето поврзување не е безбедно!"
+    },
+    "options_signedout_page_description": {
+        "message": "За да продолжите со приватно сурфање, кликнете на иконата на AdGuard VPN и дневникот повторно."
+    },
+    "notification_data_limit_reached_title": {
+        "message": "Достигнат е месечниот лимит за податоци"
+    },
+    "notification_data_limit_reached_description": {
+        "message": "Брзината на VPN поврзувањето е намалена."
+    },
+    "notification_data_left_mb": {
+        "message": "Преостануваат уште %num% МБ."
+    },
+    "notification_data_left_description": {
+        "message": "Брзината на VPN поврзувањето наскоро ќе се намали."
+    },
+    "confirm_email_done_title_gb": {
+        "message": "Добивте %your_gb% GB како еднократен бонус за добредојде"
+    },
+    "confirm_email_done_info": {
+        "message": "Неискористениот сообраќај се префрла во следните месеци. А со AdGuard VPN Unlimited можете да уживате во брзо пребарување без ограничувања"
+    },
+    "auth_failed_to_login_title": {
+        "message": "Не успеа да ве најави"
+    },
+    "auth_failed_to_login_description": {
+        "message": "Обидете се повторно или <a>контактирајте со поддршката</a>"
+    },
+    "auth_failed_to_login_description_without_support": {
+        "message": "Ве молам пробајте повторно"
+    },
+    "auth_failed_to_login_button": {
+        "message": "Затвори"
+    },
+    "auth_loading_title": {
+        "message": "Најавете се или регистрирајте се преку вашиот прелистувач"
+    },
+    "auth_loading_description": {
+        "message": "Ако имате AdGuard VPN лиценца, таа ќе се примени автоматски"
+    },
+    "auth_loading_button_reopen": {
+        "message": "Повторно отворете ја страницата за најавување"
+    },
+    "auth_loading_button_cancel": {
+        "message": "Откажи"
+    },
+    "auth_success_title": {
+        "message": "Најавени сте"
+    },
+    "auth_success_description": {
+        "message": "Вратете се на екстензијата AdGuard VPN — сѐ е подготвено"
+    }
+}

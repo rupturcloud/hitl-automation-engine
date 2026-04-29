@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "เพิ่มแท็บใหม่ของ MSN เพื่อให้สามารถเข้าถึงข่าวสารล่าสุด เว็บไซต์ที่คุณเยี่ยมชมบ่อยที่สุด การค้นหาเว็บ และอื่นๆ"
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "th-th"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "แท็บใหม่ของ MSN"
+   }
+}

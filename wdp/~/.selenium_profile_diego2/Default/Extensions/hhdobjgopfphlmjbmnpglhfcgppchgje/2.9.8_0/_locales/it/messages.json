@@ -1,0 +1,1238 @@
+{
+   "a11y_go_back": {
+      "message": "Torna indietro"
+   },
+   "about_title": {
+      "message": "Informazioni su"
+   },
+   "account_edit": {
+      "message": "Apri impostazioni del profilo"
+   },
+   "account_free": {
+      "message": "Versione gratuita"
+   },
+   "account_get_subscription": {
+      "message": "Ottieni l'abbonamento"
+   },
+   "account_logged_in_as": {
+      "message": "Connesso come \u003Cb>%username%\u003C/b>"
+   },
+   "account_max_devices_count": {
+      "message": "Fino a \u003Cb>%num%\u003C/b> dispositivi simultanei"
+   },
+   "account_monthly_paid": {
+      "message": "Abbonamento mensile a pagamento"
+   },
+   "account_sign_out": {
+      "message": "Disconnetti"
+   },
+   "account_sign_out_description": {
+      "message": "Sarai disconnesso dal tuo profilo. La protezione VPN sarà fermata"
+   },
+   "account_sign_out_popup_cancel": {
+      "message": "Annulla"
+   },
+   "account_sign_out_question": {
+      "message": "Disconnettere?"
+   },
+   "account_title": {
+      "message": "Profilo"
+   },
+   "account_two_year_paid": {
+      "message": "Abbonamento biennale a pagamento"
+   },
+   "account_unlimited": {
+      "message": "Abbonamento illimitato"
+   },
+   "account_unlimited_title": {
+      "message": "Ottieni versione Illimitata!"
+   },
+   "account_valid_until": {
+      "message": "Valida fino al \u003Cb>%date%\u003C/b>"
+   },
+   "account_version": {
+      "message": "Versione"
+   },
+   "account_yearly_paid": {
+      "message": "Abbonamento annuale a pagamento"
+   },
+   "all_rights_reserved": {
+      "message": "Tutti i diritti riservati."
+   },
+   "auth_failed_to_login_button": {
+      "message": "Chiudi"
+   },
+   "auth_failed_to_login_description": {
+      "message": "Riprovare o \u003Ca>contattare l'assistenza\u003C/a>"
+   },
+   "auth_failed_to_login_description_without_support": {
+      "message": "Si prega di riprovare"
+   },
+   "auth_failed_to_login_title": {
+      "message": "Impossibile per te effettuare l'accesso"
+   },
+   "auth_loading_button_cancel": {
+      "message": "Annulla"
+   },
+   "auth_loading_button_reopen": {
+      "message": "Riapri la pagina di accesso"
+   },
+   "auth_loading_description": {
+      "message": "Se hai una licenza AdGuard VPN, sarà applicata automaticamente"
+   },
+   "auth_loading_title": {
+      "message": "Accedi o registrati tramite il tuo browser"
+   },
+   "auth_success_description": {
+      "message": "Torna all'estensione AdGuard VPN: è tutto approntato"
+   },
+   "auth_success_title": {
+      "message": "Sei connesso"
+   },
+   "authentication_successful_notification": {
+      "message": "Autenticazione riuscita! Puoi aprire AdGuard VPN e iniziare a utilizzarla."
+   },
+   "confirm_email_done_info": {
+      "message": "Il traffico inutilizzato è trasferito ai mesi successivi. E con AdGuard VPN Illimitato, puoi goderti una navigazione veloce senza limiti"
+   },
+   "confirm_email_done_title_gb": {
+      "message": "Hai ricevuto %your_gb% GB come bonus di benvenuto una tantum"
+   },
+   "context_menu_debug_level": {
+      "message": "Registrazione di debug"
+   },
+   "context_menu_disable_vpn": {
+      "message": "Disattiva VPN su questo sito web"
+   },
+   "context_menu_enable_vpn": {
+      "message": "Attiva VPN su questo sito web"
+   },
+   "context_menu_export_logs": {
+      "message": "Esporta registri"
+   },
+   "context_menu_general_mode": {
+      "message": "Modalità generale"
+   },
+   "context_menu_selective_mode": {
+      "message": "Modalità selettiva"
+   },
+   "control_error_description": {
+      "message": "Sembra che un'altra estensione VPN stia controllando la tua connessione. Per usare AdGuard VPN disabilita l'altra estensione"
+   },
+   "control_error_disable": {
+      "message": "Disabilita"
+   },
+   "control_error_title": {
+      "message": "Disabilita un'altra estensione VPN per connetterti"
+   },
+   "description": {
+      "description": "TEXT MAX LENGTH: 132",
+      "message": "Usa AdGuard VPN per un Internet veloce, sicuro e protetto. Proteggi la tua privacy e rimani anonimo con il nostro proxy VPN privato."
+   },
+   "endpoints_all": {
+      "message": "Tutte le località"
+   },
+   "endpoints_countries": {
+      "message": "Località"
+   },
+   "endpoints_empty_saved": {
+      "description": "Respect spaces between text and tags. Use \u003Cb> tag for bold text",
+      "message": "Per vedere le località qui, seleziona \u003Cb>Tutte\u003C/b> e clicca l'icona accanto a un luogo"
+   },
+   "endpoints_fastest": {
+      "message": "Ultraveloce"
+   },
+   "endpoints_location_virtual": {
+      "message": "Virtuale"
+   },
+   "endpoints_not_found": {
+      "message": "Località non trovate"
+   },
+   "endpoints_saved": {
+      "message": "Salvato"
+   },
+   "endpoints_saved_location_deleted": {
+      "message": "Luogo eliminato da Salvati"
+   },
+   "endpoints_search": {
+      "message": "Cerca località"
+   },
+   "endpoints_tab_all": {
+      "message": "Tutti"
+   },
+   "endpoints_tab_saved": {
+      "message": "Salvati"
+   },
+   "eula": {
+      "message": "EULA"
+   },
+   "global_error_description": {
+      "message": "Ti preghiamo di contattarci se dovessi continuare a vedere questo messaggio"
+   },
+   "global_error_learn_more": {
+      "message": "Per saperne di più"
+   },
+   "global_error_title": {
+      "message": "Si è verificato un errore"
+   },
+   "global_error_try_again": {
+      "message": "Riprova"
+   },
+   "limited_offer_notification_desc": {
+      "message": "Offerta flash solo per 6 ore. Scopri di più nella tua estensione AdGuard VPN"
+   },
+   "limited_offer_notification_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "%discount%%% di sconto su AdGuard VPN"
+   },
+   "name": {
+      "message": "AdGuard VPN: proxy gratuito e sicuro"
+   },
+   "notification_data_left_description": {
+      "message": "La velocità di connessione VPN verrà ridotta presto."
+   },
+   "notification_data_left_mb": {
+      "message": "Sono rimasti %num% MB."
+   },
+   "notification_data_limit_reached_description": {
+      "message": "La velocità di connessione VPN è stata ridotta."
+   },
+   "notification_data_limit_reached_title": {
+      "message": "Limite dei dati mensile raggiunto"
+   },
+   "official_website": {
+      "message": "Sito web ufficiale"
+   },
+   "offline_title": {
+      "message": "Offline"
+   },
+   "options_bug_report_email_invalid": {
+      "message": "Indirizzo e-mail errato"
+   },
+   "options_bug_report_email_label": {
+      "message": "E-mail"
+   },
+   "options_bug_report_include_log_label": {
+      "message": "Includi il rapporto diagnostico nel messaggio"
+   },
+   "options_bug_report_new_report_button": {
+      "message": "Nuova segnalazione"
+   },
+   "options_bug_report_page_success": {
+      "message": "Grazie, il tuo messaggio è stato inviato correttamente!"
+   },
+   "options_bug_report_request_error": {
+      "message": "Si è verificato un errore. Riprova più tardi."
+   },
+   "options_bug_report_send_button": {
+      "message": "Invia segnalazione"
+   },
+   "options_bug_report_sending_button": {
+      "message": "Invio della segnalazione…"
+   },
+   "options_bug_report_textarea_invalid": {
+      "message": "Questo campo è obbligatorio"
+   },
+   "options_bug_report_textarea_label": {
+      "message": "Messaggio"
+   },
+   "options_bug_report_textarea_placeholder": {
+      "message": "Fornisci dettagli"
+   },
+   "options_exclusions_added_exclusions": {
+      "message": "Esclusioni aggiunte: %count%"
+   },
+   "options_exclusions_delete_cancel_button": {
+      "message": "Annulla"
+   },
+   "options_exclusions_deleted_exclusions": {
+      "message": "Esclusioni rimosse: %count%"
+   },
+   "options_exclusions_import_error_invalid_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "Il file \"%filename%\" non è un archivio zip valido"
+   },
+   "options_exclusions_import_error_wrong_extensions": {
+      "message": "Il file delle esclusioni dovrebbe avere una delle seguenti estensioni: %extensions%"
+   },
+   "options_exclusions_import_error_wrong_extensions_in_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "L'archivio \"%filename%\" non contiene file con le estensioni %extensions%"
+   },
+   "options_exclusions_import_select_regular": {
+      "message": "Voglio che la VPN sia disattivata per questi siti Web"
+   },
+   "options_exclusions_import_select_selective": {
+      "message": "Voglio che la VPN sia attiva per questi siti web"
+   },
+   "options_exclusions_import_select_subtitle": {
+      "message": "I siti Web dall'elenco importato verranno aggiunti alle esclusioni esistenti"
+   },
+   "options_exclusions_import_select_title": {
+      "message": "Come utilizzare questo elenco di esclusioni?"
+   },
+   "options_exclusions_import_successful": {
+      "message": "Esclusioni importate: %count%"
+   },
+   "options_exclusions_remove_all_success": {
+      "message": "Tutte le esclusioni per la modalità corrente sono state correttamente rimosse."
+   },
+   "options_report_bug_title": {
+      "message": "Segnala un bug"
+   },
+   "options_signedout_page_description": {
+      "message": "Per continuare a navigare in privato, clicca l'icona AdGuard VPN e accedi nuovamente."
+   },
+   "options_signedout_page_description_not_secure": {
+      "message": "La tua connessione non è protetta!"
+   },
+   "options_signedout_page_title": {
+      "message": "Ti sei disconnesso da AdGuard VPN"
+   },
+   "options_support_faq_description": {
+      "message": "Domande e risposte"
+   },
+   "options_support_faq_title": {
+      "message": "FAQ"
+   },
+   "options_support_feedback_description": {
+      "message": "Invia richieste di funzionalità e suggerimenti"
+   },
+   "options_support_feedback_title": {
+      "message": "Lascia feedback"
+   },
+   "options_support_report_description": {
+      "message": "Inviaci un segnale su dei potenziali bug"
+   },
+   "options_support_report_title": {
+      "message": "Segnala un bug"
+   },
+   "options_support_title": {
+      "message": "Supporto"
+   },
+   "options_title": {
+      "message": "Opzioni di AdGuard VPN"
+   },
+   "popup_auth_help_us_improve_agreement": {
+      "message": "Invia \u003Clink>dati anonimizzati sull'uso dell'estensione\u003C/link>"
+   },
+   "popup_auth_policy_agreement": {
+      "description": "WARNING! Respect spaces between tags",
+      "message": "Accetto l'\u003Ceula>EULA\u003C/eula> e la \u003Cprivacy>Politica di riservatezza\u003C/privacy> di AdGuard VPN"
+   },
+   "popup_auth_policy_agreement_continue_button": {
+      "message": "Accedi o crea un account"
+   },
+   "popup_auth_policy_agreement_title": {
+      "message": "Benvenuti a bordo"
+   },
+   "popup_compare_button": {
+      "message": "Perché l'app è migliore"
+   },
+   "popup_confirm_rate_modal_confirm_button": {
+      "message": "Vai all'Extension Store"
+   },
+   "popup_confirm_rate_modal_feedback_subtitle": {
+      "message": "Raccontaci cosa è andato storto"
+   },
+   "popup_confirm_rate_modal_feedback_title": {
+      "message": "Aiutaci a migliorare"
+   },
+   "popup_confirm_rate_modal_leave_feedback_button": {
+      "message": "Lascia feedback"
+   },
+   "popup_confirm_rate_modal_rate_title": {
+      "message": "Oh! Puoi valutarci anche nell'Extension Store?"
+   },
+   "popup_connections_limit_description_cta_button_free": {
+      "message": "Aggiorna"
+   },
+   "popup_connections_limit_description_cta_button_premium": {
+      "message": "Ulteriori informazioni"
+   },
+   "popup_connections_limit_description_end_free": {
+      "message": "Per usare VPN su questo, considera di comprare AdGuard VPN Unlimited"
+   },
+   "popup_connections_limit_description_end_premium": {
+      "message": "Per usare la VPN su questo dispositivo, disconnetti un altro dispositivo"
+   },
+   "popup_connections_limit_description_start": {
+      "message": "Puoi connettere fino a %maxDevicesAllowed% dispositivi allo stesso tempo."
+   },
+   "popup_connections_limit_title": {
+      "message": "Limite dispositivi raggiunto"
+   },
+   "popup_feedback_button": {
+      "message": "Lascia feedback"
+   },
+   "popup_feedback_title": {
+      "message": "Ci piacerebbe sentire un tuo parere"
+   },
+   "popup_free_traffic_info_days_left": {
+      "description": "Respect spaces between text, tags and placeholders. 40 characters max limit for every plural form",
+      "message": "Il traffico si rinnova oggi | Il traffico si rinnova in %days% giorno | Il traffico si rinnova in %days% giorni"
+   },
+   "popup_free_traffic_info_left": {
+      "description": "Respect spaces between text, tags and placeholders",
+      "message": "%value% %unit% rimasto"
+   },
+   "popup_hint_popup_button": {
+      "message": "Capito"
+   },
+   "popup_hint_popup_content": {
+      "message": "A proposito, puoi disabilitare la VPN per un sito web e mantenerla abilitata per altri"
+   },
+   "popup_host_permission_error_btn_allow": {
+      "message": "Consenti"
+   },
+   "popup_host_permission_error_info": {
+      "message": "Per usare AdGuard VPN consentigli di accedere ai tuoi dati sui siti web. Non memorizziamo né condividiamo questi dati con nessuno. \u003Cprivacy>Politica di riservatezza\u003C/privacy>"
+   },
+   "popup_host_permission_error_title": {
+      "message": "Consenti accesso ai siti web"
+   },
+   "popup_limited_offer_details_btn": {
+      "message": "Cogli l'occasione"
+   },
+   "popup_limited_offer_details_time_left": {
+      "message": "Tempo rimasto: %time_left%"
+   },
+   "popup_limited_offer_details_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "| AdGuard VPN Illimitato per %count% anno al \u003Cspan>%discount%%% di sconto\u003C/span> | AdGuard VPN Illimitato per %count% anni al \u003Cspan>%discount%%% di sconto\u003C/span>"
+   },
+   "popup_limited_offer_notice": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "%discount%%% di sconto: \u003Cspan>%time_left%\u003C/span>"
+   },
+   "popup_mobile_edge_promo_modal_description": {
+      "message": "Scansiona il codice QR per installare Edge sul tuo telefono o tablet. AdGuard VPN apparirà nei suggerimenti"
+   },
+   "popup_mobile_edge_promo_modal_do_not_show_btn": {
+      "message": "Non mostrarlo più"
+   },
+   "popup_mobile_edge_promo_modal_got_it_btn": {
+      "message": "Capito"
+   },
+   "popup_mobile_edge_promo_modal_title": {
+      "message": "AdGuard VPN per Edge — ora su Android"
+   },
+   "popup_mobile_edge_promo_text": {
+      "message": "Ottieni l'estensione VPN per Android"
+   },
+   "popup_newsletter_info": {
+      "message": "Inviami e-mail con offerte speciali e notizie su AdGuard"
+   },
+   "popup_newsletter_no_subscribe": {
+      "message": "No, grazie"
+   },
+   "popup_newsletter_subscribe": {
+      "message": "Sottoscrivi"
+   },
+   "popup_newsletter_title": {
+      "message": "Newsletter AdGuard"
+   },
+   "popup_no_locations_button": {
+      "message": "Cerca ancora"
+   },
+   "popup_no_locations_title": {
+      "message": "Località non trovate"
+   },
+   "popup_onboarding_next": {
+      "message": "Avanti"
+   },
+   "popup_onboarding_no_logging_policy": {
+      "message": "Politica senza registri"
+   },
+   "popup_onboarding_no_logging_policy_info": {
+      "message": "AdGuard VPN ti rende anonimo. Non raccoglie né condivide mai i tuoi dati con terze parti"
+   },
+   "popup_onboarding_sites_apps_exclusions": {
+      "message": "Esclusioni di siti e app"
+   },
+   "popup_onboarding_sites_apps_exclusions_info": {
+      "message": "Le esclusioni ti aiutano a specificare rapidamente i siti o le app per la protezione VPN di AdGuard"
+   },
+   "popup_onboarding_unique_protocol": {
+      "message": "Protocollo VPN unico"
+   },
+   "popup_onboarding_unique_protocol_info": {
+      "message": "Il protocollo TrustTunnel funziona velocemente e rende il tuo traffico VPN indistinto"
+   },
+   "popup_paywall_b_btn_maybe_later": {
+      "message": "Forse più tardi"
+   },
+   "popup_paywall_b_btn_upgrade": {
+      "message": "Aggiorna"
+   },
+   "popup_paywall_b_column_free": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Gratis"
+   },
+   "popup_paywall_b_column_unlimited": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Illimitato"
+   },
+   "popup_paywall_b_description": {
+      "message": "Controlla AdGuard VPN Unlimited. Con il piano annuale, risparmia il 67%%"
+   },
+   "popup_paywall_b_row_devices": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Dispositivi"
+   },
+   "popup_paywall_b_row_dns": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "AdGuard DNS"
+   },
+   "popup_paywall_b_row_locations": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Posizioni dei server"
+   },
+   "popup_paywall_b_row_locations_unlimited": {
+      "message": "%count% e più"
+   },
+   "popup_paywall_b_row_speed": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Velocità"
+   },
+   "popup_paywall_b_row_speed_free": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Ridotta"
+   },
+   "popup_paywall_b_row_vpn_data": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Dati VPN"
+   },
+   "popup_paywall_b_row_vpn_data_free": {
+      "message": "%gb% GB\u003Cspan>/mese\u003C/span>"
+   },
+   "popup_paywall_b_title": {
+      "message": "Limite dati raggiunto — il contenuto si carica più lentamente"
+   },
+   "popup_rate_modal_cancel_button": {
+      "message": "Annulla"
+   },
+   "popup_rate_modal_send_button": {
+      "message": "Invia"
+   },
+   "popup_rate_modal_subtitle": {
+      "message": "Valutaci"
+   },
+   "popup_rate_modal_title": {
+      "message": "AdGuard VPN e fantastico, vero?"
+   },
+   "popup_server_error_popup_action": {
+      "message": "Dare una spinta al team AdGuard"
+   },
+   "popup_server_error_popup_cancel": {
+      "message": "Annulla"
+   },
+   "popup_server_error_popup_close": {
+      "message": "Chiudi"
+   },
+   "popup_server_error_popup_info": {
+      "message": "Forse la VPN è stata bloccata nel tuo paese o si è verificato un problema tecnico. Stiamo cercando di risolverlo"
+   },
+   "popup_server_error_popup_thankyou_message": {
+      "message": "Grazie per avercelo fatto sapere!"
+   },
+   "popup_server_error_popup_thankyou_title": {
+      "message": "Lavorare su di esso"
+   },
+   "popup_server_error_popup_title": {
+      "message": "Impossibile connettersi al server"
+   },
+   "popup_settings_disable_vpn": {
+      "message": "Disattiva VPN su questo sito web"
+   },
+   "popup_settings_enable_vpn_short": {
+      "message": "Attiva per il sito"
+   },
+   "popup_settings_feedback": {
+      "message": "Feedback"
+   },
+   "popup_settings_free_description": {
+      "message": "Disponibile in AdGuard VPN Unlimited"
+   },
+   "popup_settings_open_settings": {
+      "message": "Impostazioni"
+   },
+   "popup_settings_other_products": {
+      "message": "Altri prodotti"
+   },
+   "popup_settings_stats": {
+      "message": "Statistiche"
+   },
+   "popup_site_status_unaccessible": {
+      "message": "si trova nella rete locale e non è accessibile tramite VPN."
+   },
+   "popup_site_status_vpn_disabled": {
+      "message": "VPN disattivata su questo sito web"
+   },
+   "popup_skeleton_status": {
+      "message": "In cerca di località..."
+   },
+   "popup_stats": {
+      "message": "Statistiche"
+   },
+   "popup_stats_connection_to_vpn": {
+      "message": "Connesso alla VPN"
+   },
+   "popup_stats_connection_to_vpn_days": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%days% g"
+   },
+   "popup_stats_connection_to_vpn_hours": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%hours% o"
+   },
+   "popup_stats_connection_to_vpn_minutes": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%minutes% min"
+   },
+   "popup_stats_data_since": {
+      "description": "IMPORTANT: Be careful with percent sign around startDate. StartDate will be replaced with the date when stats collection started. For example on - 17 Sept 2025, date format respects locale.",
+      "message": "Dal %startDate%"
+   },
+   "popup_stats_data_usage": {
+      "message": "Dati"
+   },
+   "popup_stats_data_usage_downloaded": {
+      "message": "scaricati"
+   },
+   "popup_stats_data_usage_uploaded": {
+      "message": "caricati"
+   },
+   "popup_stats_disabled_notice": {
+      "message": "Statistiche disabilitate"
+   },
+   "popup_stats_empty": {
+      "message": "Nessuna statistica: continua a usare AdGuard VPN per vederle"
+   },
+   "popup_stats_enable_btn": {
+      "message": "Abilita"
+   },
+   "popup_stats_locations": {
+      "message": "Località"
+   },
+   "popup_stats_menu_clear_stats_btn": {
+      "message": "Cancella statistiche"
+   },
+   "popup_stats_menu_clear_stats_cancel_btn": {
+      "message": "Annulla"
+   },
+   "popup_stats_menu_clear_stats_clear_btn": {
+      "message": "Cancella"
+   },
+   "popup_stats_menu_clear_stats_description": {
+      "message": "Le statistiche saranno eliminate definitivamente"
+   },
+   "popup_stats_menu_clear_stats_title": {
+      "message": "Cancellare statistiche?"
+   },
+   "popup_stats_menu_disable_stats_btn": {
+      "message": "Disabilita statistiche"
+   },
+   "popup_stats_menu_disable_stats_cancel_btn": {
+      "message": "Annulla"
+   },
+   "popup_stats_menu_disable_stats_description": {
+      "message": "Le nuove statistiche non saranno raccolte. Puoi ancora accedere alle tue statistiche esistenti"
+   },
+   "popup_stats_menu_disable_stats_disable_btn": {
+      "message": "Disabilita"
+   },
+   "popup_stats_menu_disable_stats_title": {
+      "message": "Disabilitare le statistiche?"
+   },
+   "popup_stats_menu_enable_stats_btn": {
+      "message": "Abilita statistiche"
+   },
+   "popup_stats_menu_why_safe_description_1": {
+      "message": "Le statistiche mostrano quanti dati VPN hai usato e classificano i principali posizioni"
+   },
+   "popup_stats_menu_why_safe_description_2": {
+      "message": "Le statistiche non includono mai la tua cronologia di navigazione. È crittografata, quindi nessuno può tracciarti"
+   },
+   "popup_stats_menu_why_safe_description_3": {
+      "message": "Se usi AdGuard VPN in diversi browser, le tue statistiche saranno differenti per ciascuno di essi. Sono salvate nel dispositivo e solo tu puoi accedervi"
+   },
+   "popup_stats_menu_why_safe_got_it": {
+      "message": "Capito"
+   },
+   "popup_stats_menu_why_safe_title": {
+      "message": "Informazioni sulle statistiche"
+   },
+   "popup_stats_most_used_locations": {
+      "message": "Località più usate"
+   },
+   "popup_stats_range_all_time": {
+      "message": "Ogni momento"
+   },
+   "popup_stats_range_days_30": {
+      "message": "30 giorni"
+   },
+   "popup_stats_range_days_7": {
+      "message": "7 giorni"
+   },
+   "popup_stats_range_hours_24": {
+      "message": "24 ore"
+   },
+   "popup_stats_usage_time": {
+      "message": "Tempo"
+   },
+   "popup_stats_view_all_locations": {
+      "message": "Vedi tutte le località"
+   },
+   "popup_streaming_icon_title": {
+      "message": "Ottimo per i servizi di streaming"
+   },
+   "popup_streaming_modal_button_ok": {
+      "message": "Capito"
+   },
+   "popup_streaming_modal_title": {
+      "message": "Streaming disponibili in questa posizione"
+   },
+   "popup_traffic_limit_exceeded_cta_btn": {
+      "message": "Aggiorna"
+   },
+   "popup_traffic_limit_exceeded_description": {
+      "message": "Hai raggiunto il limite dati gratuito, e AdGuard VPN lavorerà lentamente"
+   },
+   "popup_traffic_limit_exceeded_title": {
+      "message": "La velocità è stata ridotta"
+   },
+   "popup_traffic_limit_reached": {
+      "message": "Limite dati mensile raggiunto"
+   },
+   "popup_traffic_limited_speed": {
+      "message": "Velocità ridotta"
+   },
+   "popup_upgrade_b_btn_get_unlimited": {
+      "message": "Ottieni Illimitato"
+   },
+   "popup_upgrade_b_btn_maybe_later": {
+      "message": "Forse più tardi"
+   },
+   "popup_upgrade_b_description": {
+      "message": "Offre connessioni ad alta velocità, accesso a tutte le posizioni e altro"
+   },
+   "popup_upgrade_b_feature_devices": {
+      "message": "Usa AdGuard VPN con %count% dispositivi contemporaneamente"
+   },
+   "popup_upgrade_b_feature_dns": {
+      "message": "Nascondi la tua attività web con AdGuard DNS come bonus"
+   },
+   "popup_upgrade_b_feature_locations": {
+      "message": "Guarda contenuti da oltre %count%  luoghi"
+   },
+   "popup_upgrade_b_feature_speed": {
+      "message": "Gestisci dati ad alta velocità senza limiti"
+   },
+   "popup_upgrade_b_title_line1": {
+      "message": "AdGuard VPN illimitato"
+   },
+   "popup_upgrade_screen_all_locations": {
+      "message": "Tutte le località"
+   },
+   "popup_upgrade_screen_all_locations_desc": {
+      "message": "Scegli una città e naviga in Rete in sicurezza!"
+   },
+   "popup_upgrade_screen_connect_devices": {
+      "message": "Fino a %potential_num% dispositivi"
+   },
+   "popup_upgrade_screen_connect_devices_desc": {
+      "message": "Collegare tutti i sui dispositivi ad AdGuard VPN allo stesso tempo, o proteggere l\\'intera famiglia!"
+   },
+   "popup_upgrade_screen_continue_free": {
+      "message": "Continua gratuitamente"
+   },
+   "popup_upgrade_screen_info_with_devices": {
+      "message": "Accedi a tutte le posizioni, naviga senza limiti di velocità e connetti fino a %maxDevicesAllowed% dispositivi in una volta"
+   },
+   "popup_upgrade_screen_title": {
+      "message": "Aggiorna a illimitato"
+   },
+   "popup_upgrade_screen_unlimited_data": {
+      "message": "Dati illimitati"
+   },
+   "popup_upgrade_screen_unlimited_data_desc": {
+      "message": "L'unico limite è che i tuoi dati non verranno mai \ncondivisi. Naviga verso il contenuto del tuo cuore!"
+   },
+   "popup_upgrade_screen_unlimited_speed": {
+      "message": "Velocità illimitata"
+   },
+   "popup_upgrade_screen_unlimited_speed_desc": {
+      "message": "Senza limitazioni di velocità. Ricevi il massimo dal fornitore del tuo servizio!"
+   },
+   "popup_upgrade_screen_upgrade_button": {
+      "message": "Aggiorna"
+   },
+   "popup_vpn_blocked_error_details_description": {
+      "message": "Se noti inghippi di connessione, ti consigliamo di passare alla versione per fisso. Funziona in modo più fluido"
+   },
+   "popup_vpn_blocked_error_details_description_linux": {
+      "message": "Se noti inghippi di connessione, ti consigliamo il nostro client VPN Linux. Funziona in modo più fluido"
+   },
+   "popup_vpn_blocked_error_details_description_mobile": {
+      "message": "Se noti inghippi di connessione, ti consigliamo di passare alla versione mobile. Funziona in modo più fluido"
+   },
+   "popup_vpn_blocked_error_details_get_app_button": {
+      "message": "Scaricare"
+   },
+   "popup_vpn_blocked_error_details_get_app_button_linux": {
+      "message": "Come installare"
+   },
+   "popup_vpn_blocked_error_details_later_button": {
+      "message": "Più tardi"
+   },
+   "popup_vpn_blocked_error_details_title": {
+      "message": "Passa alla versione per fisso per una connessione più stabile"
+   },
+   "popup_vpn_blocked_error_details_title_linux": {
+      "message": "Passa a AdGuard VPN per Linux per una connessione più stabile"
+   },
+   "popup_vpn_blocked_error_details_title_mobile": {
+      "message": "Passa alla versione mobile per una connessione più stabile"
+   },
+   "popup_vpn_blocked_error_notice": {
+      "message": "Nessuna connessione?"
+   },
+   "popup_vpn_blocked_error_notice_alt": {
+      "message": "Passa alla versione per fisso per una connessione più stabile"
+   },
+   "popup_vpn_blocked_error_notice_alt_linux": {
+      "message": "Passa a AdGuard VPN per Linux per una connessione più stabile"
+   },
+   "popup_vpn_blocked_error_notice_alt_mobile": {
+      "message": "Passa alla versione mobile per una connessione più stabile"
+   },
+   "premium_upgrade": {
+      "message": "Incrementa"
+   },
+   "privacy_policy": {
+      "message": "Politica sulla Riservatezza"
+   },
+   "rate_description": {
+      "message": "Ti stai godendo AdGuard VPN?"
+   },
+   "rate_hide": {
+      "message": "Nascondi"
+   },
+   "referral_get_free_traffic": {
+      "message": "Ottieni GB gratuiti!"
+   },
+   "settings_connect": {
+      "message": "Connetti"
+   },
+   "settings_context_menus_description": {
+      "message": "Consente di gestire le esclusioni VPN per un sito web specifico"
+   },
+   "settings_context_menus_title": {
+      "message": "Mostra AdGuard VPN nel menu' contestuale del browser"
+   },
+   "settings_disconnect": {
+      "message": "Disconnetti"
+   },
+   "settings_dns_add_custom_server": {
+      "message": "Aggiungi un server DNS personalizzato"
+   },
+   "settings_dns_add_custom_server_address": {
+      "message": "Indirizzo server"
+   },
+   "settings_dns_add_custom_server_address_placeholder": {
+      "message": "Indirizzo IP o tls://"
+   },
+   "settings_dns_add_custom_server_duplicate_address": {
+      "message": "Server DNS già aggiunto"
+   },
+   "settings_dns_add_custom_server_info": {
+      "message": "Provider DNS noti"
+   },
+   "settings_dns_add_custom_server_invalid_address": {
+      "message": "Indirizzo server non valido"
+   },
+   "settings_dns_add_custom_server_name": {
+      "message": "Nome server"
+   },
+   "settings_dns_add_custom_server_name_placeholder": {
+      "message": "Il mio server DNS"
+   },
+   "settings_dns_add_custom_server_save": {
+      "message": "Salva"
+   },
+   "settings_dns_add_custom_server_save_and_select": {
+      "message": "Salva e seleziona"
+   },
+   "settings_dns_add_custom_server_too_long_name": {
+      "message": "Il nome del server supera il limite di %max% caratteri (attualmente sono %current%)"
+   },
+   "settings_dns_custom_servers": {
+      "message": "Server DNS Personalizzati"
+   },
+   "settings_dns_delete_custom_server_notification": {
+      "message": "I server DNS personalizzati sono stati rimossi"
+   },
+   "settings_dns_description": {
+      "message": "Permette di selezionare un server DNS per risolvere le richieste DNS, bloccare inserzioni e tracciatori e crittografare il traffico DNS quando sei connesso con VPN"
+   },
+   "settings_dns_description_current": {
+      "message": "Attuale: %dnsServerName%"
+   },
+   "settings_dns_edit_custom_server": {
+      "message": "Modifica server DNS personalizzato"
+   },
+   "settings_dns_label": {
+      "message": "Server DNS"
+   },
+   "settings_dns_popular_servers": {
+      "message": "Server DNS popolari"
+   },
+   "settings_dns_selector_adguard_desc": {
+      "message": "Rimuove annunci e tracciatori dal tuo dispositivo"
+   },
+   "settings_dns_selector_adguard_family_desc": {
+      "message": "AdGuard DNS + SafeSearch e blocco dei contenuti per adulti"
+   },
+   "settings_dns_selector_adguard_family_title": {
+      "message": "AdGuard DNS Protezione Famiglia"
+   },
+   "settings_dns_selector_adguard_nonfiltering_desc": {
+      "message": "DNS protetto senza registrazione delle attività (non filtra annunci e tracciatori)"
+   },
+   "settings_dns_selector_adguard_nonfiltering_title": {
+      "message": "AdGuard DNS Non-filtrante"
+   },
+   "settings_dns_selector_adguard_title": {
+      "message": "AdGuard DNS"
+   },
+   "settings_dns_selector_cisco_desc": {
+      "message": "Server DNS che protegge il tuo dispositivo dai malware"
+   },
+   "settings_dns_selector_cisco_title": {
+      "message": "OpenDNS Cisco"
+   },
+   "settings_dns_selector_cloudflare_desc": {
+      "message": "Servizio DNS gratuito di Cloudflare"
+   },
+   "settings_dns_selector_cloudflare_title": {
+      "message": "DNS Cloudflare"
+   },
+   "settings_dns_selector_default_desc": {
+      "message": "Utilizza i server DNS forniti da AdGuard VPN"
+   },
+   "settings_dns_selector_default_title": {
+      "message": "Predefinito"
+   },
+   "settings_dns_selector_google_desc": {
+      "message": "Servizio DNS alternativo gratuito di Google"
+   },
+   "settings_dns_selector_google_title": {
+      "message": "DNS Google"
+   },
+   "settings_dns_selector_quad9_desc": {
+      "message": "Servizio DNS alternativo gratuito con protezione da phishing e spyware"
+   },
+   "settings_dns_selector_quad9_title": {
+      "message": "Quad9"
+   },
+   "settings_exclusion_actions": {
+      "message": "Azioni"
+   },
+   "settings_exclusion_add": {
+      "message": "Aggiungi"
+   },
+   "settings_exclusion_add_from_list": {
+      "message": "Dall'elenco"
+   },
+   "settings_exclusion_add_manually": {
+      "message": "Manualmente"
+   },
+   "settings_exclusion_add_manually_add": {
+      "message": "Aggiungi manualmente"
+   },
+   "settings_exclusion_add_subdomain": {
+      "message": "Aggiungi un sottodominio"
+   },
+   "settings_exclusion_add_website": {
+      "message": "Aggiungi un sito web"
+   },
+   "settings_exclusion_change_mode_modal_title": {
+      "message": "Dove la VPN è attiva"
+   },
+   "settings_exclusion_connection_problem": {
+      "message": "Problema di connessione"
+   },
+   "settings_exclusion_domain_name": {
+      "message": "Nome dominio"
+   },
+   "settings_exclusion_general_mode_info": {
+      "message": "La VPN è su \u003Cspan>dappertutto\u003C/span> tranne che per i siti web sotto elencati"
+   },
+   "settings_exclusion_general_title": {
+      "message": "Ovunque tranne che per i siti Web esclusi"
+   },
+   "settings_exclusion_group_settings_subtitle_regular_mode": {
+      "message": "AdGuard VPN non funzionerà sui domini e sottodomini verificati"
+   },
+   "settings_exclusion_group_settings_subtitle_selective_mode": {
+      "message": "AdGuard VPN funzionerà sui domini e sottodomini verificati"
+   },
+   "settings_exclusion_import_button": {
+      "message": "Importa"
+   },
+   "settings_exclusion_invalid_subdomain": {
+      "message": "Sottodominio non valido"
+   },
+   "settings_exclusion_modal_cancel": {
+      "message": "Annulla"
+   },
+   "settings_exclusion_modal_remove": {
+      "message": "Rimuovi"
+   },
+   "settings_exclusion_modal_save": {
+      "message": "Salva"
+   },
+   "settings_exclusion_nothing_found": {
+      "message": "Nessun risultato trovato"
+   },
+   "settings_exclusion_placeholder_search": {
+      "message": "Cerca"
+   },
+   "settings_exclusion_reset_button": {
+      "message": "Reimposta"
+   },
+   "settings_exclusion_reset_service_confirmation_message": {
+      "message": "Reimpostare le preferenze ai valori predefiniti per %hostname%? Ciò ripristinerà tutti i domini mancanti e attiverà tutti i segni di spunta."
+   },
+   "settings_exclusion_reset_to_default": {
+      "message": "Ripristina a predefinito"
+   },
+   "settings_exclusion_search_website": {
+      "message": "Cerca sito web"
+   },
+   "settings_exclusion_selective_mode_info": {
+      "message": "La VPN è su \u003Cspan>selettivamente\u003C/span>: solo per i siti web sottostanti"
+   },
+   "settings_exclusion_selective_mode_warning": {
+      "message": "Lasciare questo elenco vuoto disabilita la VPN per tutti i siti web"
+   },
+   "settings_exclusion_selective_title": {
+      "message": "Solo su siti web selezionati"
+   },
+   "settings_exclusion_status_all_subdomains": {
+      "message": "tutti i sottodomini"
+   },
+   "settings_exclusion_status_domain": {
+      "message": "dominio"
+   },
+   "settings_exclusion_status_subdomain": {
+      "message": "sottodominio"
+   },
+   "settings_exclusion_subdomain_name": {
+      "message": "Sottodominio"
+   },
+   "settings_exclusion_title": {
+      "message": "Esclusioni"
+   },
+   "settings_exclusions_action_export": {
+      "message": "Esporta esclusioni"
+   },
+   "settings_exclusions_action_import": {
+      "message": "Importa esclusioni"
+   },
+   "settings_exclusions_action_remove_all": {
+      "message": "Rimuovi tutti gli elementi"
+   },
+   "settings_exclusions_add_invalid_domain": {
+      "message": "\"%url%\" non è un sottodominio valido. Desideri aggiungerlo all'elenco?"
+   },
+   "settings_exclusions_remove_all_exclusions": {
+      "message": "Rimuovi tutte le esclusioni"
+   },
+   "settings_exclusions_remove_all_exclusions_message": {
+      "message": "Desideri rimuovere l'intera lista delle esclusioni?"
+   },
+   "settings_exclusions_undo": {
+      "message": "Annulla"
+   },
+   "settings_free_gbs": {
+      "message": "GB gratuiti"
+   },
+   "settings_free_gbs_add_device": {
+      "message": "Aggiungi un nuovo dispositivo"
+   },
+   "settings_free_gbs_add_device_info_gb": {
+      "message": "Accedi ad AdGuard VPN da un altro dispositivo con %email% per ottenere un bonus una tantum di %your_gb% GB"
+   },
+   "settings_free_gbs_add_device_products_button": {
+      "message": "Scegli prodotto"
+   },
+   "settings_free_gbs_add_device_title_gb": {
+      "message": "Aggiungi un nuovo dispositivo e ottieni %your_gb% GB gratuitamente"
+   },
+   "settings_free_gbs_add_device_wait_to_update": {
+      "message": "Il limite mensile può richiedere tempo per essere aggiornato — attendi qualche minuto oppure riavvia l'app"
+   },
+   "settings_free_gbs_devices_added_info": {
+      "message": "Il traffico inutilizzato è trasferito ai mesi successivi. E con AdGuard VPN Illimitato, puoi goderti una navigazione veloce senza limiti"
+   },
+   "settings_free_gbs_devices_added_title_gb": {
+      "message": "Hai ottenuto %your_gb% GB per l'aggiunta di un nuovo dispositivo"
+   },
+   "settings_free_gbs_get_GB": {
+      "message": "Ottieni %num% GB"
+   },
+   "settings_free_gbs_invite_friend_complete": {
+      "message": "Hai %num% GB"
+   },
+   "settings_free_gbs_invite_friend_completed_thank_you": {
+      "message": "Grazie per averci aiutato a crescere! Scopri come ottenere più bonus nella sezione GB gratuiti.\nOppure ottieni AdGuard VPN Illimitato per godere di una navigazione veloce senza limiti"
+   },
+   "settings_free_gbs_invite_friend_count": {
+      "message": "Invita un amico (%invited_count%/%max_invites%)"
+   },
+   "settings_free_gbs_invite_friend_get_GB": {
+      "message": "Ottieni fino a %num% GB"
+   },
+   "settings_free_gbs_invite_friend_title": {
+      "message": "Invita un amico e ottieni %your_gb% GB di VPN veloce"
+   },
+   "settings_free_gbs_invite_friend_title_success": {
+      "message": "Hai invitato %total_invites% amici e hai ottenuto %total_gbs% GB in totale"
+   },
+   "settings_free_gbs_join_adguard": {
+      "message": "Unisciti ad AdGuard VPN"
+   },
+   "settings_free_gbs_promote_socials": {
+      "message": "Promuovi AdGuard VPN nei social"
+   },
+   "settings_free_gbs_promote_socials_button": {
+      "message": "Ottieni bonus"
+   },
+   "settings_free_gbs_promote_socials_get_gb": {
+      "message": "Ottieni %num% GB"
+   },
+   "settings_free_gbs_promote_socials_info": {
+      "message": "Affiggi un affisso su X o Facebook e condividi il collegamento con noi. Lo esamineremo e aggiungeremo %your_gb% GB al tuo profilo. Puoi guadagnare fino a %total_gb% GB in totale"
+   },
+   "settings_free_gbs_promote_socials_title": {
+      "message": "Promuovi AdGuard VPN nei social e ottieni %your_gb% GB"
+   },
+   "settings_free_gbs_subtitle": {
+      "message": "Ecco come puoi ottenere traffico VPN extra"
+   },
+   "settings_free_gbs_task_complete": {
+      "message": "Hai %num% GB"
+   },
+   "settings_free_gbs_upgrade": {
+      "message": "Aggiorna a illimitato"
+   },
+   "settings_general_title": {
+      "message": "Generale"
+   },
+   "settings_help_us_improve_modal_button": {
+      "message": "Capito"
+   },
+   "settings_help_us_improve_modal_desc_data": {
+      "message": "Questi dati includono:"
+   },
+   "settings_help_us_improve_modal_desc_data_buttons": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Nomi dei pulsanti che clicchi"
+   },
+   "settings_help_us_improve_modal_desc_data_screens": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Nomi degli schermi con cui interagisci"
+   },
+   "settings_help_us_improve_modal_desc_data_sessions": {
+      "message": "Identificatori di sessione"
+   },
+   "settings_help_us_improve_modal_desc_improve": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Abbiamo bisogno di queste informazioni per analizzare e migliorare la funzionalità di AdGuard VPN"
+   },
+   "settings_help_us_improve_modal_desc_internally": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Questi dati sono anonimi e usati solo internamente. Non li condividiamo mai con terze parti"
+   },
+   "settings_help_us_improve_modal_privacy_policy": {
+      "description": "Contains non-breaking space ( ) to prevent unwanted line breaks",
+      "message": "Politica di riservatezza"
+   },
+   "settings_help_us_improve_modal_title": {
+      "message": "Dati d'uso dell'estensione"
+   },
+   "settings_help_us_improve_title": {
+      "message": "Aiuta a migliorare AdGuard VPN"
+   },
+   "settings_language_browser_default": {
+      "message": "Predefinito del browser"
+   },
+   "settings_language_label": {
+      "message": "Lingua"
+   },
+   "settings_quick_connect_fastest": {
+      "message": "Connessione ultraveloce"
+   },
+   "settings_quick_connect_last_used": {
+      "message": "Ultima posizione utilizzata"
+   },
+   "settings_quick_connect_subtitle": {
+      "message": "Posizione VPN selezionata quando fai clic su Connetti"
+   },
+   "settings_quick_connect_title": {
+      "message": "Connessione rapida"
+   },
+   "settings_rate_us": {
+      "message": "Valutaci"
+   },
+   "settings_referral_copy_link": {
+      "message": "Copia il link di invito"
+   },
+   "settings_referral_info_friends": {
+      "message": "Invia un collegamento di invito al tuo amico. Quando si registrano su AdGuard VPN tramite il tuo collegamento, entrambi ricevete %your_gb% GB di VPN veloce. La quantità inutilizzata non scade — puoi usarla nei mesi successivi. Invita fino a %max_friends% amici e ottieni fino a %total_gb% GB in totale"
+   },
+   "settings_referral_invite_link": {
+      "message": "Link per l'invito"
+   },
+   "settings_referral_invited_friends": {
+      "message": "Amici invitati %count%/%limit%"
+   },
+   "settings_referral_link_copied": {
+      "message": "Invito link copiato negli appunti"
+   },
+   "settings_theme_dark": {
+      "message": "Scuro"
+   },
+   "settings_theme_label": {
+      "message": "Tema"
+   },
+   "settings_theme_light": {
+      "message": "Chiaro"
+   },
+   "settings_theme_system": {
+      "message": "Predefinito del browser"
+   },
+   "settings_vpn_connecting": {
+      "message": "Connessione..."
+   },
+   "settings_vpn_disabled": {
+      "message": "Disconnesso"
+   },
+   "settings_vpn_enabled": {
+      "message": "Connesso"
+   },
+   "settings_webrtc_desc": {
+      "message": "Blocca WebRTC che può svelare il tuo vero indirizzo IP anche se usi un proxy o una VPN"
+   },
+   "settings_webrtc_label": {
+      "message": "Blocca WebRTC"
+   },
+   "settings_webrtc_warning": {
+      "message": "Alcuni servizi di messaggistica, piattaforme di flusso dati o giochi possono smettere di funzionare come previsto"
+   },
+   "short_name": {
+      "message": "AdGuard VPN"
+   }
+}

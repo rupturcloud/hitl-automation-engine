@@ -1,0 +1,1238 @@
+{
+   "a11y_go_back": {
+      "message": "返回"
+   },
+   "about_title": {
+      "message": "关于"
+   },
+   "account_edit": {
+      "message": "打开账号设置"
+   },
+   "account_free": {
+      "message": "免费版"
+   },
+   "account_get_subscription": {
+      "message": "获取订阅"
+   },
+   "account_logged_in_as": {
+      "message": "以 \u003Cb>%username%\u003C/b> 的身份登录"
+   },
+   "account_max_devices_count": {
+      "message": "最多可以同时连接 \u003Cb>%num%\u003C/b> 台设备"
+   },
+   "account_monthly_paid": {
+      "message": "月度订阅"
+   },
+   "account_sign_out": {
+      "message": "退出"
+   },
+   "account_sign_out_description": {
+      "message": "您的账号即将退出登录，VPN 保护将随之停止。"
+   },
+   "account_sign_out_popup_cancel": {
+      "message": "取消"
+   },
+   "account_sign_out_question": {
+      "message": "退出？"
+   },
+   "account_title": {
+      "message": "账号"
+   },
+   "account_two_year_paid": {
+      "message": "两年订阅"
+   },
+   "account_unlimited": {
+      "message": "无限订阅"
+   },
+   "account_unlimited_title": {
+      "message": "获取无限版！"
+   },
+   "account_valid_until": {
+      "message": "有效期至 \u003Cb>%date%\u003C/b>"
+   },
+   "account_version": {
+      "message": "版本"
+   },
+   "account_yearly_paid": {
+      "message": "年度订阅"
+   },
+   "all_rights_reserved": {
+      "message": "保留所有版权。"
+   },
+   "auth_failed_to_login_button": {
+      "message": "关闭"
+   },
+   "auth_failed_to_login_description": {
+      "message": "请重试或\u003Ca>联系支持人员\u003C/a>"
+   },
+   "auth_failed_to_login_description_without_support": {
+      "message": "请重试"
+   },
+   "auth_failed_to_login_title": {
+      "message": "登录失败"
+   },
+   "auth_loading_button_cancel": {
+      "message": "取消"
+   },
+   "auth_loading_button_reopen": {
+      "message": "重新打开登录页面"
+   },
+   "auth_loading_description": {
+      "message": "如果您有 AdGuard VPN 许可证，它将自动应用。"
+   },
+   "auth_loading_title": {
+      "message": "请通过浏览器登录或注册"
+   },
+   "auth_success_description": {
+      "message": "返回 AdGuard VPN 扩展，全部设置已完成"
+   },
+   "auth_success_title": {
+      "message": "登录成功"
+   },
+   "authentication_successful_notification": {
+      "message": "验证成功！您可以开始使用 AdGuard VPN。"
+   },
+   "confirm_email_done_info": {
+      "message": "未使用的流量将自动累积至后续月份。升级至 AdGuard VPN 无限版，即可畅享无限极速浏览，尽享无阻。"
+   },
+   "confirm_email_done_title_gb": {
+      "message": "您已获得 %your_gb%GB 的一次性欢迎奖励。"
+   },
+   "context_menu_debug_level": {
+      "message": "调试日志"
+   },
+   "context_menu_disable_vpn": {
+      "message": "在此网站上禁用 VPN"
+   },
+   "context_menu_enable_vpn": {
+      "message": "在此网站上开启 VPN"
+   },
+   "context_menu_export_logs": {
+      "message": "导出日志"
+   },
+   "context_menu_general_mode": {
+      "message": "通用模式"
+   },
+   "context_menu_selective_mode": {
+      "message": "选择模式"
+   },
+   "control_error_description": {
+      "message": "似乎有另一个 VPN 扩展正在控制您的连接。要使用 AdGuard VPN，请关闭该扩展。"
+   },
+   "control_error_disable": {
+      "message": "禁用"
+   },
+   "control_error_title": {
+      "message": "关闭其他的 VPN 扩展以连接"
+   },
+   "description": {
+      "description": "TEXT MAX LENGTH: 132",
+      "message": "使用 AdGuard VPN 快速安全浏览网页 。保护隐私并用我们的私人 VPN 代理保持匿名性。"
+   },
+   "endpoints_all": {
+      "message": "所有位置"
+   },
+   "endpoints_countries": {
+      "message": "位置"
+   },
+   "endpoints_empty_saved": {
+      "description": "Respect spaces between text and tags. Use \u003Cb> tag for bold text",
+      "message": "要查看位置，请选择「\u003Cb>全部\u003C/b>」并单击位置旁边的图标。"
+   },
+   "endpoints_fastest": {
+      "message": "最快"
+   },
+   "endpoints_location_virtual": {
+      "message": "虚拟的"
+   },
+   "endpoints_not_found": {
+      "message": "未找到位置"
+   },
+   "endpoints_saved": {
+      "message": "已保存"
+   },
+   "endpoints_saved_location_deleted": {
+      "message": "已从「已保存」中删除位置"
+   },
+   "endpoints_search": {
+      "message": "搜索位置"
+   },
+   "endpoints_tab_all": {
+      "message": "全部"
+   },
+   "endpoints_tab_saved": {
+      "message": "已保存"
+   },
+   "eula": {
+      "message": "最终用户许可协议"
+   },
+   "global_error_description": {
+      "message": "如果您一直看到此消息，请联系我们"
+   },
+   "global_error_learn_more": {
+      "message": "相关信息"
+   },
+   "global_error_title": {
+      "message": "发生了错误"
+   },
+   "global_error_try_again": {
+      "message": "重试"
+   },
+   "limited_offer_notification_desc": {
+      "message": "闪购优惠仅限 6 小时。在 AdGuard VPN 扩展中了解更多信息"
+   },
+   "limited_offer_notification_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "AdGuard VPN %discount%%%OFF"
+   },
+   "name": {
+      "message": "AdGuard VPN：极速且安全的代理"
+   },
+   "notification_data_left_description": {
+      "message": "VPN 连接速度即将要下降。"
+   },
+   "notification_data_left_mb": {
+      "message": "剩余的流量为 %num%MB"
+   },
+   "notification_data_limit_reached_description": {
+      "message": "VPN 连接速度下降"
+   },
+   "notification_data_limit_reached_title": {
+      "message": "已达到每月流量限制"
+   },
+   "official_website": {
+      "message": "官方网站"
+   },
+   "offline_title": {
+      "message": "离线"
+   },
+   "options_bug_report_email_invalid": {
+      "message": "电子邮件错误"
+   },
+   "options_bug_report_email_label": {
+      "message": "Email"
+   },
+   "options_bug_report_include_log_label": {
+      "message": "在信息中包含诊断报告"
+   },
+   "options_bug_report_new_report_button": {
+      "message": "新报告"
+   },
+   "options_bug_report_page_success": {
+      "message": "感谢您，您的信息已发送成功！"
+   },
+   "options_bug_report_request_error": {
+      "message": "发生错误，请稍后再试。"
+   },
+   "options_bug_report_send_button": {
+      "message": "发送报告"
+   },
+   "options_bug_report_sending_button": {
+      "message": "正在发送报告..."
+   },
+   "options_bug_report_textarea_invalid": {
+      "message": "此字符串不可为空"
+   },
+   "options_bug_report_textarea_label": {
+      "message": "消息"
+   },
+   "options_bug_report_textarea_placeholder": {
+      "message": "提供详细信息"
+   },
+   "options_exclusions_added_exclusions": {
+      "message": "已添加的排除项：%count%"
+   },
+   "options_exclusions_delete_cancel_button": {
+      "message": "取消"
+   },
+   "options_exclusions_deleted_exclusions": {
+      "message": "已删除的排除项：%count%"
+   },
+   "options_exclusions_import_error_invalid_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "文件 “%filename%” 不是有效的 zip 压缩包"
+   },
+   "options_exclusions_import_error_wrong_extensions": {
+      "message": "排除项文件要包含以下扩展名之一：%extensions%"
+   },
+   "options_exclusions_import_error_wrong_extensions_in_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "Zip文件：“%filename%” 不包含有 %extensions% 扩展名的文件"
+   },
+   "options_exclusions_import_select_regular": {
+      "message": "我希望在这些网站上关闭 VPN"
+   },
+   "options_exclusions_import_select_selective": {
+      "message": "我希望在这些网站上启用 VPN"
+   },
+   "options_exclusions_import_select_subtitle": {
+      "message": "导入列表中的网站将添加到现有排除项中"
+   },
+   "options_exclusions_import_select_title": {
+      "message": "如何使用此排除项列表？"
+   },
+   "options_exclusions_import_successful": {
+      "message": "已导入的排除项：%count%"
+   },
+   "options_exclusions_remove_all_success": {
+      "message": "已成功移除用于此模式的所有排除项。"
+   },
+   "options_report_bug_title": {
+      "message": "报告错误"
+   },
+   "options_signedout_page_description": {
+      "message": "要继续匿名浏览，请点击 AdGuard VPN 图标重新登录。"
+   },
+   "options_signedout_page_description_not_secure": {
+      "message": "连接不安全！"
+   },
+   "options_signedout_page_title": {
+      "message": "您已退出 AdGuard VPN"
+   },
+   "options_support_faq_description": {
+      "message": "问题与解答"
+   },
+   "options_support_faq_title": {
+      "message": "常见问题"
+   },
+   "options_support_feedback_description": {
+      "message": "提交功能请求和建议"
+   },
+   "options_support_feedback_title": {
+      "message": "留下反馈"
+   },
+   "options_support_report_description": {
+      "message": "给我们发送关于潜在错误的报告"
+   },
+   "options_support_report_title": {
+      "message": "报告错误"
+   },
+   "options_support_title": {
+      "message": "支持"
+   },
+   "options_title": {
+      "message": "AdGuard VPN 选项"
+   },
+   "popup_auth_help_us_improve_agreement": {
+      "message": "匿名发送\u003Clink>扩展使用数据\u003C/link>"
+   },
+   "popup_auth_policy_agreement": {
+      "description": "WARNING! Respect spaces between tags",
+      "message": "我接受 AdGuard VPN 的 \u003Ceula>EULA\u003C/eula> 和\u003Cprivacy>隐私政策\u003C/privacy>。"
+   },
+   "popup_auth_policy_agreement_continue_button": {
+      "message": "登录或创建账号"
+   },
+   "popup_auth_policy_agreement_title": {
+      "message": "欢迎加入"
+   },
+   "popup_compare_button": {
+      "message": "为什么应用程序更好"
+   },
+   "popup_confirm_rate_modal_confirm_button": {
+      "message": "转到插件商店"
+   },
+   "popup_confirm_rate_modal_feedback_subtitle": {
+      "message": "请告诉我们出了什么问题"
+   },
+   "popup_confirm_rate_modal_feedback_title": {
+      "message": "帮我们进一步改进"
+   },
+   "popup_confirm_rate_modal_leave_feedback_button": {
+      "message": "留下反馈"
+   },
+   "popup_confirm_rate_modal_rate_title": {
+      "message": "太谢谢您啦！您愿意在插件商店里也给我们打分吗？"
+   },
+   "popup_connections_limit_description_cta_button_free": {
+      "message": "升级"
+   },
+   "popup_connections_limit_description_cta_button_premium": {
+      "message": "了解更多"
+   },
+   "popup_connections_limit_description_end_free": {
+      "message": "若要在此设备上使用 VPN，请考虑购买 AdGuard VPN 无限版。"
+   },
+   "popup_connections_limit_description_end_premium": {
+      "message": "若要在此设备上使用 VPN，请断开其他设备。"
+   },
+   "popup_connections_limit_description_start": {
+      "message": "您可以同时连接最多 %maxDevicesAllowed% 台设备。"
+   },
+   "popup_connections_limit_title": {
+      "message": "达到设备数量上限"
+   },
+   "popup_feedback_button": {
+      "message": "留下反馈"
+   },
+   "popup_feedback_title": {
+      "message": "我们很高兴收到您的反馈"
+   },
+   "popup_free_traffic_info_days_left": {
+      "description": "Respect spaces between text, tags and placeholders. 40 characters max limit for every plural form",
+      "message": "流量将在今天更新 | 流量将在 %days% 天内更新"
+   },
+   "popup_free_traffic_info_left": {
+      "description": "Respect spaces between text, tags and placeholders",
+      "message": "剩余的免费流量：%value%%unit%"
+   },
+   "popup_hint_popup_button": {
+      "message": "知道了"
+   },
+   "popup_hint_popup_content": {
+      "message": "顺便一提，您可以为一个网站禁用 VPN，而为其他网站保持已启用。"
+   },
+   "popup_host_permission_error_btn_allow": {
+      "message": "允许"
+   },
+   "popup_host_permission_error_info": {
+      "message": "要使用 AdGuard VPN，请允许它访问您在网站上的数据。我们不会存储或与任何人共享这些数据。 \u003Cprivacy>隐私政策\u003C/privacy>"
+   },
+   "popup_host_permission_error_title": {
+      "message": "允许访问网站"
+   },
+   "popup_limited_offer_details_btn": {
+      "message": "获取优惠"
+   },
+   "popup_limited_offer_details_time_left": {
+      "message": "剩余时间：%time_left%"
+   },
+   "popup_limited_offer_details_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "| AdGuard VPN 无限版 %count% 年订阅 \u003Cspan>%discount%%%OFF\u003C/span>"
+   },
+   "popup_limited_offer_notice": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "%discount%%%OFF：\u003Cspan>%time_left%\u003C/span>"
+   },
+   "popup_mobile_edge_promo_modal_description": {
+      "message": "扫描二维码在手机或平板电脑上安装 Edge 浏览器。AdGuard VPN 将显示在推荐列表中。"
+   },
+   "popup_mobile_edge_promo_modal_do_not_show_btn": {
+      "message": "不再显示"
+   },
+   "popup_mobile_edge_promo_modal_got_it_btn": {
+      "message": "知道了"
+   },
+   "popup_mobile_edge_promo_modal_title": {
+      "message": "AdGuard VPN Edge 版：现在在 Android 上"
+   },
+   "popup_mobile_edge_promo_text": {
+      "message": "获取 Android 版 VPN 扩展"
+   },
+   "popup_newsletter_info": {
+      "message": "给我发送特别优惠和 AdGuard 新闻的电子邮件"
+   },
+   "popup_newsletter_no_subscribe": {
+      "message": "否，谢谢"
+   },
+   "popup_newsletter_subscribe": {
+      "message": "订阅"
+   },
+   "popup_newsletter_title": {
+      "message": "AdGuard 资讯"
+   },
+   "popup_no_locations_button": {
+      "message": "再次搜索"
+   },
+   "popup_no_locations_title": {
+      "message": "未找到位置"
+   },
+   "popup_onboarding_next": {
+      "message": "下一步"
+   },
+   "popup_onboarding_no_logging_policy": {
+      "message": "无记录政策"
+   },
+   "popup_onboarding_no_logging_policy_info": {
+      "message": "AdGuard VPN 让您匿名浏览网页。它从不收集或与第三方共享您的个人数据"
+   },
+   "popup_onboarding_sites_apps_exclusions": {
+      "message": "网站和应用排除项"
+   },
+   "popup_onboarding_sites_apps_exclusions_info": {
+      "message": "排除项可帮助您快速指定 AdGuard VPN 保护的站点或应用程序"
+   },
+   "popup_onboarding_unique_protocol": {
+      "message": "特有的 VPN 协议"
+   },
+   "popup_onboarding_unique_protocol_info": {
+      "message": "TrustTunnel 协议运行快速，让您的 VPN 流量难以辨认"
+   },
+   "popup_paywall_b_btn_maybe_later": {
+      "message": "稍后再说"
+   },
+   "popup_paywall_b_btn_upgrade": {
+      "message": "升级"
+   },
+   "popup_paywall_b_column_free": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "免费"
+   },
+   "popup_paywall_b_column_unlimited": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "无限制"
+   },
+   "popup_paywall_b_description": {
+      "message": "了解 AdGuard VPN 无限版。订阅年付可省 67%% 的费用。"
+   },
+   "popup_paywall_b_row_devices": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "设备"
+   },
+   "popup_paywall_b_row_dns": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "AdGuard DNS"
+   },
+   "popup_paywall_b_row_locations": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "服务器位置"
+   },
+   "popup_paywall_b_row_locations_unlimited": {
+      "message": "%count%+"
+   },
+   "popup_paywall_b_row_speed": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "速度"
+   },
+   "popup_paywall_b_row_speed_free": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "降低"
+   },
+   "popup_paywall_b_row_vpn_data": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "VPN 流量"
+   },
+   "popup_paywall_b_row_vpn_data_free": {
+      "message": "%gb%GB\u003Cspan>/月\u003C/span>"
+   },
+   "popup_paywall_b_title": {
+      "message": "已达流量上限，内容加载变慢"
+   },
+   "popup_rate_modal_cancel_button": {
+      "message": "取消"
+   },
+   "popup_rate_modal_send_button": {
+      "message": "发送"
+   },
+   "popup_rate_modal_subtitle": {
+      "message": "请给我们评分"
+   },
+   "popup_rate_modal_title": {
+      "message": "AdGuard VPN 有多棒？"
+   },
+   "popup_server_error_popup_action": {
+      "message": "催 AdGuard 团队"
+   },
+   "popup_server_error_popup_cancel": {
+      "message": "取消"
+   },
+   "popup_server_error_popup_close": {
+      "message": "关闭"
+   },
+   "popup_server_error_popup_info": {
+      "message": "VPN 在您所在的地区很可能受限，或者发生了技术故障。 我们正在修复错误。"
+   },
+   "popup_server_error_popup_thankyou_message": {
+      "message": "感谢您让我们知道！"
+   },
+   "popup_server_error_popup_thankyou_title": {
+      "message": "现在正在修复"
+   },
+   "popup_server_error_popup_title": {
+      "message": "无法连接到服务器"
+   },
+   "popup_settings_disable_vpn": {
+      "message": "为此网站禁用 VPN"
+   },
+   "popup_settings_enable_vpn_short": {
+      "message": "在此网站上启用"
+   },
+   "popup_settings_feedback": {
+      "message": "反馈"
+   },
+   "popup_settings_free_description": {
+      "message": "在 AdGuard VPN 无限版中可用"
+   },
+   "popup_settings_open_settings": {
+      "message": "设置"
+   },
+   "popup_settings_other_products": {
+      "message": "其它产品"
+   },
+   "popup_settings_stats": {
+      "message": "统计数据"
+   },
+   "popup_site_status_unaccessible": {
+      "message": "位于您的本地网络中，无法通过 VPN 访问"
+   },
+   "popup_site_status_vpn_disabled": {
+      "message": "VPN 在该网站上已被禁用"
+   },
+   "popup_skeleton_status": {
+      "message": "正在搜索位置..."
+   },
+   "popup_stats": {
+      "message": "统计数据"
+   },
+   "popup_stats_connection_to_vpn": {
+      "message": "已连接到 VPN"
+   },
+   "popup_stats_connection_to_vpn_days": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%days% 天"
+   },
+   "popup_stats_connection_to_vpn_hours": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%hours% 小时"
+   },
+   "popup_stats_connection_to_vpn_minutes": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%minutes% 分钟"
+   },
+   "popup_stats_data_since": {
+      "description": "IMPORTANT: Be careful with percent sign around startDate. StartDate will be replaced with the date when stats collection started. For example on - 17 Sept 2025, date format respects locale.",
+      "message": "自 %startDate% 起"
+   },
+   "popup_stats_data_usage": {
+      "message": "数据"
+   },
+   "popup_stats_data_usage_downloaded": {
+      "message": "已下载"
+   },
+   "popup_stats_data_usage_uploaded": {
+      "message": "已上传"
+   },
+   "popup_stats_disabled_notice": {
+      "message": "统计信息已停用"
+   },
+   "popup_stats_empty": {
+      "message": "暂无数据，继续使用 AdGuard VPN 以查看统计数据"
+   },
+   "popup_stats_enable_btn": {
+      "message": "启用"
+   },
+   "popup_stats_locations": {
+      "message": "位置"
+   },
+   "popup_stats_menu_clear_stats_btn": {
+      "message": "清除统计数据"
+   },
+   "popup_stats_menu_clear_stats_cancel_btn": {
+      "message": "取消"
+   },
+   "popup_stats_menu_clear_stats_clear_btn": {
+      "message": "清除"
+   },
+   "popup_stats_menu_clear_stats_description": {
+      "message": "所有统计数据将被永久删除"
+   },
+   "popup_stats_menu_clear_stats_title": {
+      "message": "清除统计数据？"
+   },
+   "popup_stats_menu_disable_stats_btn": {
+      "message": "停用统计"
+   },
+   "popup_stats_menu_disable_stats_cancel_btn": {
+      "message": "取消"
+   },
+   "popup_stats_menu_disable_stats_description": {
+      "message": "将不再收集新的统计数据。您仍然可以访问现有的统计数据。"
+   },
+   "popup_stats_menu_disable_stats_disable_btn": {
+      "message": "禁用"
+   },
+   "popup_stats_menu_disable_stats_title": {
+      "message": "停用统计信息？"
+   },
+   "popup_stats_menu_enable_stats_btn": {
+      "message": "启用统计"
+   },
+   "popup_stats_menu_why_safe_description_1": {
+      "message": "统计信息显示您已使用的 VPN 数据量，并对常用地点进行排名。"
+   },
+   "popup_stats_menu_why_safe_description_2": {
+      "message": "统计数据绝不会包含您的浏览历史。这些数据已加密，因此无人能够追踪您。"
+   },
+   "popup_stats_menu_why_safe_description_3": {
+      "message": "如果您在多个浏览器中使用 AdGuard VPN，每个浏览器的统计数据将是独立的。这些数据存储于设备本地，且仅您本人可以访问。"
+   },
+   "popup_stats_menu_why_safe_got_it": {
+      "message": "知道了"
+   },
+   "popup_stats_menu_why_safe_title": {
+      "message": "关于您的统计数据"
+   },
+   "popup_stats_most_used_locations": {
+      "message": "最常用的位置"
+   },
+   "popup_stats_range_all_time": {
+      "message": "全时段"
+   },
+   "popup_stats_range_days_30": {
+      "message": "一个月"
+   },
+   "popup_stats_range_days_7": {
+      "message": "一周"
+   },
+   "popup_stats_range_hours_24": {
+      "message": "24 小时"
+   },
+   "popup_stats_usage_time": {
+      "message": "时间"
+   },
+   "popup_stats_view_all_locations": {
+      "message": "查看所有位置"
+   },
+   "popup_streaming_icon_title": {
+      "message": "专为流媒体优化"
+   },
+   "popup_streaming_modal_button_ok": {
+      "message": "知道了"
+   },
+   "popup_streaming_modal_title": {
+      "message": "支持当地流媒体服务"
+   },
+   "popup_traffic_limit_exceeded_cta_btn": {
+      "message": "升级"
+   },
+   "popup_traffic_limit_exceeded_description": {
+      "message": "由于您的免费流量已用尽，所以 AdGuard VPN 运行缓慢。"
+   },
+   "popup_traffic_limit_exceeded_title": {
+      "message": "连接速度下降"
+   },
+   "popup_traffic_limit_reached": {
+      "message": "已达到每月流量限制"
+   },
+   "popup_traffic_limited_speed": {
+      "message": "速度受限"
+   },
+   "popup_upgrade_b_btn_get_unlimited": {
+      "message": "获取无限版"
+   },
+   "popup_upgrade_b_btn_maybe_later": {
+      "message": "稍后再说"
+   },
+   "popup_upgrade_b_description": {
+      "message": "畅享高速连接，解锁所有服务器位置及更多功能。"
+   },
+   "popup_upgrade_b_feature_devices": {
+      "message": "可同时在 %count% 台设备上使用 AdGuard VPN"
+   },
+   "popup_upgrade_b_feature_dns": {
+      "message": "使用 AdGuard DNS 隐藏网络活动"
+   },
+   "popup_upgrade_b_feature_locations": {
+      "message": "观看来自 %count%+ 服务器节点的内容"
+   },
+   "popup_upgrade_b_feature_speed": {
+      "message": "畅享高速流媒体，无限制"
+   },
+   "popup_upgrade_b_title_line1": {
+      "message": "AdGuard VPN 无限版"
+   },
+   "popup_upgrade_screen_all_locations": {
+      "message": "所有位置"
+   },
+   "popup_upgrade_screen_all_locations_desc": {
+      "message": "六个大洲及海量国家与地区。选择一座城市并开始安全浏览！"
+   },
+   "popup_upgrade_screen_connect_devices": {
+      "message": "高达 %potential_num% 台设备"
+   },
+   "popup_upgrade_screen_connect_devices_desc": {
+      "message": "将自己的所有设备同时连接到 AdGuard VPN，或者保护全家的隐私安全！"
+   },
+   "popup_upgrade_screen_continue_free": {
+      "message": "继续使用免费版"
+   },
+   "popup_upgrade_screen_info_with_devices": {
+      "message": "尽享所有地区节点、无限制极速浏览，并支持最多 %maxDevicesAllowed% 台设备同时连接。"
+   },
+   "popup_upgrade_screen_title": {
+      "message": "升级到无限版"
+   },
+   "popup_upgrade_screen_unlimited_data": {
+      "message": "无限数据"
+   },
+   "popup_upgrade_screen_unlimited_data_desc": {
+      "message": "唯一一个限制是您的数据永远不会被分享。随心所欲地上网！"
+   },
+   "popup_upgrade_screen_unlimited_speed": {
+      "message": "无限速度"
+   },
+   "popup_upgrade_screen_unlimited_speed_desc": {
+      "message": "无速度限制。从服务提供商那里获得最大价值！"
+   },
+   "popup_upgrade_screen_upgrade_button": {
+      "message": "升级"
+   },
+   "popup_vpn_blocked_error_details_description": {
+      "message": "如遇连接问题，建议您切换至桌面版，运行更流畅。"
+   },
+   "popup_vpn_blocked_error_details_description_linux": {
+      "message": "如遇连接问题，建议您使用 Linux 版 VPN 客户端，运行更流畅。"
+   },
+   "popup_vpn_blocked_error_details_description_mobile": {
+      "message": "如遇连接问题，建议您切换至移动版，运行更流畅。"
+   },
+   "popup_vpn_blocked_error_details_get_app_button": {
+      "message": "下载"
+   },
+   "popup_vpn_blocked_error_details_get_app_button_linux": {
+      "message": "安装方式"
+   },
+   "popup_vpn_blocked_error_details_later_button": {
+      "message": "下次"
+   },
+   "popup_vpn_blocked_error_details_title": {
+      "message": "切换至桌面版，连接更稳定"
+   },
+   "popup_vpn_blocked_error_details_title_linux": {
+      "message": "切换至 AdGuard VPN Linux 版，连接更稳定"
+   },
+   "popup_vpn_blocked_error_details_title_mobile": {
+      "message": "切换至移动版，连接更稳定"
+   },
+   "popup_vpn_blocked_error_notice": {
+      "message": "无法连接？"
+   },
+   "popup_vpn_blocked_error_notice_alt": {
+      "message": "切换至桌面版，连接更稳定"
+   },
+   "popup_vpn_blocked_error_notice_alt_linux": {
+      "message": "切换至 AdGuard VPN Linux 版，连接更稳定"
+   },
+   "popup_vpn_blocked_error_notice_alt_mobile": {
+      "message": "切换至移动版，连接更稳定"
+   },
+   "premium_upgrade": {
+      "message": "升级"
+   },
+   "privacy_policy": {
+      "message": "隐私策略"
+   },
+   "rate_description": {
+      "message": "喜欢 AdGuard VPN 吗?"
+   },
+   "rate_hide": {
+      "message": "隐藏"
+   },
+   "referral_get_free_traffic": {
+      "message": "获取免费流量！"
+   },
+   "settings_connect": {
+      "message": "连接"
+   },
+   "settings_context_menus_description": {
+      "message": "允许您管理特定网站的 VPN 排除项"
+   },
+   "settings_context_menus_title": {
+      "message": "在浏览器上下文菜单中显示 AdGuard VPN"
+   },
+   "settings_disconnect": {
+      "message": "断开连接"
+   },
+   "settings_dns_add_custom_server": {
+      "message": "添加用户 DNS 服务器"
+   },
+   "settings_dns_add_custom_server_address": {
+      "message": "服务器地址"
+   },
+   "settings_dns_add_custom_server_address_placeholder": {
+      "message": "IP 地址或 tls://"
+   },
+   "settings_dns_add_custom_server_duplicate_address": {
+      "message": "DNS 服务器添加成功"
+   },
+   "settings_dns_add_custom_server_info": {
+      "message": "已知的 DNS 提供商"
+   },
+   "settings_dns_add_custom_server_invalid_address": {
+      "message": "无效的服务器地址"
+   },
+   "settings_dns_add_custom_server_name": {
+      "message": "服务器名称"
+   },
+   "settings_dns_add_custom_server_name_placeholder": {
+      "message": "我的 DNS 服务器"
+   },
+   "settings_dns_add_custom_server_save": {
+      "message": "保存"
+   },
+   "settings_dns_add_custom_server_save_and_select": {
+      "message": "保存并选择"
+   },
+   "settings_dns_add_custom_server_too_long_name": {
+      "message": "服务器名称超出了 %max% 个字符的限制（当前为 %current%）"
+   },
+   "settings_dns_custom_servers": {
+      "message": "自定义 DNS 服务器"
+   },
+   "settings_dns_delete_custom_server_notification": {
+      "message": "自定义 DNS 服务器已删除"
+   },
+   "settings_dns_description": {
+      "message": "选择 DNS 服务器，在连接 VPN 时解析 DNS 请求、拦截广告和跟踪器以及加密 DNS 流量"
+   },
+   "settings_dns_description_current": {
+      "message": "当前：%dnsServerName%"
+   },
+   "settings_dns_edit_custom_server": {
+      "message": "编辑自定义 DNS 服务器"
+   },
+   "settings_dns_label": {
+      "message": "DNS 服务器"
+   },
+   "settings_dns_popular_servers": {
+      "message": "流行 DNS 服务器"
+   },
+   "settings_dns_selector_adguard_desc": {
+      "message": "删除设备上的广告和跟踪器"
+   },
+   "settings_dns_selector_adguard_family_desc": {
+      "message": "AdGuard DNS + 安全搜索和成人内容拦截"
+   },
+   "settings_dns_selector_adguard_family_title": {
+      "message": "AdGuard DNS 家庭保护"
+   },
+   "settings_dns_selector_adguard_nonfiltering_desc": {
+      "message": "无活动日志记录的安全 DNS（不拦截广告和跟踪器）"
+   },
+   "settings_dns_selector_adguard_nonfiltering_title": {
+      "message": "AdGuard DNS 无过滤"
+   },
+   "settings_dns_selector_adguard_title": {
+      "message": "AdGuard DNS"
+   },
+   "settings_dns_selector_cisco_desc": {
+      "message": "DNS 服务器保护您的设备免受恶意软件攻击"
+   },
+   "settings_dns_selector_cisco_title": {
+      "message": "思科 OpenDNS"
+   },
+   "settings_dns_selector_cloudflare_desc": {
+      "message": "Cloudflare 提供的免费 DNS 服务"
+   },
+   "settings_dns_selector_cloudflare_title": {
+      "message": "Cloudflare DNS"
+   },
+   "settings_dns_selector_default_desc": {
+      "message": "使用 AdGuard VPN 的 DNS 服务器"
+   },
+   "settings_dns_selector_default_title": {
+      "message": "默认"
+   },
+   "settings_dns_selector_google_desc": {
+      "message": "谷歌提供的免费备用 DNS 服务"
+   },
+   "settings_dns_selector_google_title": {
+      "message": "谷歌 DNS"
+   },
+   "settings_dns_selector_quad9_desc": {
+      "message": "可防止网络钓鱼并防范间谍软件的免费备用 DNS 服务"
+   },
+   "settings_dns_selector_quad9_title": {
+      "message": "Quad9"
+   },
+   "settings_exclusion_actions": {
+      "message": "操作"
+   },
+   "settings_exclusion_add": {
+      "message": "添加"
+   },
+   "settings_exclusion_add_from_list": {
+      "message": "从列表中"
+   },
+   "settings_exclusion_add_manually": {
+      "message": "手动"
+   },
+   "settings_exclusion_add_manually_add": {
+      "message": "手动添加"
+   },
+   "settings_exclusion_add_subdomain": {
+      "message": "添加子域名"
+   },
+   "settings_exclusion_add_website": {
+      "message": "添加网站"
+   },
+   "settings_exclusion_change_mode_modal_title": {
+      "message": "VPN 在什么网站上处于开启状态"
+   },
+   "settings_exclusion_connection_problem": {
+      "message": "连接问题"
+   },
+   "settings_exclusion_domain_name": {
+      "message": "域名"
+   },
+   "settings_exclusion_general_mode_info": {
+      "message": "除了下面的网站外，VPN \u003Cspan>在所有网站上\u003C/span> 运作"
+   },
+   "settings_exclusion_general_title": {
+      "message": "除排除的网站外在所有网站上开启 VPN"
+   },
+   "settings_exclusion_group_settings_subtitle_regular_mode": {
+      "message": "AdGuard VPN 已为所选域名及子域名停用"
+   },
+   "settings_exclusion_group_settings_subtitle_selective_mode": {
+      "message": "AdGuard VPN 已为所选域名及子域名启用"
+   },
+   "settings_exclusion_import_button": {
+      "message": "导入"
+   },
+   "settings_exclusion_invalid_subdomain": {
+      "message": "无效子域名"
+   },
+   "settings_exclusion_modal_cancel": {
+      "message": "取消"
+   },
+   "settings_exclusion_modal_remove": {
+      "message": "移除"
+   },
+   "settings_exclusion_modal_save": {
+      "message": "保存"
+   },
+   "settings_exclusion_nothing_found": {
+      "message": "没有结果"
+   },
+   "settings_exclusion_placeholder_search": {
+      "message": "搜索"
+   },
+   "settings_exclusion_reset_button": {
+      "message": "重置"
+   },
+   "settings_exclusion_reset_service_confirmation_message": {
+      "message": "将默认设置重置为 %hostname% 吗？该操作将会还原所有网域并开启全部选项。"
+   },
+   "settings_exclusion_reset_to_default": {
+      "message": "重置回默认状态"
+   },
+   "settings_exclusion_search_website": {
+      "message": "搜索网站"
+   },
+   "settings_exclusion_selective_mode_info": {
+      "message": "VPN \u003Cspan>选择性\u003C/span>地启用：仅适用于以下网站"
+   },
+   "settings_exclusion_selective_mode_warning": {
+      "message": "将此列表留空将禁用 VPN 在所有网站运行"
+   },
+   "settings_exclusion_selective_title": {
+      "message": "仅在添加到列表内的网站上开启 VPN"
+   },
+   "settings_exclusion_status_all_subdomains": {
+      "message": "所有子域名"
+   },
+   "settings_exclusion_status_domain": {
+      "message": "域名"
+   },
+   "settings_exclusion_status_subdomain": {
+      "message": "子域名"
+   },
+   "settings_exclusion_subdomain_name": {
+      "message": "子域名"
+   },
+   "settings_exclusion_title": {
+      "message": "排除项"
+   },
+   "settings_exclusions_action_export": {
+      "message": "导出排除项"
+   },
+   "settings_exclusions_action_import": {
+      "message": "导入排除项"
+   },
+   "settings_exclusions_action_remove_all": {
+      "message": "移除全部"
+   },
+   "settings_exclusions_add_invalid_domain": {
+      "message": "\"%url%\"不是一个有效的域名，您要添加它到列表中吗？"
+   },
+   "settings_exclusions_remove_all_exclusions": {
+      "message": "删除所有排除项"
+   },
+   "settings_exclusions_remove_all_exclusions_message": {
+      "message": "您确定要删除整个排除项列表吗？"
+   },
+   "settings_exclusions_undo": {
+      "message": "撤销"
+   },
+   "settings_free_gbs": {
+      "message": "免费流量"
+   },
+   "settings_free_gbs_add_device": {
+      "message": "添加新设备"
+   },
+   "settings_free_gbs_add_device_info_gb": {
+      "message": "使用 %email% 在其他设备上登录 AdGuard VPN，即可领取一次性 %your_gb%GB 流量奖励。"
+   },
+   "settings_free_gbs_add_device_products_button": {
+      "message": "选择产品"
+   },
+   "settings_free_gbs_add_device_title_gb": {
+      "message": "添加新设备，免费获取 %your_gb%GB"
+   },
+   "settings_free_gbs_add_device_wait_to_update": {
+      "message": "流量限额更新可能存在延迟，请稍候几分钟或重启应用即可生效。"
+   },
+   "settings_free_gbs_devices_added_info": {
+      "message": "未使用的流量将自动累积至后续月份。升级至 AdGuard VPN 无限版，即可畅享无限极速浏览，尽享无阻。"
+   },
+   "settings_free_gbs_devices_added_title_gb": {
+      "message": "因成功添加新设备，您已获得 %your_gb%GB 流量奖励。"
+   },
+   "settings_free_gbs_get_GB": {
+      "message": "获取 %num%GB"
+   },
+   "settings_free_gbs_invite_friend_complete": {
+      "message": "您已获得 %num%GB"
+   },
+   "settings_free_gbs_invite_friend_completed_thank_you": {
+      "message": "感谢您助力我们持续成长！请前往「免费流量」专区了解获取更多奖励的方式。或直接升级至 AdGuard VPN 无限版，畅享无限极速浏览体验。"
+   },
+   "settings_free_gbs_invite_friend_count": {
+      "message": "邀请朋友（%invited_count%/%max_invites%）"
+   },
+   "settings_free_gbs_invite_friend_get_GB": {
+      "message": "获取高达 %num%GB"
+   },
+   "settings_free_gbs_invite_friend_title": {
+      "message": "邀请好友并获得 %your_gb%GB 的高速 VPN 服务。"
+   },
+   "settings_free_gbs_invite_friend_title_success": {
+      "message": "您已邀请 %total_invites% 位好友，共获得 %total_gbs%GB。"
+   },
+   "settings_free_gbs_join_adguard": {
+      "message": "加入 AdGuard VPN"
+   },
+   "settings_free_gbs_promote_socials": {
+      "message": "在社交平台推广 AdGuard VPN"
+   },
+   "settings_free_gbs_promote_socials_button": {
+      "message": "获取奖励"
+   },
+   "settings_free_gbs_promote_socials_get_gb": {
+      "message": "获取 %num%GB"
+   },
+   "settings_free_gbs_promote_socials_info": {
+      "message": "在 X 或 Facebook 上发布帖子，并将链接分享给我们。审核通过后，我们将向您的账号赠送 %your_gb%GB 流量。您最多可累计获得 %total_gb%GB。"
+   },
+   "settings_free_gbs_promote_socials_title": {
+      "message": "在社交平台推广 AdGuard VPN，赢取 %your_gb%GB 流量"
+   },
+   "settings_free_gbs_subtitle": {
+      "message": "您可以通过以下方式轻松获取额外 VPN 流量："
+   },
+   "settings_free_gbs_task_complete": {
+      "message": "您已获得 %num%GB"
+   },
+   "settings_free_gbs_upgrade": {
+      "message": "升级到无限版"
+   },
+   "settings_general_title": {
+      "message": "通用"
+   },
+   "settings_help_us_improve_modal_button": {
+      "message": "知道了"
+   },
+   "settings_help_us_improve_modal_desc_data": {
+      "message": "数据包括："
+   },
+   "settings_help_us_improve_modal_desc_data_buttons": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "所点击的按钮名称"
+   },
+   "settings_help_us_improve_modal_desc_data_screens": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "所访问的界面名称"
+   },
+   "settings_help_us_improve_modal_desc_data_sessions": {
+      "message": "会话标识符"
+   },
+   "settings_help_us_improve_modal_desc_improve": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "我们需要此信息来分析和改进 AdGuard VPN 的功能"
+   },
+   "settings_help_us_improve_modal_desc_internally": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "数据是匿名发送的，仅在公司内部使用。我们从不与第三方分享数据。"
+   },
+   "settings_help_us_improve_modal_privacy_policy": {
+      "description": "Contains non-breaking space ( ) to prevent unwanted line breaks",
+      "message": "隐私政策"
+   },
+   "settings_help_us_improve_modal_title": {
+      "message": "扩展使用数据"
+   },
+   "settings_help_us_improve_title": {
+      "message": "帮助 AdGuard VPN 变得更好"
+   },
+   "settings_language_browser_default": {
+      "message": "浏览器默认"
+   },
+   "settings_language_label": {
+      "message": "语言"
+   },
+   "settings_quick_connect_fastest": {
+      "message": "最快的位置"
+   },
+   "settings_quick_connect_last_used": {
+      "message": "最后连接的位置"
+   },
+   "settings_quick_connect_subtitle": {
+      "message": "当您点击「连接」后选择的 VPN 位置"
+   },
+   "settings_quick_connect_title": {
+      "message": "快速连接"
+   },
+   "settings_rate_us": {
+      "message": "请给我们评分"
+   },
+   "settings_referral_copy_link": {
+      "message": "复制邀请链接"
+   },
+   "settings_referral_info_friends": {
+      "message": "向好友发送邀请链接。当对方通过您的链接注册 AdGuard VPN 后，双方均可获得 %your_gb%GB 的高速 VPN 流量。未使用流量永不过期，可长期累积使用。最多邀请 %max_friends% 位好友，累计可获得 %total_gb%GB 流量上限。"
+   },
+   "settings_referral_invite_link": {
+      "message": "邀请链接"
+   },
+   "settings_referral_invited_friends": {
+      "message": "已邀请的朋友 %count%/%limit%"
+   },
+   "settings_referral_link_copied": {
+      "message": "邀请链接复制成功"
+   },
+   "settings_theme_dark": {
+      "message": "黑暗"
+   },
+   "settings_theme_label": {
+      "message": "主题"
+   },
+   "settings_theme_light": {
+      "message": "亮色主题"
+   },
+   "settings_theme_system": {
+      "message": "浏览器默认"
+   },
+   "settings_vpn_connecting": {
+      "message": "正在连接..."
+   },
+   "settings_vpn_disabled": {
+      "message": "已断开"
+   },
+   "settings_vpn_enabled": {
+      "message": "已连接"
+   },
+   "settings_webrtc_desc": {
+      "message": "拦截可能泄露真实 IP 地址的 WebRTC，即使您正在使用代理或 VPN"
+   },
+   "settings_webrtc_label": {
+      "message": "拦截 WebRTC"
+   },
+   "settings_webrtc_warning": {
+      "message": "部分即时通讯软件、流媒体平台或游戏可能无法正常运行。"
+   },
+   "short_name": {
+      "message": "AdGuard VPN"
+   }
+}

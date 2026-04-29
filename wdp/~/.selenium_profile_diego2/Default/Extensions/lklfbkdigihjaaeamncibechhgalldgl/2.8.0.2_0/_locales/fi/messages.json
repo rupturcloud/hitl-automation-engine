@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "Lisää käyttöösi MSN New Tab, jotta uusimmat uutiset, usein käyttämäsi sivustot, verkkohaku ja monet muut toiminnot ovat nopeasti käytettävissä."
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "fi-fi"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "MSN New Tab"
+   }
+}

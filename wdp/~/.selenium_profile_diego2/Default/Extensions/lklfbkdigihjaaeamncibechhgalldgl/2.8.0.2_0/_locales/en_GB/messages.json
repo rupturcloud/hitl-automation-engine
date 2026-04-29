@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "Add the MSN New Tab for quick access to the latest news, your most visited sites, web search and more."
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "en-gb"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "MSN New Tab"
+   }
+}

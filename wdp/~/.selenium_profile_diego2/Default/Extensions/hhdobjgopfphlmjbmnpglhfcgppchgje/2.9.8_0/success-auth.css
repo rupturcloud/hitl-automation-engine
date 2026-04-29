@@ -1,0 +1,365 @@
+:root {
+    /* Common Variables */
+    --font-stack: "Roboto Flex", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Arial, sans-serif;
+    --t3: 0.3s ease;
+
+    /* Shadows */
+    --small-light-shadow-br: 4px 4px 8px 0px rgba(0, 0, 0, 0.10);
+    --big-light-shadow-br: 8px 8px 24px 0px rgba(0, 0, 0, 0.10);
+
+    /* Sizes */
+    --sidebar-width: 240px;
+
+     /* Z-Indices */
+     --select-z: 1;
+     --notifications-z: 2;
+     --sidebar-z: 3;
+     --modal-z: 4;
+     --signed-out-z: 5;
+     --preloader-z: 6;
+
+    /* Base Colors */
+    --gray-0: #FFFFFF;
+    --gray-10: #F6F6F6;
+    --gray-20: #E4E4E4;
+    --gray-30: #D2D2D2;
+    --gray-40: #C0C0C0;
+    --gray-50: #A4A4A4;
+    --gray-60: #7F7F7F;
+    --gray-70: #5B5B5B;
+    --gray-80: #3D3D3D;
+    --gray-90: #1F1F1F;
+    --gray-100: #000000;
+    --product-primary-30: #B2CC9E;
+    --product-primary-50: #74A352;
+    --product-primary-60: #68924A;
+    --product-primary-70: #5C8141;
+    --orange-50: #D58500;
+    --red-30: #D9907D;
+    --red-50: #BF4829;
+    --red-60: #AF4226;
+    --red-70: #9E3C22;
+
+    /* Text */
+    --text-main-text-main-default: var(--gray-80);
+    --text-main-text-main-disabled: var(--gray-50);
+    --text-description-description-default: var(--gray-70);
+    --text-buttons-primary-default: var(--gray-0);
+    --text-buttons-secondary-red-default: var(--red-50);
+    --text-buttons-secondary-red-disabled: var(--red-30);
+    --text-links-link-default: var(--product-primary-50);
+    --text-links-link-hovered: var(--product-primary-60);
+    --text-links-link-pressed: var(--product-primary-70);
+    --text-links-link-disabled: var(--product-primary-30);
+    --text-links-error-link-default: var(--red-50);
+    --text-links-error-link-hovered: var(--red-60);
+    --text-links-error-link-pressed: var(--red-70);
+    --text-links-error-link-disabled: var(--red-30);
+    --text-links-attention-link-default: var(--orange-50);
+    --text-labels-labels-default: var(--gray-70);
+    --text-placeholder-placeholder-default: var(--gray-50);
+
+    /* Fills */
+    --fills-backgrounds-page-background-default: var(--gray-0);
+    --fills-backgrounds-page-background-hovered: var(--gray-10);
+    --fills-backgrounds-page-background-pressed: var(--gray-20);
+    --fills-backgrounds-page-background-additional-default: var(--gray-10);
+    --fills-backgrounds-page-background-additional-hovered: var(--gray-20);
+    --fills-backgrounds-page-background-additional-pressed: var(--gray-30);
+    --fills-backgrounds-dialog-background-default: var(--gray-100);
+    --fills-menus-dropdown-menu-background-default: var(--gray-0);
+    --fills-menus-dropdown-menu-background-hovered: var(--gray-10);
+    --fills-menus-dropdown-menu-background-pressed: var(--gray-20);
+    --fills-switch-all-on-default: var(--product-primary-50);
+    --fills-switch-all-on-hovered: var(--product-primary-60);
+    --fills-switch-all-off-default: var(--gray-40);
+    --fills-switch-all-off-hovered: var(--gray-50);
+    --fills-switch-all-knob-default: var(--gray-0);
+    --fills-buttons-main-button-default: var(--product-primary-50);
+    --fills-buttons-main-button-hovered: var(--product-primary-60);
+    --fills-buttons-main-button-pressed: var(--product-primary-70);
+    --fills-buttons-main-button-disabled: var(--product-primary-30);
+    --fills-buttons-danger-button-default: var(--red-50);
+    --fills-buttons-danger-button-hovered: var(--red-60);
+    --fills-buttons-danger-button-pressed: var(--red-70);
+    --fills-buttons-danger-button-disabled: var(--red-30);
+    --fills-buttons-secondary-hovered: var(--gray-10);
+    --fills-buttons-secondary-pressed: var(--gray-20);
+    --fills-inputs-input-background-default: var(--gray-10);
+    --fills-snacks-desktop-snacks-default: var(--gray-10);
+    --fills-snacks-mobile-snacks-default: var(--gray-100);
+
+    /* Stroke */
+    --stroke-dividers-item-divider-default: var(--gray-30);
+    --stroke-icons-gray-icons-default: var(--gray-60);
+    --stroke-icons-gray-icons-disabled: var(--gray-30);
+    --stroke-icons-product-icon-default: var(--product-primary-50);
+    --stroke-icons-product-icon-disabled: var(--product-primary-30);
+    --stroke-icons-attention-icon-default: var(--orange-50);
+    --stroke-icons-error-icon-default: var(--red-50);
+    --stroke-buttons-secondary-default: var(--gray-80);
+    --stroke-buttons-secondary-disabled: var(--gray-50);
+    --stroke-buttons-secondary-red-default: var(--red-50);
+    --stroke-buttons-secondary-red-disabled: var(--red-30);
+    --stroke-inputs-inactive-input-stroke-default: var(--gray-30);
+    --stroke-inputs-active-input-stroke-default: var(--gray-50);
+    --stroke-inputs-error-input-default: var(--red-50);
+}
+
+    @media (prefers-color-scheme: dark) {:root {
+        /* Text */
+        --text-main-text-main-default: var(--gray-20);
+        --text-description-description-default: var(--gray-30);
+        --text-labels-labels-default: var(--gray-30);
+
+        /* Fills */
+        --fills-backgrounds-page-background-default: var(--gray-90);
+        --fills-backgrounds-page-background-hovered: var(--gray-80);
+        --fills-backgrounds-page-background-pressed: var(--gray-70);
+        --fills-backgrounds-page-background-additional-default: var(--gray-80);
+        --fills-backgrounds-page-background-additional-hovered: var(--gray-70);
+        --fills-backgrounds-page-background-additional-pressed: var(--gray-60);
+        --fills-menus-dropdown-menu-background-default: var(--gray-80);
+        --fills-menus-dropdown-menu-background-hovered: var(--gray-70);
+        --fills-menus-dropdown-menu-background-pressed: var(--gray-60);
+        --fills-switch-all-off-default: var(--gray-60);
+        --fills-switch-all-off-hovered: var(--gray-70);
+        --fills-buttons-secondary-hovered: var(--gray-80);
+        --fills-buttons-secondary-pressed: var(--gray-70);
+        --fills-inputs-input-background-default: var(--gray-80);
+        --fills-snacks-desktop-snacks-default: var(--gray-90);
+
+        /* Stroke */
+        --stroke-dividers-item-divider-default: var(--gray-70);
+        --stroke-icons-gray-icons-default: var(--gray-40);
+        --stroke-icons-gray-icons-disabled: var(--gray-70);
+        --stroke-buttons-secondary-default: var(--gray-20);
+        --stroke-inputs-inactive-input-stroke-default: var(--gray-70)
+}
+    }
+
+.dark-mode {
+    /* Text */
+    --text-main-text-main-default: var(--gray-20);
+    --text-description-description-default: var(--gray-30);
+    --text-labels-labels-default: var(--gray-30);
+
+    /* Fills */
+    --fills-backgrounds-page-background-default: var(--gray-90);
+    --fills-backgrounds-page-background-hovered: var(--gray-80);
+    --fills-backgrounds-page-background-pressed: var(--gray-70);
+    --fills-backgrounds-page-background-additional-default: var(--gray-80);
+    --fills-backgrounds-page-background-additional-hovered: var(--gray-70);
+    --fills-backgrounds-page-background-additional-pressed: var(--gray-60);
+    --fills-menus-dropdown-menu-background-default: var(--gray-80);
+    --fills-menus-dropdown-menu-background-hovered: var(--gray-70);
+    --fills-menus-dropdown-menu-background-pressed: var(--gray-60);
+    --fills-switch-all-off-default: var(--gray-60);
+    --fills-switch-all-off-hovered: var(--gray-70);
+    --fills-buttons-secondary-hovered: var(--gray-80);
+    --fills-buttons-secondary-pressed: var(--gray-70);
+    --fills-inputs-input-background-default: var(--gray-80);
+    --fills-snacks-desktop-snacks-default: var(--gray-90);
+
+    /* Stroke */
+    --stroke-dividers-item-divider-default: var(--gray-70);
+    --stroke-icons-gray-icons-default: var(--gray-40);
+    --stroke-icons-gray-icons-disabled: var(--gray-70);
+    --stroke-buttons-secondary-default: var(--gray-20);
+    --stroke-inputs-inactive-input-stroke-default: var(--gray-70);
+}
+
+.light-mode {
+    /* Text */
+    --text-main-text-main-default: var(--gray-80);
+    --text-description-description-default: var(--gray-70);
+    --text-labels-labels-default: var(--gray-70);
+
+    /* Fills */
+    --fills-backgrounds-page-background-default: var(--gray-0);
+    --fills-backgrounds-page-background-hovered: var(--gray-10);
+    --fills-backgrounds-page-background-pressed: var(--gray-20);
+    --fills-backgrounds-page-background-additional-default: var(--gray-10);
+    --fills-backgrounds-page-background-additional-hovered: var(--gray-20);
+    --fills-backgrounds-page-background-additional-pressed: var(--gray-30);
+    --fills-menus-dropdown-menu-background-default: var(--gray-0);
+    --fills-menus-dropdown-menu-background-hovered: var(--gray-10);
+    --fills-menus-dropdown-menu-background-pressed: var(--gray-20);
+    --fills-switch-all-off-default: var(--gray-40);
+    --fills-switch-all-off-hovered: var(--gray-50);
+    --fills-buttons-secondary-hovered: var(--gray-10);
+    --fills-buttons-secondary-pressed: var(--gray-20);
+    --fills-inputs-input-background-default: var(--gray-10);
+    --fills-snacks-desktop-snacks-default: var(--gray-10);
+
+    /* Stroke */
+    --stroke-dividers-item-divider-default: var(--gray-30);
+    --stroke-icons-gray-icons-default: var(--gray-60);
+    --stroke-icons-gray-icons-disabled: var(--gray-30);
+    --stroke-buttons-secondary-default: var(--gray-80);
+    --stroke-inputs-inactive-input-stroke-default: var(--gray-30);
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url(assets/fonts/regular.woff2) format("woff2"), url(assets/fonts/regular.woff) format("woff");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url(assets/fonts/medium.woff2) format("woff2"), url(assets/fonts/medium.woff) format("woff");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url(assets/fonts/bold.woff2) format("woff2"), url(assets/fonts/bold.woff) format("woff");
+    font-weight: 700;
+    font-style: normal;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+html {
+    color-scheme: light dark;
+    font-size: 10px;
+}
+
+ul {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    font-family: "Roboto Flex", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Arial, sans-serif;
+    font-family: var(--font-stack);
+    font-size: 1.6rem;
+    line-height: 1.4;
+    color: #3D3D3D;
+    color: var(--text-main-text-main-default);
+    background-color: #FFFFFF;
+    background-color: var(--fills-backgrounds-page-background-default);
+    transition: 0.3s ease background-color;
+    transition: var(--t3) background-color;
+}
+
+body.locked {
+        overflow-y: hidden;
+    }
+
+a, .link {
+    color: #74A352;
+    color: var(--text-links-link-default);
+    text-decoration-line: underline;
+    outline: 2px solid transparent;
+}
+
+a:focus-visible, .link:focus-visible {
+        outline-color: #74A352;
+        outline-color: var(--product-primary-50);
+    }
+
+.body_light,
+.body_dark {
+    background-color: #FFFFFF;
+    background-color: var(--fills-backgrounds-page-background-default);
+}
+
+.hidden {
+    display: none;
+}
+
+.has-tab-focus {
+    outline: 2px solid transparent;
+}
+
+.has-tab-focus:focus-visible {
+        outline-color: #74A352;
+        outline-color: var(--product-primary-50);
+    }
+
+.success-auth {
+    display: flex;
+    min-height: 100vh;
+    /* Dynamic viewport height, if not supported fallbacks to vh */
+    min-height: 100dvh;
+    flex-direction: column;
+    align-items: center;
+}
+
+    .success-auth__header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 24px 32px;
+    }
+
+    .success-auth__logo {
+        width: 125px;
+        height: 24px;
+        background-image: url(assets/images/logo-vpn.svg);
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+
+    .dark-mode .success-auth__logo {
+            background-image: url(assets/images/logo-vpn-dark.svg);
+        }
+
+    @media (prefers-color-scheme: dark) {
+
+    .success-auth__logo {
+            background-image: url(assets/images/logo-vpn-dark.svg)
+    }
+        }
+
+    .success-auth__content {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 500px;
+        padding: 32px 0 60px;
+        text-align: center;
+    }
+
+    .success-auth__image {
+        width: 328px;
+        height: 328px;
+        /* Flip the image horizontally */
+        transform: scale(-1, 1);
+    }
+
+    .success-auth__text {
+        padding: 16px;
+    }
+
+    .success-auth__title {
+        color: var(--text-main-text-main-default);
+        font-size: 32px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .success-auth__description {
+        margin-top: 12px;
+        color: var(--text-description-description-default);
+        font-size: 16px;
+        line-height: 1.3;
+    }
+

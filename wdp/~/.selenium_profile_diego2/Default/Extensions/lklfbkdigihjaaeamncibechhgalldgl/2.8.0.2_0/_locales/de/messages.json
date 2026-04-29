@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "Wenn Sie MSN New Tab hinzufügen, erhalten Sie schnellen Zugriff auf die aktuellen Nachrichten, Ihre am häufigsten besuchten Seiten, die Websuche usw."
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "de-de"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "MSN New Tab"
+   }
+}

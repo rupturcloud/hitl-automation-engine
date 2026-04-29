@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Will Dados Robô - Bac Bo UI v2",
+  "version": "1.0.8",
+  "description": "Extensão de apoio à decisão para Bac Bo baseada nos padrões do Will Dados.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabs",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Will Dados Robô"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*"
+      ],
+      "js": [
+        "lib/will-dados-robo.js",
+        "realizarAposta.js",
+        "content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
+}

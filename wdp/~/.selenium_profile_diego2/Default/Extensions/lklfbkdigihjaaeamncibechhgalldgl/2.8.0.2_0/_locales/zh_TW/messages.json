@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "加入 MSN 新分頁以快速存取最新新聞、您最常造訪的網站、Web 搜尋以及更多功能。"
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "zh-tw"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "MSN 新分頁"
+   }
+}

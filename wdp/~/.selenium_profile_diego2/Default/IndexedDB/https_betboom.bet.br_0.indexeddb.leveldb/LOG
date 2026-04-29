@@ -1,0 +1,26 @@
+2026/04/29-20:50:44.505 518219 Reusing MANIFEST /Users/diego/dev/ruptur-cloud/wdp/~/.selenium_profile_diego2/Default/IndexedDB/https_betboom.bet.br_0.indexeddb.leveldb/MANIFEST-000001
+2026/04/29-20:50:44.506 518219 Recovering log #12
+2026/04/29-20:50:44.507 518219 Reusing old log /Users/diego/dev/ruptur-cloud/wdp/~/.selenium_profile_diego2/Default/IndexedDB/https_betboom.bet.br_0.indexeddb.leveldb/000012.log 
+2026/04/29-20:50:44.507 518219 Delete type=2 #11
+2026/04/29-20:50:44.535 51822a Level-0 table #17: started
+2026/04/29-20:50:44.539 51822a Level-0 table #17: 4680 bytes OK
+2026/04/29-20:50:44.544 51822a Delete type=0 #12
+2026/04/29-20:50:44.544 518219 Manual compaction at level-0 from '\x00\x0a\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0b\x00\x00\x00' @ 0 : 0; will stop at '\x00\x0a\x00\x00\x05' @ 1256 : 1
+2026/04/29-20:50:44.545 518219 Compacting 1@0 + 1@1 files
+2026/04/29-20:50:44.547 518219 Generated table #18@0: 187 keys, 3450 bytes
+2026/04/29-20:50:44.548 518219 Compacted 1@0 + 1@1 files => 3450 bytes
+2026/04/29-20:50:44.555 518219 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/29-20:50:44.555 518219 Delete type=2 #17
+2026/04/29-20:50:44.556 518219 Manual compaction at level-0 from '\x00\x0a\x00\x00\x05' @ 1256 : 1 .. '\x00\x0b\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/04/29-20:50:44.629 51822a Manual compaction at level-0 from '\x00\x0b\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0c\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/04/29-20:50:45.137 51822a Level-0 table #20: started
+2026/04/29-20:50:45.139 51822a Level-0 table #20: 2895 bytes OK
+2026/04/29-20:50:45.145 51822a Delete type=0 #16
+2026/04/29-20:50:45.146 51822a Delete type=2 #14
+2026/04/29-20:50:45.147 51821b Manual compaction at level-0 from '\x00\x0c\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0d\x00\x00\x00' @ 0 : 0; will stop at '\x00\x0c\x00\x00\x05' @ 1368 : 1
+2026/04/29-20:50:45.148 51821b Compacting 1@0 + 1@1 files
+2026/04/29-20:50:45.150 51821b Generated table #21@0: 201 keys, 3674 bytes
+2026/04/29-20:50:45.150 51821b Compacted 1@0 + 1@1 files => 3674 bytes
+2026/04/29-20:50:45.157 51821b compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/29-20:50:45.159 51821b Delete type=2 #20
+2026/04/29-20:50:45.160 51821b Manual compaction at level-0 from '\x00\x0c\x00\x00\x05' @ 1368 : 1 .. '\x00\x0d\x00\x00\x00' @ 0 : 0; will stop at (end)

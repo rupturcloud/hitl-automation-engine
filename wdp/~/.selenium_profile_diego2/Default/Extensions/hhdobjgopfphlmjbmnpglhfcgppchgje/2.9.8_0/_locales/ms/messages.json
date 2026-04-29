@@ -1,0 +1,1238 @@
+{
+   "a11y_go_back": {
+      "message": "Pulang"
+   },
+   "about_title": {
+      "message": "Tentang"
+   },
+   "account_edit": {
+      "message": "Buka tetapan akaun anda"
+   },
+   "account_free": {
+      "message": "Versi percuma"
+   },
+   "account_get_subscription": {
+      "message": "Dapatkan langganan"
+   },
+   "account_logged_in_as": {
+      "message": "Log masuk sebagai \u003Cb>%username%\u003C/b>"
+   },
+   "account_max_devices_count": {
+      "message": "Sehingga \u003Cb>%num%\u003C/b> peranti serentak"
+   },
+   "account_monthly_paid": {
+      "message": "Langganan berbayar bulanan"
+   },
+   "account_sign_out": {
+      "message": "Daftar keluar"
+   },
+   "account_sign_out_description": {
+      "message": "Anda akan dilog keluar dari akaun anda. Perlindungan VPN akan dihentikan"
+   },
+   "account_sign_out_popup_cancel": {
+      "message": "Batal"
+   },
+   "account_sign_out_question": {
+      "message": "Log keluar?"
+   },
+   "account_title": {
+      "message": "Akaun"
+   },
+   "account_two_year_paid": {
+      "message": "Langganan berbayar dua tahun"
+   },
+   "account_unlimited": {
+      "message": "Langganan tanpa had"
+   },
+   "account_unlimited_title": {
+      "message": "Dapatkan versi Tanpa Had!"
+   },
+   "account_valid_until": {
+      "message": "Sah sehingga \u003Cb>%date%\u003C/b>"
+   },
+   "account_version": {
+      "message": "Versi"
+   },
+   "account_yearly_paid": {
+      "message": "Langganan berbayar tahunan"
+   },
+   "all_rights_reserved": {
+      "message": "Semua hakcipta terpelihara."
+   },
+   "auth_failed_to_login_button": {
+      "message": "Tutup"
+   },
+   "auth_failed_to_login_description": {
+      "message": "Sila cuba lagi atau \u003Ca>hubungi sokongan\u003C/a>"
+   },
+   "auth_failed_to_login_description_without_support": {
+      "message": "Sila cuba lagi"
+   },
+   "auth_failed_to_login_title": {
+      "message": "Gagal log masuk anda"
+   },
+   "auth_loading_button_cancel": {
+      "message": "Batal"
+   },
+   "auth_loading_button_reopen": {
+      "message": "Buka semula halaman log masuk"
+   },
+   "auth_loading_description": {
+      "message": "Jika anda mempunyai lesen VPN AdGuard, ia akan digunakan secara automatik"
+   },
+   "auth_loading_title": {
+      "message": "Log masuk atau daftar melalui penyemak imbas anda"
+   },
+   "auth_success_description": {
+      "message": "Kembali ke penyambung AdGuard VPN — semuanya telah disediakan"
+   },
+   "auth_success_title": {
+      "message": "Anda telah log masuk"
+   },
+   "authentication_successful_notification": {
+      "message": "Pengesahan berjaya! Anda boleh membuka AdGuard VPN dan mula menggunakannya."
+   },
+   "confirm_email_done_info": {
+      "message": "Trafik yang tidak digunakan akan dibawa ke bulan-bulan berikutnya. Dan dengan AdGuard VPN Unlimited, anda boleh menikmati pelayaran pantas tanpa had"
+   },
+   "confirm_email_done_title_gb": {
+      "message": "Anda telah mendapat %your_gb% GB sebagai bonus alu-aluan sekali sahaja"
+   },
+   "context_menu_debug_level": {
+      "message": "Pencatatan debug"
+   },
+   "context_menu_disable_vpn": {
+      "message": "Nyahaktifkan VPN di laman web ini"
+   },
+   "context_menu_enable_vpn": {
+      "message": "Hidupkan VPN di laman web ini"
+   },
+   "context_menu_export_logs": {
+      "message": "Eksport log"
+   },
+   "context_menu_general_mode": {
+      "message": "Mod umum"
+   },
+   "context_menu_selective_mode": {
+      "message": "Mod selektif"
+   },
+   "control_error_description": {
+      "message": "Tampaknya penyambung VPN lain sedang mengendalikan sambungan anda. Untuk menggunakan AdGuard VPN, sila nyahaktifkan penyambung lain"
+   },
+   "control_error_disable": {
+      "message": "Nyahdaya"
+   },
+   "control_error_title": {
+      "message": "Nyahaktifkan penyambung VPN lain untuk menyambung"
+   },
+   "description": {
+      "description": "TEXT MAX LENGTH: 132",
+      "message": "Gunakan AdGuard VPN untuk menjelajahi Internet dengan cepat dan aman. Lindungi privasi Anda dengan proksi VPN pribadi kami."
+   },
+   "endpoints_all": {
+      "message": "Semua lokasi"
+   },
+   "endpoints_countries": {
+      "message": "Lokasi"
+   },
+   "endpoints_empty_saved": {
+      "description": "Respect spaces between text and tags. Use \u003Cb> tag for bold text",
+      "message": "Untuk melihat lokasi di sini, pilih \u003Cb>Semua\u003C/b> dan klik ikon di sebelah lokasi"
+   },
+   "endpoints_fastest": {
+      "message": "Paling cepat"
+   },
+   "endpoints_location_virtual": {
+      "message": "Maya"
+   },
+   "endpoints_not_found": {
+      "message": "Lokasi tidak ditemui"
+   },
+   "endpoints_saved": {
+      "message": "Disimpan"
+   },
+   "endpoints_saved_location_deleted": {
+      "message": "Lokasi telah dipadam dari Simpanan"
+   },
+   "endpoints_search": {
+      "message": "Cari lokasi"
+   },
+   "endpoints_tab_all": {
+      "message": "Semua"
+   },
+   "endpoints_tab_saved": {
+      "message": "Disimpan"
+   },
+   "eula": {
+      "message": "EULA"
+   },
+   "global_error_description": {
+      "message": "Sila hubungi kami jika anda terus melihat mesej ini"
+   },
+   "global_error_learn_more": {
+      "message": "Ketahui lebih lanjut"
+   },
+   "global_error_title": {
+      "message": "Berlaku ralat"
+   },
+   "global_error_try_again": {
+      "message": "Cuba lagi"
+   },
+   "limited_offer_notification_desc": {
+      "message": "Penawaran kilat hanya untuk 6 jam. Ketahui lebih lanjut di sambungan AdGuard VPN anda."
+   },
+   "limited_offer_notification_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "%discount%%% diskaun AdGuard VPN"
+   },
+   "name": {
+      "message": "AdGuard VPN: proksi percuma & selamat"
+   },
+   "notification_data_left_description": {
+      "message": "Kelajuan sambungan VPN akan dikurangkan tidak lama lagi."
+   },
+   "notification_data_left_mb": {
+      "message": "Terdapat %num% MB baki."
+   },
+   "notification_data_limit_reached_description": {
+      "message": "Kelajuan sambungan VPN telah dikurangkan."
+   },
+   "notification_data_limit_reached_title": {
+      "message": "Had data bulanan telah dicapai"
+   },
+   "official_website": {
+      "message": "Laman web rasmi"
+   },
+   "offline_title": {
+      "message": "Luar talian"
+   },
+   "options_bug_report_email_invalid": {
+      "message": "Alamat e-mel tidak sah"
+   },
+   "options_bug_report_email_label": {
+      "message": "E-mel"
+   },
+   "options_bug_report_include_log_label": {
+      "message": "Masukkan laporan diagnostik dalam mesej"
+   },
+   "options_bug_report_new_report_button": {
+      "message": "Laporan baru"
+   },
+   "options_bug_report_page_success": {
+      "message": "Terima kasih, mesej anda telah dihantar dengan jayanya!"
+   },
+   "options_bug_report_request_error": {
+      "message": "Ralat telah berlaku. Sila cuba lagi kemudian."
+   },
+   "options_bug_report_send_button": {
+      "message": "Hantar laporan"
+   },
+   "options_bug_report_sending_button": {
+      "message": "Hantar laporan..."
+   },
+   "options_bug_report_textarea_invalid": {
+      "message": "Bidang ini adalah wajib diisi"
+   },
+   "options_bug_report_textarea_label": {
+      "message": "Mesej"
+   },
+   "options_bug_report_textarea_placeholder": {
+      "message": "Berikan perincian"
+   },
+   "options_exclusions_added_exclusions": {
+      "message": "Pengecualian yang ditambah: %count%"
+   },
+   "options_exclusions_delete_cancel_button": {
+      "message": "Batal"
+   },
+   "options_exclusions_deleted_exclusions": {
+      "message": "Pengecualian yang dipadam: %count%"
+   },
+   "options_exclusions_import_error_invalid_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "Fail “%filename%” bukan arkib zip yang sah"
+   },
+   "options_exclusions_import_error_wrong_extensions": {
+      "message": "Fail pengecualian harus mempunyai salah satu daripada sambungan berikut: %extensions%"
+   },
+   "options_exclusions_import_error_wrong_extensions_in_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "Arkib zip: “%filename%” tidak mengandungi fail dengan sambungan: %extensions%"
+   },
+   "options_exclusions_import_select_regular": {
+      "message": "Saya mahu VPN dinyahaktifkan untuk laman sesawang ini"
+   },
+   "options_exclusions_import_select_selective": {
+      "message": "Saya mahu VPN dihidupkan untuk laman sesawang ini"
+   },
+   "options_exclusions_import_select_subtitle": {
+      "message": "Laman web dari senarai yang diimport akan ditambahkan ke pengecualian yang sedia ada"
+   },
+   "options_exclusions_import_select_title": {
+      "message": "Bagaimana cara menggunakan senarai pengecualian ini?"
+   },
+   "options_exclusions_import_successful": {
+      "message": "Pengecualian yang diimport: %count%"
+   },
+   "options_exclusions_remove_all_success": {
+      "message": "Semua pengecualian untuk mod semasa berjaya dipadamkan."
+   },
+   "options_report_bug_title": {
+      "message": "Laporkan pepijat"
+   },
+   "options_signedout_page_description": {
+      "message": "Untuk terus melayari secara peribadi, klik ikon AdGuard VPN dan log masuk semula."
+   },
+   "options_signedout_page_description_not_secure": {
+      "message": "Sambungan anda tidak dilindungi!"
+   },
+   "options_signedout_page_title": {
+      "message": "Anda telah keluar dari AdGuard VPN"
+   },
+   "options_support_faq_description": {
+      "message": "Soalan dan jawapan"
+   },
+   "options_support_faq_title": {
+      "message": "FAQ"
+   },
+   "options_support_feedback_description": {
+      "message": "Hantar permintaan dan cadangan ciri"
+   },
+   "options_support_feedback_title": {
+      "message": "Tinggalkan maklum balas"
+   },
+   "options_support_report_description": {
+      "message": "Hantar laporan kepada kami mengenai bug yang berpotensi"
+   },
+   "options_support_report_title": {
+      "message": "Laporkan pepijat"
+   },
+   "options_support_title": {
+      "message": "Sokongan"
+   },
+   "options_title": {
+      "message": "Pilihan AdGuard VPN"
+   },
+   "popup_auth_help_us_improve_agreement": {
+      "message": "Hantar \u003Clink>data penggunaan penyambung\u003C/link> tanpa nama"
+   },
+   "popup_auth_policy_agreement": {
+      "description": "WARNING! Respect spaces between tags",
+      "message": "Saya menerima \u003Ceula>EULA\u003C/eula> dan \u003Cprivacy>Dasar Privasi\u003C/privacy> AdGuard VPN"
+   },
+   "popup_auth_policy_agreement_continue_button": {
+      "message": "Daftar masuk atau cipta akaun"
+   },
+   "popup_auth_policy_agreement_title": {
+      "message": "Selamat datang"
+   },
+   "popup_compare_button": {
+      "message": "Mengapa app ini lebih baik"
+   },
+   "popup_confirm_rate_modal_confirm_button": {
+      "message": "Pergi ke Extension Store"
+   },
+   "popup_confirm_rate_modal_feedback_subtitle": {
+      "message": "Beritahu kami apa yang salah"
+   },
+   "popup_confirm_rate_modal_feedback_title": {
+      "message": "Bantu kami menambah baik"
+   },
+   "popup_confirm_rate_modal_leave_feedback_button": {
+      "message": "Tinggalkan maklum balas"
+   },
+   "popup_confirm_rate_modal_rate_title": {
+      "message": "Wow! Bolehkah anda menilai kami juga di Extension Store?"
+   },
+   "popup_connections_limit_description_cta_button_free": {
+      "message": "Naik taraf"
+   },
+   "popup_connections_limit_description_cta_button_premium": {
+      "message": "Ketahui lebih lanjut"
+   },
+   "popup_connections_limit_description_end_free": {
+      "message": "Untuk menggunakan VPN di sini, pertimbangkan untuk membeli AdGuard VPN Unlimited"
+   },
+   "popup_connections_limit_description_end_premium": {
+      "message": "Untuk menggunakan VPN di sini, putuskan sambungan peranti lain"
+   },
+   "popup_connections_limit_description_start": {
+      "message": "Anda boleh menyambung sehingga %maxDevicesAllowed% peranti pada satu masa."
+   },
+   "popup_connections_limit_title": {
+      "message": "Had maksimum peranti dicapai"
+   },
+   "popup_feedback_button": {
+      "message": "Tinggalkan maklum balas"
+   },
+   "popup_feedback_title": {
+      "message": "Kami ingin mendengar maklum balas anda"
+   },
+   "popup_free_traffic_info_days_left": {
+      "description": "Respect spaces between text, tags and placeholders. 40 characters max limit for every plural form",
+      "message": "Trafik diperbaharui hari ini | Trafik diperbaharui dalam %days% hari"
+   },
+   "popup_free_traffic_info_left": {
+      "description": "Respect spaces between text, tags and placeholders",
+      "message": "%value% %unit% tinggal"
+   },
+   "popup_hint_popup_button": {
+      "message": "Kami ambil maklum"
+   },
+   "popup_hint_popup_content": {
+      "message": "Sebenarnya, anda boleh nyahaktifkan VPN untuk satu laman web dan mengekalkannya dihidupkan untuk laman lain"
+   },
+   "popup_host_permission_error_btn_allow": {
+      "message": "Benarkan"
+   },
+   "popup_host_permission_error_info": {
+      "message": "Untuk menggunakan AdGuard VPN, benarkan ia mengakses data anda di laman web. Kami tidak menyimpan data ini atau berkongsi dengan sesiapa pun. \u003Cprivacy>Dasar Privasi\u003C/privacy>"
+   },
+   "popup_host_permission_error_title": {
+      "message": "Benarkan akses ke laman web"
+   },
+   "popup_limited_offer_details_btn": {
+      "message": "Dapatkan tawaran"
+   },
+   "popup_limited_offer_details_time_left": {
+      "message": "Masa yang tinggal: %time_left%"
+   },
+   "popup_limited_offer_details_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "| AdGuard VPN Unlimited untuk %count% tahun dengan diskaun \u003Cspan>%discount%%% off\u003C/span>"
+   },
+   "popup_limited_offer_notice": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "%discount%%% diskaun: \u003Cspan>%time_left%\u003C/span>"
+   },
+   "popup_mobile_edge_promo_modal_description": {
+      "message": "Imbas kod QR untuk memasang Edge pada telefon atau tablet anda. AdGuard VPN akan muncul dalam cadangan"
+   },
+   "popup_mobile_edge_promo_modal_do_not_show_btn": {
+      "message": "Jangan tunjuk ini lagi"
+   },
+   "popup_mobile_edge_promo_modal_got_it_btn": {
+      "message": "Faham"
+   },
+   "popup_mobile_edge_promo_modal_title": {
+      "message": "VPN AdGuard untuk Edge — kini pada Android"
+   },
+   "popup_mobile_edge_promo_text": {
+      "message": "Dapatkan sambungan VPN untuk Android"
+   },
+   "popup_newsletter_info": {
+      "message": "Hantarkan saya e-mel dengan tawaran istimewa serta berita Adguard"
+   },
+   "popup_newsletter_no_subscribe": {
+      "message": "Tidak perlu"
+   },
+   "popup_newsletter_subscribe": {
+      "message": "Langgan"
+   },
+   "popup_newsletter_title": {
+      "message": "Surat Berita \"Adguard\""
+   },
+   "popup_no_locations_button": {
+      "message": "Cari lagi"
+   },
+   "popup_no_locations_title": {
+      "message": "Lokasi tidak ditemui"
+   },
+   "popup_onboarding_next": {
+      "message": "Seterusnya"
+   },
+   "popup_onboarding_no_logging_policy": {
+      "message": "Tiada polisi log"
+   },
+   "popup_onboarding_no_logging_policy_info": {
+      "message": "AdGuard VPN menjadikan anda tanpa nama. Ia tidak pernah mengumpul atau berkongsi data anda dengan pihak ketiga"
+   },
+   "popup_onboarding_sites_apps_exclusions": {
+      "message": "Pengecualian laman web dan aplikasi"
+   },
+   "popup_onboarding_sites_apps_exclusions_info": {
+      "message": "Pengecualian membantu anda untuk menentukan laman web atau aplikasi untuk perlindungan AdGuard VPN dengan cepat"
+   },
+   "popup_onboarding_unique_protocol": {
+      "message": "Protokol VPN unik"
+   },
+   "popup_onboarding_unique_protocol_info": {
+      "message": "Protokol TrustTunnel berfungsi dengan cepat dan menjadikan trafik VPN anda tidak mencolok"
+   },
+   "popup_paywall_b_btn_maybe_later": {
+      "message": "Mungkin kemudian"
+   },
+   "popup_paywall_b_btn_upgrade": {
+      "message": "Naik taraf"
+   },
+   "popup_paywall_b_column_free": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Percuma"
+   },
+   "popup_paywall_b_column_unlimited": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Tanpa had"
+   },
+   "popup_paywall_b_description": {
+      "message": "Lihat AdGuard VPN Unlimited. Dengan pelan tahunan, anda jimat 67%%"
+   },
+   "popup_paywall_b_row_devices": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Peranti"
+   },
+   "popup_paywall_b_row_dns": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "AdGuard DNS"
+   },
+   "popup_paywall_b_row_locations": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Lokasi Pelayan"
+   },
+   "popup_paywall_b_row_locations_unlimited": {
+      "message": "%count%+"
+   },
+   "popup_paywall_b_row_speed": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Kelajuan"
+   },
+   "popup_paywall_b_row_speed_free": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Dikurangkan"
+   },
+   "popup_paywall_b_row_vpn_data": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Data VPN"
+   },
+   "popup_paywall_b_row_vpn_data_free": {
+      "message": "%gb% GB\u003Cspan>/bln\u003C/span>"
+   },
+   "popup_paywall_b_title": {
+      "message": "Had data dicapai — kandungan mengambil masa lebih lama untuk dimuatkan"
+   },
+   "popup_rate_modal_cancel_button": {
+      "message": "Batal"
+   },
+   "popup_rate_modal_send_button": {
+      "message": "Hantar"
+   },
+   "popup_rate_modal_subtitle": {
+      "message": "Sila beri penilaian kepada kami"
+   },
+   "popup_rate_modal_title": {
+      "message": "Betapa hebatnya AdGuard VPN?"
+   },
+   "popup_server_error_popup_action": {
+      "message": "Beri perhatian kepada pasukan AdGuard"
+   },
+   "popup_server_error_popup_cancel": {
+      "message": "Batal"
+   },
+   "popup_server_error_popup_close": {
+      "message": "Tutup"
+   },
+   "popup_server_error_popup_info": {
+      "message": "Kemungkinan besar, VPN telah disekat di negara anda atau terdapat gangguan teknikal. Kami sudah cuba membetulkannya"
+   },
+   "popup_server_error_popup_thankyou_message": {
+      "message": "Terima kasih kerana memberitahu kami!"
+   },
+   "popup_server_error_popup_thankyou_title": {
+      "message": "Sedang mengerjakannya"
+   },
+   "popup_server_error_popup_title": {
+      "message": "Tidak dapat menyambung ke pelayan"
+   },
+   "popup_settings_disable_vpn": {
+      "message": "Nyahaktifkan VPN untuk laman web ini"
+   },
+   "popup_settings_enable_vpn_short": {
+      "message": "Aktifkan di sini"
+   },
+   "popup_settings_feedback": {
+      "message": "Maklumbalas"
+   },
+   "popup_settings_free_description": {
+      "message": "Tersedia dalam AdGuard VPN Unlimited"
+   },
+   "popup_settings_open_settings": {
+      "message": "Tetapan"
+   },
+   "popup_settings_other_products": {
+      "message": "Produk Lain"
+   },
+   "popup_settings_stats": {
+      "message": "Statistik"
+   },
+   "popup_site_status_unaccessible": {
+      "message": "terletak dalam rangkaian tempatan anda dan tidak boleh diakses melalui VPN"
+   },
+   "popup_site_status_vpn_disabled": {
+      "message": "VPN telah dinyahaktifkan di laman web ini"
+   },
+   "popup_skeleton_status": {
+      "message": "Mencari lokasi..."
+   },
+   "popup_stats": {
+      "message": "Statistik"
+   },
+   "popup_stats_connection_to_vpn": {
+      "message": "Disambungkan ke VPN"
+   },
+   "popup_stats_connection_to_vpn_days": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%days% h"
+   },
+   "popup_stats_connection_to_vpn_hours": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%hours% j"
+   },
+   "popup_stats_connection_to_vpn_minutes": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%minutes% m"
+   },
+   "popup_stats_data_since": {
+      "description": "IMPORTANT: Be careful with percent sign around startDate. StartDate will be replaced with the date when stats collection started. For example on - 17 Sept 2025, date format respects locale.",
+      "message": "Sejak %startDate%"
+   },
+   "popup_stats_data_usage": {
+      "message": "Data"
+   },
+   "popup_stats_data_usage_downloaded": {
+      "message": "dimuat turun"
+   },
+   "popup_stats_data_usage_uploaded": {
+      "message": "diunggah"
+   },
+   "popup_stats_disabled_notice": {
+      "message": "Statistik dilumpuhkan"
+   },
+   "popup_stats_empty": {
+      "message": "Belum ada statistik — terus gunakan AdGuard VPN untuk melihatnya"
+   },
+   "popup_stats_enable_btn": {
+      "message": "Dayakan"
+   },
+   "popup_stats_locations": {
+      "message": "Lokasi"
+   },
+   "popup_stats_menu_clear_stats_btn": {
+      "message": "Padam statistik"
+   },
+   "popup_stats_menu_clear_stats_cancel_btn": {
+      "message": "Batal"
+   },
+   "popup_stats_menu_clear_stats_clear_btn": {
+      "message": "Padam"
+   },
+   "popup_stats_menu_clear_stats_description": {
+      "message": "Semua statistik akan dipadamkan secara kekal"
+   },
+   "popup_stats_menu_clear_stats_title": {
+      "message": "Padam statistik?"
+   },
+   "popup_stats_menu_disable_stats_btn": {
+      "message": "Lumpuhkan statistik"
+   },
+   "popup_stats_menu_disable_stats_cancel_btn": {
+      "message": "Batal"
+   },
+   "popup_stats_menu_disable_stats_description": {
+      "message": "Statistik baharu tidak akan dikumpulkan. Anda masih boleh mengakses statistik sedia ada anda"
+   },
+   "popup_stats_menu_disable_stats_disable_btn": {
+      "message": "Nyahdaya"
+   },
+   "popup_stats_menu_disable_stats_title": {
+      "message": "Lumpuhkan statistik?"
+   },
+   "popup_stats_menu_enable_stats_btn": {
+      "message": "Dayakan statistik"
+   },
+   "popup_stats_menu_why_safe_description_1": {
+      "message": "Statistik menunjukkan jumlah data VPN yang telah anda gunakan dan kedudukan lokasi teratas anda"
+   },
+   "popup_stats_menu_why_safe_description_2": {
+      "message": "Statistik tidak pernah menyertakan sejarah penyemakan imbas anda. Ia disulitkan, jadi tiada siapa yang boleh menjejaki anda"
+   },
+   "popup_stats_menu_why_safe_description_3": {
+      "message": "Jika anda menggunakan VPN AdGuard dalam beberapa penyemak imbas, statistik anda akan berbeza untuk setiap satu. Ia disimpan pada peranti dan hanya anda boleh mengaksesnya"
+   },
+   "popup_stats_menu_why_safe_got_it": {
+      "message": "Faham"
+   },
+   "popup_stats_menu_why_safe_title": {
+      "message": "Perihal statistik anda"
+   },
+   "popup_stats_most_used_locations": {
+      "message": "Lokasi yang paling banyak digunakan"
+   },
+   "popup_stats_range_all_time": {
+      "message": "Sepanjang masa"
+   },
+   "popup_stats_range_days_30": {
+      "message": "30 hari"
+   },
+   "popup_stats_range_days_7": {
+      "message": "7 hari"
+   },
+   "popup_stats_range_hours_24": {
+      "message": "24 jam"
+   },
+   "popup_stats_usage_time": {
+      "message": "Masa"
+   },
+   "popup_stats_view_all_locations": {
+      "message": "Lihat semua lokasi"
+   },
+   "popup_streaming_icon_title": {
+      "message": "Baik untuk perkhidmatan penstriman"
+   },
+   "popup_streaming_modal_button_ok": {
+      "message": "Baiklah"
+   },
+   "popup_streaming_modal_title": {
+      "message": "Penstriman tersedia di lokasi ini"
+   },
+   "popup_traffic_limit_exceeded_cta_btn": {
+      "message": "Naik taraf"
+   },
+   "popup_traffic_limit_exceeded_description": {
+      "message": "Anda telah mencapai had data percuma, dan AdGuard VPN berfungsi dengan perlahan"
+   },
+   "popup_traffic_limit_exceeded_title": {
+      "message": "Kelajuan dikurangkan"
+   },
+   "popup_traffic_limit_reached": {
+      "message": "Had data bulanan telah dicapai"
+   },
+   "popup_traffic_limited_speed": {
+      "message": "Kelajuan terhad"
+   },
+   "popup_upgrade_b_btn_get_unlimited": {
+      "message": "Dapatkan Tanpa had"
+   },
+   "popup_upgrade_b_btn_maybe_later": {
+      "message": "Mungkin kemudian"
+   },
+   "popup_upgrade_b_description": {
+      "message": "Ia menawarkan sambungan berkelajuan tinggi, akses ke semua lokasi, dan banyak lagi"
+   },
+   "popup_upgrade_b_feature_devices": {
+      "message": "Gunakan AdGuard VPN pada %count% peranti pada masa yang sama"
+   },
+   "popup_upgrade_b_feature_dns": {
+      "message": "Sembunyikan aktiviti web anda dengan AdGuard DNS sebagai bonus"
+   },
+   "popup_upgrade_b_feature_locations": {
+      "message": "Tonton kandungan dari %count%+ lokasi pelayan"
+   },
+   "popup_upgrade_b_feature_speed": {
+      "message": "Strim pada kelajuan tinggi tanpa had"
+   },
+   "popup_upgrade_b_title_line1": {
+      "message": "AdGuard VPN Unlimited"
+   },
+   "popup_upgrade_screen_all_locations": {
+      "message": "Semua lokasi"
+   },
+   "popup_upgrade_screen_all_locations_desc": {
+      "message": "6 benua dan puluhan negara. Pilih bandar dan luncurkan internet dengan selamat!"
+   },
+   "popup_upgrade_screen_connect_devices": {
+      "message": "Sehingga %potential_num% peranti"
+   },
+   "popup_upgrade_screen_connect_devices_desc": {
+      "message": "Sambungkan semua alat anda ke AdGuard VPN pada masa yang sama — atau lindungi keseluruhan keluarga!"
+   },
+   "popup_upgrade_screen_continue_free": {
+      "message": "Teruskan secara percuma"
+   },
+   "popup_upgrade_screen_info_with_devices": {
+      "message": "Akses semua lokasi, layari tanpa had laju, dan sambungkan sehingga %maxDevicesAllowed% peranti serentak"
+   },
+   "popup_upgrade_screen_title": {
+      "message": "Tingkatkan ke Unlimited"
+   },
+   "popup_upgrade_screen_unlimited_data": {
+      "message": "Data tanpa had"
+   },
+   "popup_upgrade_screen_unlimited_data_desc": {
+      "message": "Satu-satunya had adalah data anda tidak pernah dikongsi. Luncurlah sepuas hati!"
+   },
+   "popup_upgrade_screen_unlimited_speed": {
+      "message": "Kelajuan tanpa had"
+   },
+   "popup_upgrade_screen_unlimited_speed_desc": {
+      "message": "Tiada sekatan kelajuan. Dapatkan yang terbaik daripada penyedia perkhidmatan anda!"
+   },
+   "popup_upgrade_screen_upgrade_button": {
+      "message": "Naik taraf"
+   },
+   "popup_vpn_blocked_error_details_description": {
+      "message": "Jika anda mengalami masalah sambungan, kami sarankan beralih ke versi desktop — ia berfungsi lebih lancar."
+   },
+   "popup_vpn_blocked_error_details_description_linux": {
+      "message": "Jika anda mengalami masalah sambungan, kami mengesyorkan klien VPN Linux kami. Ia berfungsi lebih lancar"
+   },
+   "popup_vpn_blocked_error_details_description_mobile": {
+      "message": "Jika anda mengalami masalah sambungan, kami mengesyorkan beralih ke versi mudah alih. Ia berfungsi lebih lancar"
+   },
+   "popup_vpn_blocked_error_details_get_app_button": {
+      "message": "Muat turun"
+   },
+   "popup_vpn_blocked_error_details_get_app_button_linux": {
+      "message": "Bagaimana cara memasang"
+   },
+   "popup_vpn_blocked_error_details_later_button": {
+      "message": "Kemudian"
+   },
+   "popup_vpn_blocked_error_details_title": {
+      "message": "Beralih ke versi desktop untuk sambungan yang lebih stabil"
+   },
+   "popup_vpn_blocked_error_details_title_linux": {
+      "message": "Beralih ke AdGuard VPN untuk Linux untuk sambungan yang lebih stabil"
+   },
+   "popup_vpn_blocked_error_details_title_mobile": {
+      "message": "Beralih ke versi mudah alih untuk sambungan yang lebih stabil"
+   },
+   "popup_vpn_blocked_error_notice": {
+      "message": "Tidak dapat terhubung?"
+   },
+   "popup_vpn_blocked_error_notice_alt": {
+      "message": "Beralih ke versi desktop untuk sambungan yang lebih stabil"
+   },
+   "popup_vpn_blocked_error_notice_alt_linux": {
+      "message": "Beralih ke AdGuard VPN untuk Linux untuk sambungan yang lebih stabil"
+   },
+   "popup_vpn_blocked_error_notice_alt_mobile": {
+      "message": "Beralih ke versi mudah alih untuk sambungan yang lebih stabil"
+   },
+   "premium_upgrade": {
+      "message": "Naik taraf"
+   },
+   "privacy_policy": {
+      "message": "Dasar Privasi"
+   },
+   "rate_description": {
+      "message": "Menghargai AdGuard VPN?"
+   },
+   "rate_hide": {
+      "message": "Sembunyi"
+   },
+   "referral_get_free_traffic": {
+      "message": "Dapatkan GB percuma!"
+   },
+   "settings_connect": {
+      "message": "Sambung"
+   },
+   "settings_context_menus_description": {
+      "message": "Urus pengecualian VPN untuk laman web tertentu"
+   },
+   "settings_context_menus_title": {
+      "message": "Paparkan AdGuard VPN dalam menu konteks pelayar"
+   },
+   "settings_disconnect": {
+      "message": "sambungan terputus"
+   },
+   "settings_dns_add_custom_server": {
+      "message": "Tambahkan pelayan DNS tersuai"
+   },
+   "settings_dns_add_custom_server_address": {
+      "message": "Alamat pelayan"
+   },
+   "settings_dns_add_custom_server_address_placeholder": {
+      "message": "Alamat IP atau tls://"
+   },
+   "settings_dns_add_custom_server_duplicate_address": {
+      "message": "Pelayan DNS sudah ditambahkan"
+   },
+   "settings_dns_add_custom_server_info": {
+      "message": "Pembekal DNS yang dikenali"
+   },
+   "settings_dns_add_custom_server_invalid_address": {
+      "message": "Alamat pelayan tidak sah"
+   },
+   "settings_dns_add_custom_server_name": {
+      "message": "Nama pelayan"
+   },
+   "settings_dns_add_custom_server_name_placeholder": {
+      "message": "Pelayan DNS Saya"
+   },
+   "settings_dns_add_custom_server_save": {
+      "message": "Simpan"
+   },
+   "settings_dns_add_custom_server_save_and_select": {
+      "message": "Simpan dan pilih"
+   },
+   "settings_dns_add_custom_server_too_long_name": {
+      "message": "Nama pelayan melebihi had %max% aksara (sekarang %current%)"
+   },
+   "settings_dns_custom_servers": {
+      "message": "Pelayan DNS khusus"
+   },
+   "settings_dns_delete_custom_server_notification": {
+      "message": "Pelayan DNS khusus telah dipadam"
+   },
+   "settings_dns_description": {
+      "message": "Membenarkan untuk memilih pelayan DNS untuk menyelesaikan Permintaan DNS, menyekat iklan dan pengesan, serta menyulitkan trafik DNS apabila anda disambungkan ke VPN"
+   },
+   "settings_dns_description_current": {
+      "message": "Semasa: %dnsServerName%"
+   },
+   "settings_dns_edit_custom_server": {
+      "message": "Sunting tetapan pelayan DNS tersuai"
+   },
+   "settings_dns_label": {
+      "message": "Pelayan DNS"
+   },
+   "settings_dns_popular_servers": {
+      "message": "Pelayan DNS popular"
+   },
+   "settings_dns_selector_adguard_desc": {
+      "message": "Menghapus iklan dan pengesan dari peranti anda"
+   },
+   "settings_dns_selector_adguard_family_desc": {
+      "message": "AdGuard DNS + SafeSearch dan sekatan kandungan dewasa"
+   },
+   "settings_dns_selector_adguard_family_title": {
+      "message": "Perlindungan Keluarga DNS AdGuard"
+   },
+   "settings_dns_selector_adguard_nonfiltering_desc": {
+      "message": "DNS yang Selamat tanpa pendaftaran aktiviti (tidak menyaring iklan & pengesan)"
+   },
+   "settings_dns_selector_adguard_nonfiltering_title": {
+      "message": "AdGuard DNS Non-filtering"
+   },
+   "settings_dns_selector_adguard_title": {
+      "message": "AdGuard DNS"
+   },
+   "settings_dns_selector_cisco_desc": {
+      "message": "Pelayan DNS yang melindungi peranti anda daripada perisian Jahat"
+   },
+   "settings_dns_selector_cisco_title": {
+      "message": "Cisco OpenDNS"
+   },
+   "settings_dns_selector_cloudflare_desc": {
+      "message": "Percuma servis DNS oleh Cloudfare"
+   },
+   "settings_dns_selector_cloudflare_title": {
+      "message": "Cloudflare DNS"
+   },
+   "settings_dns_selector_default_desc": {
+      "message": "Menggunakan pelayan DNS yang disediakan oleh AdGuard VPN"
+   },
+   "settings_dns_selector_default_title": {
+      "message": "Lalai"
+   },
+   "settings_dns_selector_google_desc": {
+      "message": "Perkhidmatan DNS alternatif percuma oleh Google"
+   },
+   "settings_dns_selector_google_title": {
+      "message": "Google DNS"
+   },
+   "settings_dns_selector_quad9_desc": {
+      "message": "Perkhidmatan DNS alternatif percuma dengan perlindungan daripada pancingan data dan perisian intip"
+   },
+   "settings_dns_selector_quad9_title": {
+      "message": "Quad9"
+   },
+   "settings_exclusion_actions": {
+      "message": "Tindakan"
+   },
+   "settings_exclusion_add": {
+      "message": "TAMBAH"
+   },
+   "settings_exclusion_add_from_list": {
+      "message": "Daripada senarai"
+   },
+   "settings_exclusion_add_manually": {
+      "message": "Secara manual"
+   },
+   "settings_exclusion_add_manually_add": {
+      "message": "Tambah secara manual"
+   },
+   "settings_exclusion_add_subdomain": {
+      "message": "Tambah subdomain"
+   },
+   "settings_exclusion_add_website": {
+      "message": "Tambah laman web"
+   },
+   "settings_exclusion_change_mode_modal_title": {
+      "message": "Tempat VPN aktif"
+   },
+   "settings_exclusion_connection_problem": {
+      "message": "Masalah sambungan"
+   },
+   "settings_exclusion_domain_name": {
+      "message": "Nama domain"
+   },
+   "settings_exclusion_general_mode_info": {
+      "message": "VPN aktif \u003Cspan>di mana-mana\u003C/span> kecuali untuk laman web di bawah"
+   },
+   "settings_exclusion_general_title": {
+      "message": "Di mana saja kecuali untuk laman web yang dikecualikan"
+   },
+   "settings_exclusion_group_settings_subtitle_regular_mode": {
+      "message": "AdGuard VPN dimatikan untuk domain dan subdomain yang diperiksa"
+   },
+   "settings_exclusion_group_settings_subtitle_selective_mode": {
+      "message": "AdGuard VPN dihidupkan untuk domain dan subdomain yang diperiksa"
+   },
+   "settings_exclusion_import_button": {
+      "message": "Import"
+   },
+   "settings_exclusion_invalid_subdomain": {
+      "message": "Subdomain tidak sah"
+   },
+   "settings_exclusion_modal_cancel": {
+      "message": "Batal"
+   },
+   "settings_exclusion_modal_remove": {
+      "message": "Buang"
+   },
+   "settings_exclusion_modal_save": {
+      "message": "Simpan"
+   },
+   "settings_exclusion_nothing_found": {
+      "message": "Tiada hasil dijumpai"
+   },
+   "settings_exclusion_placeholder_search": {
+      "message": "Carian"
+   },
+   "settings_exclusion_reset_button": {
+      "message": "Tetapkan semula"
+   },
+   "settings_exclusion_reset_service_confirmation_message": {
+      "message": "Tetapkan semula tetapan lalai untuk %hostname%? Ini akan mengembalikan sebarang domain yang hilang dan menetapkan semua tanda kepada aktif."
+   },
+   "settings_exclusion_reset_to_default": {
+      "message": "Tetapkan semula ke lalai"
+   },
+   "settings_exclusion_search_website": {
+      "message": "Cari laman web"
+   },
+   "settings_exclusion_selective_mode_info": {
+      "message": "VPN berfungsi \u003Cspan>secara selektif\u003C/span>: hanya untuk laman web di bawah"
+   },
+   "settings_exclusion_selective_mode_warning": {
+      "message": "Mengosongkan senarai ini akan menonaktifkan VPN untuk semua laman web"
+   },
+   "settings_exclusion_selective_title": {
+      "message": "Hanya di laman web terpilih"
+   },
+   "settings_exclusion_status_all_subdomains": {
+      "message": "semua subdomain"
+   },
+   "settings_exclusion_status_domain": {
+      "message": "nama induk"
+   },
+   "settings_exclusion_status_subdomain": {
+      "message": "subdomain"
+   },
+   "settings_exclusion_subdomain_name": {
+      "message": "subdomain"
+   },
+   "settings_exclusion_title": {
+      "message": "Pengecualian"
+   },
+   "settings_exclusions_action_export": {
+      "message": "Eksport pengecualian"
+   },
+   "settings_exclusions_action_import": {
+      "message": "Import pengecualian"
+   },
+   "settings_exclusions_action_remove_all": {
+      "message": "Hapus semua"
+   },
+   "settings_exclusions_add_invalid_domain": {
+      "message": "\"%url%\" bukan domain yang sah. Adakah anda ingin menambahkannya ke senarai?"
+   },
+   "settings_exclusions_remove_all_exclusions": {
+      "message": "Padam semua pengecualian"
+   },
+   "settings_exclusions_remove_all_exclusions_message": {
+      "message": "Adakah anda ingin memadam seluruh senarai pengecualian?"
+   },
+   "settings_exclusions_undo": {
+      "message": "Batalkan"
+   },
+   "settings_free_gbs": {
+      "message": "GB percuma"
+   },
+   "settings_free_gbs_add_device": {
+      "message": "Tambah peranti baru"
+   },
+   "settings_free_gbs_add_device_info_gb": {
+      "message": "Log masuk ke AdGuard VPN pada peranti lain dengan %email% untuk mendapatkan bonus %your_gb% GB sekali sahaja"
+   },
+   "settings_free_gbs_add_device_products_button": {
+      "message": "Pilih produk"
+   },
+   "settings_free_gbs_add_device_title_gb": {
+      "message": "Tambah peranti baru dan dapatkan %your_gb% GB secara percuma"
+   },
+   "settings_free_gbs_add_device_wait_to_update": {
+      "message": "Had bulanan anda mungkin mengambil masa untuk dikemas kini — beri ia beberapa minit atau mulakan semula app"
+   },
+   "settings_free_gbs_devices_added_info": {
+      "message": "Trafik yang tidak digunakan akan dibawa ke bulan-bulan berikutnya. Dan dengan AdGuard VPN Unlimited, anda boleh menikmati pelayaran pantas tanpa had"
+   },
+   "settings_free_gbs_devices_added_title_gb": {
+      "message": "Anda telah mendapat %your_gb% GB kerana menambah peranti baru"
+   },
+   "settings_free_gbs_get_GB": {
+      "message": "Dapatkan %num% GB"
+   },
+   "settings_free_gbs_invite_friend_complete": {
+      "message": "Anda telah mendapat %num% GB"
+   },
+   "settings_free_gbs_invite_friend_completed_thank_you": {
+      "message": "Terima kasih kerana membantu kami berkembang! Ketahui cara untuk mendapatkan lebih banyak bonus di bahagian GB Percuma. Atau dapatkan AdGuard VPN Unlimited untuk nikmati pelayaran pantas tanpa had"
+   },
+   "settings_free_gbs_invite_friend_count": {
+      "message": "Jemput rakan (%invited_count%/%max_invites%)"
+   },
+   "settings_free_gbs_invite_friend_get_GB": {
+      "message": "Dapatkan hingga %num% GB"
+   },
+   "settings_free_gbs_invite_friend_title": {
+      "message": "Jemput rakan dan dapatkan %your_gb% GB VPN pantas"
+   },
+   "settings_free_gbs_invite_friend_title_success": {
+      "message": "Anda telah menjemput %total_invites% rakan dan telah mendapat %total_gbs% GB secara keseluruhan"
+   },
+   "settings_free_gbs_join_adguard": {
+      "message": "Sertai AdGuard VPN"
+   },
+   "settings_free_gbs_promote_socials": {
+      "message": "Promosikan AdGuard VPN di media sosial"
+   },
+   "settings_free_gbs_promote_socials_button": {
+      "message": "Dapatkan bonus"
+   },
+   "settings_free_gbs_promote_socials_get_gb": {
+      "message": "Dapatkan %num% GB"
+   },
+   "settings_free_gbs_promote_socials_info": {
+      "message": "Tulis post di X atau Facebook dan kongsi pautan itu dengan kami. Kami akan menyemaknya dan menambah %your_gb% GB ke akaun anda. Anda boleh memperoleh sehingga %total_gb% GB secara keseluruhan"
+   },
+   "settings_free_gbs_promote_socials_title": {
+      "message": "Promosikan AdGuard VPN di media sosial dan dapatkan %your_gb% GB"
+   },
+   "settings_free_gbs_subtitle": {
+      "message": "Berikut ialah cara anda boleh mendapatkan trafik VPN tambahan"
+   },
+   "settings_free_gbs_task_complete": {
+      "message": "Anda telah mendapat %num% GB"
+   },
+   "settings_free_gbs_upgrade": {
+      "message": "Tingkatkan ke Unlimited"
+   },
+   "settings_general_title": {
+      "message": "Umum"
+   },
+   "settings_help_us_improve_modal_button": {
+      "message": "Faham"
+   },
+   "settings_help_us_improve_modal_desc_data": {
+      "message": "Data ini termasuk:"
+   },
+   "settings_help_us_improve_modal_desc_data_buttons": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Nama butang yang anda klik"
+   },
+   "settings_help_us_improve_modal_desc_data_screens": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Nama skrin yang anda interak dengan"
+   },
+   "settings_help_us_improve_modal_desc_data_sessions": {
+      "message": "Pengenal sesi"
+   },
+   "settings_help_us_improve_modal_desc_improve": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Kami memerlukan maklumat ini untuk menganalisis dan meningkatkan fungsi AdGuard VPN"
+   },
+   "settings_help_us_improve_modal_desc_internally": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Data ini adalah tanpa nama dan hanya digunakan dalam organisasi. Kami tidak pernah berkongsi dengan pihak ketiga"
+   },
+   "settings_help_us_improve_modal_privacy_policy": {
+      "description": "Contains non-breaking space ( ) to prevent unwanted line breaks",
+      "message": "Dasar privasi"
+   },
+   "settings_help_us_improve_modal_title": {
+      "message": "Data penggunaan penyambung"
+   },
+   "settings_help_us_improve_title": {
+      "message": "Bantu tingkatkan AdGuard VPN"
+   },
+   "settings_language_browser_default": {
+      "message": "Pengaturan lalai pelayar"
+   },
+   "settings_language_label": {
+      "message": "Bahasa"
+   },
+   "settings_quick_connect_fastest": {
+      "message": "Lokasi terpantas"
+   },
+   "settings_quick_connect_last_used": {
+      "message": "Lokasi terakhir digunakan"
+   },
+   "settings_quick_connect_subtitle": {
+      "message": "Lokasi VPN dipilih apabila anda klik Sambung"
+   },
+   "settings_quick_connect_title": {
+      "message": "Sambung cepat"
+   },
+   "settings_rate_us": {
+      "message": "Nilaikan kami"
+   },
+   "settings_referral_copy_link": {
+      "message": "Salin pautan jemputan"
+   },
+   "settings_referral_info_friends": {
+      "message": "Hantar pautan jemputan kepada rakan anda. Apabila mereka mendaftar ke AdGuard VPN melalui pautan anda, anda berdua akan mendapat %your_gb% GB VPN pantas. Jumlah yang tidak digunakan tidak akan tamat tempoh — anda boleh menggunakannya sepanjang bulan-bulan. Jemput sehingga %max_friends% rakan dan dapatkan sehingga %total_gb% GB secara keseluruhan."
+   },
+   "settings_referral_invite_link": {
+      "message": "Pautan jemputan"
+   },
+   "settings_referral_invited_friends": {
+      "message": "Rakan yang dijemput %count%/%limit%"
+   },
+   "settings_referral_link_copied": {
+      "message": "Pautan jemputan telah disalin ke papan klip"
+   },
+   "settings_theme_dark": {
+      "message": "Gelap"
+   },
+   "settings_theme_label": {
+      "message": "Tema"
+   },
+   "settings_theme_light": {
+      "message": "Cerah"
+   },
+   "settings_theme_system": {
+      "message": "Pengaturan lalai pelayar"
+   },
+   "settings_vpn_connecting": {
+      "message": "Menyambung..."
+   },
+   "settings_vpn_disabled": {
+      "message": "Sambungan terputus"
+   },
+   "settings_vpn_enabled": {
+      "message": "Disambung"
+   },
+   "settings_webrtc_desc": {
+      "message": "Sekat WebRTC, satu kelemahan yang diketahui yang boleh mendedahkan Alamat IP sebenar anda walaupun anda menggunakan proksi atau VPN"
+   },
+   "settings_webrtc_label": {
+      "message": "Sekat WebRTC"
+   },
+   "settings_webrtc_warning": {
+      "message": "Sesetengah messenger, platform penstriman atau permainan mungkin berhenti berfungsi dengan baik"
+   },
+   "short_name": {
+      "message": "AdGuard VPN"
+   }
+}

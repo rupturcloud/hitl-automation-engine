@@ -1,0 +1,29 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "img/logo.png"
+      },
+      "default_popup": "popup.html"
+   },
+   "background": {
+      "service_worker": "js/background.js"
+   },
+   "content_scripts": [ {
+      "js": [ "/js/content-script.js" ],
+      "matches": [ "https://options.discordmate.top/*" ],
+      "run_at": "document_start"
+   } ],
+   "default_locale": "en",
+   "description": "__MSG_extDesc__",
+   "homepage_url": "https://chrome.google.com/webstore/detail/knmhokeiipedacnhpjklbjmfgedfohco",
+   "host_permissions": [ "\u003Call_urls>" ],
+   "icons": {
+      "128": "img/logo.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAl+dx2kyAznCE9zzxBSwkDS4JCbLoostwmT0qJSHwi4nryqe2yW4oFY8PdGVfp7q4IsohAOekUqqKJegD7FBII3kJ+DsLfggHcct4a/Qmv3LrA5eyhbQha7+lpR7rbXYDW4W4IdvuVzn4zVDmQWZSAOC3aZ2IgRzxjj7SOeT6FN/RVCoUuENphvhbWGbUJ4guSg1i/7MB53z9cagU24MpFJL6qo1ttNA0PKzCIazcN1a0DDW6xAApcVPdYXbePEXi6oETyBoJukxwvsB8cnUXhPGY0vnAT1a+3USt/PnwASowEc+fHfoAxtobwaW6IWx/ZU4VI44qLqKW61fIU7aznwIDAQAB",
+   "manifest_version": 3,
+   "name": "__MSG_extName__",
+   "permissions": [ "storage", "proxy", "alarms" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "0.11.1"
+}

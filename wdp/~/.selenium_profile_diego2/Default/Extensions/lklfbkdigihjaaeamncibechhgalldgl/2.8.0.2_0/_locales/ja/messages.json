@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "最新ニュース、よく利用するサイト、ウェブ検索などお役立ち機能に簡単アクセス"
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "ja-jp"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "MSN タブ"
+   }
+}

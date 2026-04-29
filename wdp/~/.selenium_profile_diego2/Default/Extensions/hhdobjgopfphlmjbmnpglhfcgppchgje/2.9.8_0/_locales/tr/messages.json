@@ -1,0 +1,1238 @@
+{
+   "a11y_go_back": {
+      "message": "Geri dön"
+   },
+   "about_title": {
+      "message": "Hakkında"
+   },
+   "account_edit": {
+      "message": "Hesap ayarlarını aç"
+   },
+   "account_free": {
+      "message": "Ücretsiz sürüm"
+   },
+   "account_get_subscription": {
+      "message": "Abonelik al"
+   },
+   "account_logged_in_as": {
+      "message": "\u003Cb>%username%\u003C/b> olarak giriş yapıldı"
+   },
+   "account_max_devices_count": {
+      "message": "Aynı anda \u003Cb>%num%\u003C/b> cihaza kadar"
+   },
+   "account_monthly_paid": {
+      "message": "Aylık ücretli abonelik"
+   },
+   "account_sign_out": {
+      "message": "Çıkış yap"
+   },
+   "account_sign_out_description": {
+      "message": "Hesabınızdan çıkış yapacaksınız. VPN koruması durdurulacaktır"
+   },
+   "account_sign_out_popup_cancel": {
+      "message": "İptal"
+   },
+   "account_sign_out_question": {
+      "message": "Çıkış yapılsın mı?"
+   },
+   "account_title": {
+      "message": "Hesap"
+   },
+   "account_two_year_paid": {
+      "message": "İki yıllık ücretli abonelik"
+   },
+   "account_unlimited": {
+      "message": "Sınırsız abonelik"
+   },
+   "account_unlimited_title": {
+      "message": "Sınırsız sürümü edinin!"
+   },
+   "account_valid_until": {
+      "message": "\u003Cb>%date%\u003C/b> tarihine kadar geçerli"
+   },
+   "account_version": {
+      "message": "Sürüm"
+   },
+   "account_yearly_paid": {
+      "message": "Yıllık ücretli abonelik"
+   },
+   "all_rights_reserved": {
+      "message": "Tüm hakları saklıdır."
+   },
+   "auth_failed_to_login_button": {
+      "message": "Kapat"
+   },
+   "auth_failed_to_login_description": {
+      "message": "Lütfen tekrar deneyin veya \u003Ca>destek ile iletişime geçin\u003C/a>"
+   },
+   "auth_failed_to_login_description_without_support": {
+      "message": "Lütfen tekrar deneyin"
+   },
+   "auth_failed_to_login_title": {
+      "message": "Girişin yapılamadı"
+   },
+   "auth_loading_button_cancel": {
+      "message": "İptal"
+   },
+   "auth_loading_button_reopen": {
+      "message": "Giriş sayfasını yeniden aç"
+   },
+   "auth_loading_description": {
+      "message": "AdGuard VPN lisansınız varsa, otomatik olarak uygulanır"
+   },
+   "auth_loading_title": {
+      "message": "Tarayıcınız üzerinden giriş yap veya kayıt ol"
+   },
+   "auth_success_description": {
+      "message": "AdGuard VPN uzantısına geri dönün — her şey hazır"
+   },
+   "auth_success_title": {
+      "message": "Giriş yaptınız"
+   },
+   "authentication_successful_notification": {
+      "message": "Başarıyla doğrulandı! AdGuard VPN'i açabilir ve kullanmaya başlayabilirsiniz."
+   },
+   "confirm_email_done_info": {
+      "message": "Kullanılmayan veri sonraki aylara devredilir. Üstelik AdGuard VPN Unlimited ile hızlı gezinmenin keyfini sınırsızca çıkarabilirsiniz"
+   },
+   "confirm_email_done_title_gb": {
+      "message": "Tek seferlik hoş geldin bonusu olarak %your_gb% GB edindin"
+   },
+   "context_menu_debug_level": {
+      "message": "Hata ayıklama günlük kaydı"
+   },
+   "context_menu_disable_vpn": {
+      "message": "Bu sitede VPN'i devre dışı bırak"
+   },
+   "context_menu_enable_vpn": {
+      "message": "Bu sitede VPN'i etkinleştir"
+   },
+   "context_menu_export_logs": {
+      "message": "Günlükleri dışa aktar"
+   },
+   "context_menu_general_mode": {
+      "message": "Genel mod"
+   },
+   "context_menu_selective_mode": {
+      "message": "Seçici mod"
+   },
+   "control_error_description": {
+      "message": "Başka bir VPN uzantısının bağlantınızı kontrol ettiği anlaşılıyor. AdGuard VPN'i kullanmak için lütfen diğer uzantıyı devre dışı bırakın"
+   },
+   "control_error_disable": {
+      "message": "Devre dışı bırak"
+   },
+   "control_error_title": {
+      "message": "Bağlanmak için başka bir VPN uzantısını devre dışı bırakın"
+   },
+   "description": {
+      "description": "TEXT MAX LENGTH: 132",
+      "message": "Hızlı, güvenli ve güvenilir internet için AdGuard VPN kullanın. Özel VPN proxy'mizle gizliliğinizi koruyun ve anonim kalın."
+   },
+   "endpoints_all": {
+      "message": "Tüm konumlar"
+   },
+   "endpoints_countries": {
+      "message": "Konumlar"
+   },
+   "endpoints_empty_saved": {
+      "description": "Respect spaces between text and tags. Use \u003Cb> tag for bold text",
+      "message": "Buradaki konumları görmek için \u003Cb>Tümü\u003C/b> öğesini seçin ve bir konumun yanındaki simgeye tıklayın"
+   },
+   "endpoints_fastest": {
+      "message": "En hızlı"
+   },
+   "endpoints_location_virtual": {
+      "message": "Sanal"
+   },
+   "endpoints_not_found": {
+      "message": "Konum bulunamadı"
+   },
+   "endpoints_saved": {
+      "message": "Kaydedilenler"
+   },
+   "endpoints_saved_location_deleted": {
+      "message": "Konum Kaydedilenlerden silindi"
+   },
+   "endpoints_search": {
+      "message": "Konum ara"
+   },
+   "endpoints_tab_all": {
+      "message": "Tümü"
+   },
+   "endpoints_tab_saved": {
+      "message": "Kaydedilenler"
+   },
+   "eula": {
+      "message": "SKLS"
+   },
+   "global_error_description": {
+      "message": "Bu mesajı görmeye devam ederseniz lütfen bizimle iletişime geçin"
+   },
+   "global_error_learn_more": {
+      "message": "Daha fazla bilgi edinin"
+   },
+   "global_error_title": {
+      "message": "Hata oluştu"
+   },
+   "global_error_try_again": {
+      "message": "Tekrar dene"
+   },
+   "limited_offer_notification_desc": {
+      "message": "Flaş teklif yalnızca 6 saattir. AdGuard VPN uzantınızda daha fazla bilgi edinin"
+   },
+   "limited_offer_notification_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "AdGuard VPN'de %%%discount% indirim"
+   },
+   "name": {
+      "message": "AdGuard VPN: ücretsiz ve güvenli proxy"
+   },
+   "notification_data_left_description": {
+      "message": "VPN bağlantı hızı yakında azaltılacaktır."
+   },
+   "notification_data_left_mb": {
+      "message": "%num% MB kaldı."
+   },
+   "notification_data_limit_reached_description": {
+      "message": "VPN bağlantı hızı azaltldı."
+   },
+   "notification_data_limit_reached_title": {
+      "message": "Aylık veri sınırına ulaşıldı"
+   },
+   "official_website": {
+      "message": "Resmi site"
+   },
+   "offline_title": {
+      "message": "Çevrimdışı"
+   },
+   "options_bug_report_email_invalid": {
+      "message": "Yanlış e-posta adresi"
+   },
+   "options_bug_report_email_label": {
+      "message": "E-posta"
+   },
+   "options_bug_report_include_log_label": {
+      "message": "Tanılama raporunu mesaja dâhil et"
+   },
+   "options_bug_report_new_report_button": {
+      "message": "Yeni rapor"
+   },
+   "options_bug_report_page_success": {
+      "message": "Teşekkürler, mesajınız başarıyla gönderildi!"
+   },
+   "options_bug_report_request_error": {
+      "message": "Bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+   },
+   "options_bug_report_send_button": {
+      "message": "Raporu gönder"
+   },
+   "options_bug_report_sending_button": {
+      "message": "Rapor gönderiliyor..."
+   },
+   "options_bug_report_textarea_invalid": {
+      "message": "Bu alan zorunlu"
+   },
+   "options_bug_report_textarea_label": {
+      "message": "Mesaj"
+   },
+   "options_bug_report_textarea_placeholder": {
+      "message": "Ayrıntıları sağlayın"
+   },
+   "options_exclusions_added_exclusions": {
+      "message": "Eklenen istisnalar: %count%"
+   },
+   "options_exclusions_delete_cancel_button": {
+      "message": "İptal"
+   },
+   "options_exclusions_deleted_exclusions": {
+      "message": "Silinen istisnalar: %count%"
+   },
+   "options_exclusions_import_error_invalid_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "“%filename%” dosyası geçerli bir zip arşivi değil"
+   },
+   "options_exclusions_import_error_wrong_extensions": {
+      "message": "İstisnalar dosyası bu uzantılardan birine sahip olmalıdır: %extensions%"
+   },
+   "options_exclusions_import_error_wrong_extensions_in_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "Zip arşivi: “%filename%”, şu uzantılara sahip dosyaları içermiyor: %extensions%"
+   },
+   "options_exclusions_import_select_regular": {
+      "message": "Bu siteler için VPN'in kapalı olmasını istiyorum"
+   },
+   "options_exclusions_import_select_selective": {
+      "message": "Bu siteler için VPN'in açık olmasını istiyorum"
+   },
+   "options_exclusions_import_select_subtitle": {
+      "message": "İçe aktarılan listedeki siteler mevcut istisnalara eklenecektir"
+   },
+   "options_exclusions_import_select_title": {
+      "message": "Bu istisna listesi nasıl kullanılır?"
+   },
+   "options_exclusions_import_successful": {
+      "message": "İçe aktarılan istisnalar: %count%"
+   },
+   "options_exclusions_remove_all_success": {
+      "message": "Mevcut mod için tüm istisnalar başarıyla kaldırıldı."
+   },
+   "options_report_bug_title": {
+      "message": "Hata bildir"
+   },
+   "options_signedout_page_description": {
+      "message": "Gizli olarak gezinmeye devam etmek için AdGuard VPN simgesine tıklayın ve tekrar giriş yapın."
+   },
+   "options_signedout_page_description_not_secure": {
+      "message": "Bağlantınız güvenli değil!"
+   },
+   "options_signedout_page_title": {
+      "message": "AdGuard VPN'den çıkış yaptınız"
+   },
+   "options_support_faq_description": {
+      "message": "Sorular ve cevaplar"
+   },
+   "options_support_faq_title": {
+      "message": "SSS"
+   },
+   "options_support_feedback_description": {
+      "message": "Yeni özellik talebi veya öneri gönderin"
+   },
+   "options_support_feedback_title": {
+      "message": "Geri bildirimde bulun"
+   },
+   "options_support_report_description": {
+      "message": "Olası bir hata hakkında bize bir rapor gönderin"
+   },
+   "options_support_report_title": {
+      "message": "Hata bildir"
+   },
+   "options_support_title": {
+      "message": "Destek"
+   },
+   "options_title": {
+      "message": "AdGuard VPN Ayarları"
+   },
+   "popup_auth_help_us_improve_agreement": {
+      "message": "Anonim \u003Clink>uzantı kullanım verilerini\u003C/link> gönderin"
+   },
+   "popup_auth_policy_agreement": {
+      "description": "WARNING! Respect spaces between tags",
+      "message": "AdGuard VPN'in \u003Ceula>SKLS\u003C/eula> ve \u003Cprivacy>Gizlilik Politikasını\u003C/privacy> kabul ediyorum"
+   },
+   "popup_auth_policy_agreement_continue_button": {
+      "message": "Giriş yap ya da bir hesap oluştur"
+   },
+   "popup_auth_policy_agreement_title": {
+      "message": "Aramıza hoş geldin"
+   },
+   "popup_compare_button": {
+      "message": "Uygulama neden daha iyi"
+   },
+   "popup_confirm_rate_modal_confirm_button": {
+      "message": "Uzantı Mağazası'na Git"
+   },
+   "popup_confirm_rate_modal_feedback_subtitle": {
+      "message": "Bize neyin ters gittiğini söyleyin"
+   },
+   "popup_confirm_rate_modal_feedback_title": {
+      "message": "Geliştirmemize yardımcı ol"
+   },
+   "popup_confirm_rate_modal_leave_feedback_button": {
+      "message": "Geri bildirimde bulun"
+   },
+   "popup_confirm_rate_modal_rate_title": {
+      "message": "Vay! Bizi Uzantı Store'da da derecelendirebilir misiniz?"
+   },
+   "popup_connections_limit_description_cta_button_free": {
+      "message": "Yükselt"
+   },
+   "popup_connections_limit_description_cta_button_premium": {
+      "message": "Daha fazla bilgi edinin"
+   },
+   "popup_connections_limit_description_end_free": {
+      "message": "Bu konuda VPN kullanmak için AdGuard VPN Unlimited satın almayı düşünün"
+   },
+   "popup_connections_limit_description_end_premium": {
+      "message": "Bu cihazda VPN kullanmak için başka bir cihazın bağlantısını kesin"
+   },
+   "popup_connections_limit_description_start": {
+      "message": "Aynı anda %maxDevicesAllowed% cihaza kadar bağlanabilirsiniz."
+   },
+   "popup_connections_limit_title": {
+      "message": "Cihaz limitine ulaşıldı"
+   },
+   "popup_feedback_button": {
+      "message": "Geri bildirimde bulun"
+   },
+   "popup_feedback_title": {
+      "message": "Geri bildiriminizi duymak isteriz"
+   },
+   "popup_free_traffic_info_days_left": {
+      "description": "Respect spaces between text, tags and placeholders. 40 characters max limit for every plural form",
+      "message": "Veri bugün yenileniyor | Veri %days% gün içinde yenileniyor"
+   },
+   "popup_free_traffic_info_left": {
+      "description": "Respect spaces between text, tags and placeholders",
+      "message": "%value% %unit% kaldı"
+   },
+   "popup_hint_popup_button": {
+      "message": "Anladım"
+   },
+   "popup_hint_popup_content": {
+      "message": "Bu arada, VPN'i bir site için devre dışı bırakabilir ve diğerleri için etkin tutabilirsiniz"
+   },
+   "popup_host_permission_error_btn_allow": {
+      "message": "İzin ver"
+   },
+   "popup_host_permission_error_info": {
+      "message": "AdGuard VPN'i kullanmak için, sitelerdeki verilerinize erişmesine izin verin. Bu verileri saklamıyoruz veya kimseyle paylaşmıyoruz. \u003Cprivacy>Gizlilik politikası\u003C/privacy>"
+   },
+   "popup_host_permission_error_title": {
+      "message": "Sitelere izin ver"
+   },
+   "popup_limited_offer_details_btn": {
+      "message": "Teklifi kabul et"
+   },
+   "popup_limited_offer_details_time_left": {
+      "message": "Kalan süre: %time_left%"
+   },
+   "popup_limited_offer_details_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "| AdGuard VPN Unlimited %count% yıl için \u003Cspan>%%%discount% indirim\u003C/span>"
+   },
+   "popup_limited_offer_notice": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "%%%discount% indirim: \u003Cspan>%time_left%\u003C/span>"
+   },
+   "popup_mobile_edge_promo_modal_description": {
+      "message": "Edge'i telefonunuza veya tabletinize yüklemek için QR kodunu tarayın. AdGuard VPN önerilerde görünür"
+   },
+   "popup_mobile_edge_promo_modal_do_not_show_btn": {
+      "message": "Bunu tekrar gösterme"
+   },
+   "popup_mobile_edge_promo_modal_got_it_btn": {
+      "message": "Anladım"
+   },
+   "popup_mobile_edge_promo_modal_title": {
+      "message": "Edge için AdGuard VPN — artık Android'de"
+   },
+   "popup_mobile_edge_promo_text": {
+      "message": "Android için VPN uzantısını edinin"
+   },
+   "popup_newsletter_info": {
+      "message": "Bana özel teklifler ve AdGuard haberleri içeren e-postalar gönder"
+   },
+   "popup_newsletter_no_subscribe": {
+      "message": "Hayır, teşekkürler"
+   },
+   "popup_newsletter_subscribe": {
+      "message": "Abone ol"
+   },
+   "popup_newsletter_title": {
+      "message": "AdGuard bülteni"
+   },
+   "popup_no_locations_button": {
+      "message": "Tekrar ara"
+   },
+   "popup_no_locations_title": {
+      "message": "Konum bulunamadı"
+   },
+   "popup_onboarding_next": {
+      "message": "Sonraki"
+   },
+   "popup_onboarding_no_logging_policy": {
+      "message": "Günlük tutmama politikası"
+   },
+   "popup_onboarding_no_logging_policy_info": {
+      "message": "AdGuard VPN sizi anonim yapar. Verilerinizi asla toplamaz veya üçüncü şahıslarla paylaşmaz"
+   },
+   "popup_onboarding_sites_apps_exclusions": {
+      "message": "Siteler ve uygulamalar istisnaları"
+   },
+   "popup_onboarding_sites_apps_exclusions_info": {
+      "message": "İstisnalar, AdGuard VPN koruması için siteleri veya uygulamaları hızlı bir şekilde belirlemenize yardımcı olur"
+   },
+   "popup_onboarding_unique_protocol": {
+      "message": "Benzersiz VPN protokolü"
+   },
+   "popup_onboarding_unique_protocol_info": {
+      "message": "TrustTunnel protokolü hızlı çalışır ve VPN akışınızı farkedilmez hâle getirir"
+   },
+   "popup_paywall_b_btn_maybe_later": {
+      "message": "Belki sonra"
+   },
+   "popup_paywall_b_btn_upgrade": {
+      "message": "Yükselt"
+   },
+   "popup_paywall_b_column_free": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Ücretsiz"
+   },
+   "popup_paywall_b_column_unlimited": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Sınırsız"
+   },
+   "popup_paywall_b_description": {
+      "message": "AdGuard VPN Unlimited'a göz atın. Yıllık abonelik ile %%67 oranında tasarruf edersiniz"
+   },
+   "popup_paywall_b_row_devices": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Cihazlar"
+   },
+   "popup_paywall_b_row_dns": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "AdGuard DNS"
+   },
+   "popup_paywall_b_row_locations": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Sunucu konumları"
+   },
+   "popup_paywall_b_row_locations_unlimited": {
+      "message": "%count%+"
+   },
+   "popup_paywall_b_row_speed": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Hız"
+   },
+   "popup_paywall_b_row_speed_free": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "Azaltıldı"
+   },
+   "popup_paywall_b_row_vpn_data": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "VPN veri"
+   },
+   "popup_paywall_b_row_vpn_data_free": {
+      "message": "%gb% GB\u003Cspan>/ay\u003C/span>"
+   },
+   "popup_paywall_b_title": {
+      "message": "Veri sınırına ulaşıldı - içerik daha uzun süre yükleniyor"
+   },
+   "popup_rate_modal_cancel_button": {
+      "message": "İptal"
+   },
+   "popup_rate_modal_send_button": {
+      "message": "Gönder"
+   },
+   "popup_rate_modal_subtitle": {
+      "message": "Lütfen bizi derecelendirin"
+   },
+   "popup_rate_modal_title": {
+      "message": "AdGuard VPN ne kadar harika?"
+   },
+   "popup_server_error_popup_action": {
+      "message": "AdGuard ekibini dürt"
+   },
+   "popup_server_error_popup_cancel": {
+      "message": "İptal"
+   },
+   "popup_server_error_popup_close": {
+      "message": "Kapat"
+   },
+   "popup_server_error_popup_info": {
+      "message": "Büyük olasılıkla, VPN ülkenizde engellendi veya teknik bir aksaklık oldu. Zaten düzeltmeye çalışıyoruz"
+   },
+   "popup_server_error_popup_thankyou_message": {
+      "message": "Bize bildirdiğiniz için teşekkür ederiz!"
+   },
+   "popup_server_error_popup_thankyou_title": {
+      "message": "Üzerinde çalışılıyor"
+   },
+   "popup_server_error_popup_title": {
+      "message": "Sunucuya bağlanılamıyor"
+   },
+   "popup_settings_disable_vpn": {
+      "message": "Bu sitede VPN'i devre dışı bırak"
+   },
+   "popup_settings_enable_vpn_short": {
+      "message": "Etkinleştir"
+   },
+   "popup_settings_feedback": {
+      "message": "Geri bildirim"
+   },
+   "popup_settings_free_description": {
+      "message": "AdGuard VPN Unlimited'da mevcuttur"
+   },
+   "popup_settings_open_settings": {
+      "message": "Ayarlar"
+   },
+   "popup_settings_other_products": {
+      "message": "Diğer ürünler"
+   },
+   "popup_settings_stats": {
+      "message": "İstatistikler"
+   },
+   "popup_site_status_unaccessible": {
+      "message": "yerel ağınızda bulunur ve VPN aracılığıyla erişilemez"
+   },
+   "popup_site_status_vpn_disabled": {
+      "message": "VPN bu sitede devre dışı bırakıldı"
+   },
+   "popup_skeleton_status": {
+      "message": "Konumlar aranıyor..."
+   },
+   "popup_stats": {
+      "message": "İstatistikler"
+   },
+   "popup_stats_connection_to_vpn": {
+      "message": "VPN'e bağlı"
+   },
+   "popup_stats_connection_to_vpn_days": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%days% g"
+   },
+   "popup_stats_connection_to_vpn_hours": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%hours% sa"
+   },
+   "popup_stats_connection_to_vpn_minutes": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%minutes% dk"
+   },
+   "popup_stats_data_since": {
+      "description": "IMPORTANT: Be careful with percent sign around startDate. StartDate will be replaced with the date when stats collection started. For example on - 17 Sept 2025, date format respects locale.",
+      "message": "%startDate% tarihinden itibaren"
+   },
+   "popup_stats_data_usage": {
+      "message": "Veri"
+   },
+   "popup_stats_data_usage_downloaded": {
+      "message": "indirilen"
+   },
+   "popup_stats_data_usage_uploaded": {
+      "message": "gönderilen"
+   },
+   "popup_stats_disabled_notice": {
+      "message": "İstatistikler devre dışı"
+   },
+   "popup_stats_empty": {
+      "message": "Henüz istatistik yok — görüntülemek için AdGuard VPN'i kullanmaya devam edin"
+   },
+   "popup_stats_enable_btn": {
+      "message": "Etkinleştir"
+   },
+   "popup_stats_locations": {
+      "message": "Konumlar"
+   },
+   "popup_stats_menu_clear_stats_btn": {
+      "message": "İstatistikleri temizle"
+   },
+   "popup_stats_menu_clear_stats_cancel_btn": {
+      "message": "İptal"
+   },
+   "popup_stats_menu_clear_stats_clear_btn": {
+      "message": "Temizle"
+   },
+   "popup_stats_menu_clear_stats_description": {
+      "message": "Tüm istatistikler kalıcı olarak silinecektir"
+   },
+   "popup_stats_menu_clear_stats_title": {
+      "message": "İstatistikler temizlensin mi?"
+   },
+   "popup_stats_menu_disable_stats_btn": {
+      "message": "İstatistikleri devre dışı bırak"
+   },
+   "popup_stats_menu_disable_stats_cancel_btn": {
+      "message": "İptal"
+   },
+   "popup_stats_menu_disable_stats_description": {
+      "message": "Yeni istatistikler toplanmayacaktır. Mevcut istatistiklerinize hâlâ erişebilirsiniz"
+   },
+   "popup_stats_menu_disable_stats_disable_btn": {
+      "message": "Devre dışı bırak"
+   },
+   "popup_stats_menu_disable_stats_title": {
+      "message": "İstatistikler devre dışı bırakılsın mı?"
+   },
+   "popup_stats_menu_enable_stats_btn": {
+      "message": "İstatistikleri etkinleştir"
+   },
+   "popup_stats_menu_why_safe_description_1": {
+      "message": "İstatistikler, ne kadar VPN verisi kullandığınızı gösterir ve en çok kullandığınız konumları sıralar"
+   },
+   "popup_stats_menu_why_safe_description_2": {
+      "message": "İstatistikler asla tarama geçmişinizi içermez. Şifrelidir, böylece kimse sizi izleyemez"
+   },
+   "popup_stats_menu_why_safe_description_3": {
+      "message": "AdGuard VPN'i birden fazla tarayıcıda kullanıyorsanız, istatistikleriniz her bir tarayıcı için farklı olacaktır. Bunlar cihaza kaydedilir ve yalnızca siz bunlara erişebilirsiniz"
+   },
+   "popup_stats_menu_why_safe_got_it": {
+      "message": "Anladım"
+   },
+   "popup_stats_menu_why_safe_title": {
+      "message": "İstatistikleriniz hakkında"
+   },
+   "popup_stats_most_used_locations": {
+      "message": "En çok kullanılan konumlar"
+   },
+   "popup_stats_range_all_time": {
+      "message": "Her zaman"
+   },
+   "popup_stats_range_days_30": {
+      "message": "30 gün"
+   },
+   "popup_stats_range_days_7": {
+      "message": "7 gün"
+   },
+   "popup_stats_range_hours_24": {
+      "message": "24 saat"
+   },
+   "popup_stats_usage_time": {
+      "message": "Süre"
+   },
+   "popup_stats_view_all_locations": {
+      "message": "Tüm konumları görüntüle"
+   },
+   "popup_streaming_icon_title": {
+      "message": "Canlı yayın akışı hizmetleri için iyi"
+   },
+   "popup_streaming_modal_button_ok": {
+      "message": "Anladım"
+   },
+   "popup_streaming_modal_title": {
+      "message": "Bu konumdaki mevcut canlı yayın akışları"
+   },
+   "popup_traffic_limit_exceeded_cta_btn": {
+      "message": "Yükselt"
+   },
+   "popup_traffic_limit_exceeded_description": {
+      "message": "Ücretsiz veri sınırına ulaştınız, ve AdGuard VPN yavaş çalışıyor"
+   },
+   "popup_traffic_limit_exceeded_title": {
+      "message": "Hız azaltıldı"
+   },
+   "popup_traffic_limit_reached": {
+      "message": "Aylık veri sınırına ulaşıldı"
+   },
+   "popup_traffic_limited_speed": {
+      "message": "Sınırlı hız"
+   },
+   "popup_upgrade_b_btn_get_unlimited": {
+      "message": "Unlimited edinin"
+   },
+   "popup_upgrade_b_btn_maybe_later": {
+      "message": "Belki sonra"
+   },
+   "popup_upgrade_b_description": {
+      "message": "Yüksek hızlı bağlantılar, tüm konumlara erişim ve daha fazlasını sunar"
+   },
+   "popup_upgrade_b_feature_devices": {
+      "message": "AdGuard VPN'i aynı anda %count% cihazda kullanın"
+   },
+   "popup_upgrade_b_feature_dns": {
+      "message": "Bonus olarak AdGuard DNS ile web etkinliğinizi gizleyin"
+   },
+   "popup_upgrade_b_feature_locations": {
+      "message": "%count%+ sunucu konumundan içerik izle"
+   },
+   "popup_upgrade_b_feature_speed": {
+      "message": "Sınırsız yüksek hızlarda yayın yapın"
+   },
+   "popup_upgrade_b_title_line1": {
+      "message": "AdGuard VPN Sınırsız"
+   },
+   "popup_upgrade_screen_all_locations": {
+      "message": "Tüm konumlar"
+   },
+   "popup_upgrade_screen_all_locations_desc": {
+      "message": "6 kıta ve onlarca ülke. Bir şehir seçin ve internette güvenli bir şekilde gezinin!"
+   },
+   "popup_upgrade_screen_connect_devices": {
+      "message": "%potential_num% cihaza kadar"
+   },
+   "popup_upgrade_screen_connect_devices_desc": {
+      "message": "Tüm cihazlarınızı aynı anda AdGuard VPN'e bağlayın — veya tüm ailenizi koruyun!"
+   },
+   "popup_upgrade_screen_continue_free": {
+      "message": "Ücretsiz devam et"
+   },
+   "popup_upgrade_screen_info_with_devices": {
+      "message": "Tüm konumlara erişin, hız kısıtlaması olmadan gezinin ve aynı anda %maxDevicesAllowed% cihaza kadar bağlanın"
+   },
+   "popup_upgrade_screen_title": {
+      "message": "Unlimited'a yükseltin"
+   },
+   "popup_upgrade_screen_unlimited_data": {
+      "message": "Sınırsız veri"
+   },
+   "popup_upgrade_screen_unlimited_data_desc": {
+      "message": "Tek sınır, verilerinizin asla paylaşılmamasıdır. Dilediğiniz kadar gezinin!"
+   },
+   "popup_upgrade_screen_unlimited_speed": {
+      "message": "Sınırsız hız"
+   },
+   "popup_upgrade_screen_unlimited_speed_desc": {
+      "message": "Hız kısıtlaması yok. Servis sağlayıcınızdan en iyi şekilde yararlanın!"
+   },
+   "popup_upgrade_screen_upgrade_button": {
+      "message": "Yükselt"
+   },
+   "popup_vpn_blocked_error_details_description": {
+      "message": "Bağlantı sorunları fark ederseniz, masaüstü sürümüne geçmenizi öneririz. Daha sorunsuz çalışır"
+   },
+   "popup_vpn_blocked_error_details_description_linux": {
+      "message": "Bağlantı sorunları fark ederseniz Linux VPN istemcimizi öneririz. Daha sorunsuz çalışır"
+   },
+   "popup_vpn_blocked_error_details_description_mobile": {
+      "message": "Bağlantı sorunları fark ederseniz mobil sürüme geçmenizi öneririz. Daha sorunsuz çalışır"
+   },
+   "popup_vpn_blocked_error_details_get_app_button": {
+      "message": "İndir"
+   },
+   "popup_vpn_blocked_error_details_get_app_button_linux": {
+      "message": "Nasıl yüklenir"
+   },
+   "popup_vpn_blocked_error_details_later_button": {
+      "message": "Daha sonra"
+   },
+   "popup_vpn_blocked_error_details_title": {
+      "message": "Daha istikrarlı bağlantı için masaüstü sürümüne geçin"
+   },
+   "popup_vpn_blocked_error_details_title_linux": {
+      "message": "Daha istikrarlı bağlantı için Linux için AdGuard VPN'e geçin"
+   },
+   "popup_vpn_blocked_error_details_title_mobile": {
+      "message": "Daha istikrarlı bağlantı için mobil sürüme geçin"
+   },
+   "popup_vpn_blocked_error_notice": {
+      "message": "Bağlanamıyor musunuz?"
+   },
+   "popup_vpn_blocked_error_notice_alt": {
+      "message": "Daha istikrarlı bağlantı için masaüstü sürümüne geçin"
+   },
+   "popup_vpn_blocked_error_notice_alt_linux": {
+      "message": "Daha istikrarlı bağlantı için Linux için AdGuard VPN'e geçin"
+   },
+   "popup_vpn_blocked_error_notice_alt_mobile": {
+      "message": "Daha istikrarlı bağlantı için mobil sürüme geçin"
+   },
+   "premium_upgrade": {
+      "message": "Yükselt"
+   },
+   "privacy_policy": {
+      "message": "Gizlilik Politikası"
+   },
+   "rate_description": {
+      "message": "AdGuard VPN'in keyfini çıkarıyor musunuz?"
+   },
+   "rate_hide": {
+      "message": "Gizle"
+   },
+   "referral_get_free_traffic": {
+      "message": "Ücretsiz GB'lar edinin!"
+   },
+   "settings_connect": {
+      "message": "Bağlan"
+   },
+   "settings_context_menus_description": {
+      "message": "Belirli bir site için VPN istisnalarını yönetin"
+   },
+   "settings_context_menus_title": {
+      "message": "Tarayıcının sağ tık menüsünde AdGuard VPN'i göster"
+   },
+   "settings_disconnect": {
+      "message": "Bağlantıyı kes"
+   },
+   "settings_dns_add_custom_server": {
+      "message": "Özel DNS sunucusu ekle"
+   },
+   "settings_dns_add_custom_server_address": {
+      "message": "Sunucu adresi"
+   },
+   "settings_dns_add_custom_server_address_placeholder": {
+      "message": "IP adresi veya tls://"
+   },
+   "settings_dns_add_custom_server_duplicate_address": {
+      "message": "DNS sunucusu zaten eklendi"
+   },
+   "settings_dns_add_custom_server_info": {
+      "message": "Bilinen DNS sağlayıcıları"
+   },
+   "settings_dns_add_custom_server_invalid_address": {
+      "message": "Geçersiz sunucu adresi"
+   },
+   "settings_dns_add_custom_server_name": {
+      "message": "Sunucu adı"
+   },
+   "settings_dns_add_custom_server_name_placeholder": {
+      "message": "DNS Sunucum"
+   },
+   "settings_dns_add_custom_server_save": {
+      "message": "Kaydet"
+   },
+   "settings_dns_add_custom_server_save_and_select": {
+      "message": "Kaydet ve seç"
+   },
+   "settings_dns_add_custom_server_too_long_name": {
+      "message": "Sunucu adı %max% karakter sınırını aşıyor (şu anda %current%)"
+   },
+   "settings_dns_custom_servers": {
+      "message": "Özel DNS sunucuları"
+   },
+   "settings_dns_delete_custom_server_notification": {
+      "message": "Özel DNS sunucusu silindi"
+   },
+   "settings_dns_description": {
+      "message": "DNS isteklerini çözmek, reklamları ve izleyicileri engellemek ve VPN'e bağlandığınızda DNS trafiğini şifrelemek için bir DNS sunucusu seçmeye izin verir"
+   },
+   "settings_dns_description_current": {
+      "message": "Şu anki: %dnsServerName%"
+   },
+   "settings_dns_edit_custom_server": {
+      "message": "Özel DNS sunucusunu düzenle"
+   },
+   "settings_dns_label": {
+      "message": "DNS sunucusu"
+   },
+   "settings_dns_popular_servers": {
+      "message": "Popüler DNS sunucuları"
+   },
+   "settings_dns_selector_adguard_desc": {
+      "message": "Cihazınızdaki reklamları ve izleyicileri kaldırır"
+   },
+   "settings_dns_selector_adguard_family_desc": {
+      "message": "AdGuard DNS + SafeSearch ve yetişkinlere yönelik içerik engelleme"
+   },
+   "settings_dns_selector_adguard_family_title": {
+      "message": "AdGuard DNS Family Protection"
+   },
+   "settings_dns_selector_adguard_nonfiltering_desc": {
+      "message": "Etkinlik günlüğü olmadan güvenli DNS (reklamları ve izleyicileri filtrelemez)"
+   },
+   "settings_dns_selector_adguard_nonfiltering_title": {
+      "message": "AdGuard DNS Non-filtering"
+   },
+   "settings_dns_selector_adguard_title": {
+      "message": "AdGuard DNS"
+   },
+   "settings_dns_selector_cisco_desc": {
+      "message": "Cihazınızı kötü amaçlı yazılımlardan koruyan DNS sunucusu"
+   },
+   "settings_dns_selector_cisco_title": {
+      "message": "Cisco OpenDNS"
+   },
+   "settings_dns_selector_cloudflare_desc": {
+      "message": "Cloudflare tarafından ücretsiz DNS hizmeti"
+   },
+   "settings_dns_selector_cloudflare_title": {
+      "message": "Cloudflare DNS"
+   },
+   "settings_dns_selector_default_desc": {
+      "message": "AdGuard VPN tarafından sağlanan DNS sunucularını kullanır"
+   },
+   "settings_dns_selector_default_title": {
+      "message": "Varsayılan"
+   },
+   "settings_dns_selector_google_desc": {
+      "message": "Google'dan ücretsiz alternatif DNS hizmeti"
+   },
+   "settings_dns_selector_google_title": {
+      "message": "Google DNS"
+   },
+   "settings_dns_selector_quad9_desc": {
+      "message": "Kimlik avı ve casus yazılımlara karşı korumalı ücretsiz alternatif DNS hizmeti"
+   },
+   "settings_dns_selector_quad9_title": {
+      "message": "Quad9"
+   },
+   "settings_exclusion_actions": {
+      "message": "Eylemler"
+   },
+   "settings_exclusion_add": {
+      "message": "Ekle"
+   },
+   "settings_exclusion_add_from_list": {
+      "message": "Listeden"
+   },
+   "settings_exclusion_add_manually": {
+      "message": "El ile"
+   },
+   "settings_exclusion_add_manually_add": {
+      "message": "El ile ekle"
+   },
+   "settings_exclusion_add_subdomain": {
+      "message": "Alt alan adı ekle"
+   },
+   "settings_exclusion_add_website": {
+      "message": "Site ekle"
+   },
+   "settings_exclusion_change_mode_modal_title": {
+      "message": "VPN'nin açık olduğu yer"
+   },
+   "settings_exclusion_connection_problem": {
+      "message": "Bağlantı sorunu"
+   },
+   "settings_exclusion_domain_name": {
+      "message": "Alan adı"
+   },
+   "settings_exclusion_general_mode_info": {
+      "message": "VPN, aşağıdaki siteler dışında \u003Cspan>her yerde\u003C/span> açık"
+   },
+   "settings_exclusion_general_title": {
+      "message": "Hariç tutulan siteler dışında her yerde"
+   },
+   "settings_exclusion_group_settings_subtitle_regular_mode": {
+      "message": "AdGuard VPN, seçili alan adları ve alt alan adları için kapalı"
+   },
+   "settings_exclusion_group_settings_subtitle_selective_mode": {
+      "message": "AdGuard VPN, seçili alan adları ve alt alan adları için açık"
+   },
+   "settings_exclusion_import_button": {
+      "message": "İçe aktar"
+   },
+   "settings_exclusion_invalid_subdomain": {
+      "message": "Geçersiz alt alan adı"
+   },
+   "settings_exclusion_modal_cancel": {
+      "message": "İptal"
+   },
+   "settings_exclusion_modal_remove": {
+      "message": "Kaldır"
+   },
+   "settings_exclusion_modal_save": {
+      "message": "Kaydet"
+   },
+   "settings_exclusion_nothing_found": {
+      "message": "Sonuç bulunamadı"
+   },
+   "settings_exclusion_placeholder_search": {
+      "message": "Ara"
+   },
+   "settings_exclusion_reset_button": {
+      "message": "Sıfırla"
+   },
+   "settings_exclusion_reset_service_confirmation_message": {
+      "message": "%hostname% için varsayılan ayarlar sıfırlansın mı? Bu, eksik alan adlarını geri yükleyecek ve tüm onay işaretlerini açık olarak ayarlayacaktır."
+   },
+   "settings_exclusion_reset_to_default": {
+      "message": "Varsayılana sıfırla"
+   },
+   "settings_exclusion_search_website": {
+      "message": "Site ara"
+   },
+   "settings_exclusion_selective_mode_info": {
+      "message": "VPN, \u003Cspan>seçici olarak\u003C/span> açık: yalnızca aşağıdaki siteler için"
+   },
+   "settings_exclusion_selective_mode_warning": {
+      "message": "Bu listeyi boş bırakmak tüm siteler için VPN'i devre dışı bırakır"
+   },
+   "settings_exclusion_selective_title": {
+      "message": "Yalnızca seçili sitelerde"
+   },
+   "settings_exclusion_status_all_subdomains": {
+      "message": "tüm alt alan adları"
+   },
+   "settings_exclusion_status_domain": {
+      "message": "alan adı"
+   },
+   "settings_exclusion_status_subdomain": {
+      "message": "alt alan adı"
+   },
+   "settings_exclusion_subdomain_name": {
+      "message": "Alt alan adı"
+   },
+   "settings_exclusion_title": {
+      "message": "İstisnalar"
+   },
+   "settings_exclusions_action_export": {
+      "message": "İstisnaları dışa aktar"
+   },
+   "settings_exclusions_action_import": {
+      "message": "İstisnaları içe aktar"
+   },
+   "settings_exclusions_action_remove_all": {
+      "message": "Tümünü kaldır"
+   },
+   "settings_exclusions_add_invalid_domain": {
+      "message": "\"%url%\" geçerli bir alan adı değil. Listeye eklemek istiyor musunuz?"
+   },
+   "settings_exclusions_remove_all_exclusions": {
+      "message": "Tüm istisnaları kaldır"
+   },
+   "settings_exclusions_remove_all_exclusions_message": {
+      "message": "Tüm istisnaların listesini kaldırmak istiyor musunuz?"
+   },
+   "settings_exclusions_undo": {
+      "message": "Geri al"
+   },
+   "settings_free_gbs": {
+      "message": "Ücretsiz GB'lar"
+   },
+   "settings_free_gbs_add_device": {
+      "message": "Yeni bir cihaz ekle"
+   },
+   "settings_free_gbs_add_device_info_gb": {
+      "message": "Tek seferlik %your_gb% GB bonus edinmek için %email% ile başka bir cihazda AdGuard VPN'e giriş yapın"
+   },
+   "settings_free_gbs_add_device_products_button": {
+      "message": "Ürün seç"
+   },
+   "settings_free_gbs_add_device_title_gb": {
+      "message": "Yeni bir cihaz ekleyin ve %your_gb% GB'ı ücretsiz edin"
+   },
+   "settings_free_gbs_add_device_wait_to_update": {
+      "message": "Aylık limitinizin güncellenmesi zaman alabilir — birkaç dakika bekleyin veya uygulamayı yeniden başlatın"
+   },
+   "settings_free_gbs_devices_added_info": {
+      "message": "Kullanılmayan veri sonraki aylara devredilir. Üstelik AdGuard VPN Unlimited ile hızlı gezinmenin keyfini sınırsızca çıkarabilirsiniz"
+   },
+   "settings_free_gbs_devices_added_title_gb": {
+      "message": "Yeni bir cihaz eklediğin için %your_gb% GB edindin"
+   },
+   "settings_free_gbs_get_GB": {
+      "message": "%num% GB edinin"
+   },
+   "settings_free_gbs_invite_friend_complete": {
+      "message": "%num% GB'ınız var"
+   },
+   "settings_free_gbs_invite_friend_completed_thank_you": {
+      "message": "Büyümemize yardımcı olduğunuz için teşekkür ederiz! Ücretsiz GB'lar bölümünde nasıl daha fazla hediye alacağınızı öğrenin. Veya sınırsız hızlı gezinmenin keyfini çıkarmak için AdGuard VPN Unlimited edinin"
+   },
+   "settings_free_gbs_invite_friend_count": {
+      "message": "Arkadaşını davet et (%invited_count%/%max_invites%)"
+   },
+   "settings_free_gbs_invite_friend_get_GB": {
+      "message": "%num% GB'a kadar edinin"
+   },
+   "settings_free_gbs_invite_friend_title": {
+      "message": "Arkadaşını davet et ve %your_gb% GB hızlı VPN edin"
+   },
+   "settings_free_gbs_invite_friend_title_success": {
+      "message": "%total_invites% arkadaşını davet ettin ve toplamda %total_gbs% GB edindin"
+   },
+   "settings_free_gbs_join_adguard": {
+      "message": "AdGuard VPN'e katıl"
+   },
+   "settings_free_gbs_promote_socials": {
+      "message": "AdGuard VPN'i sosyal medyada tanıtın"
+   },
+   "settings_free_gbs_promote_socials_button": {
+      "message": "Bonus ping"
+   },
+   "settings_free_gbs_promote_socials_get_gb": {
+      "message": "%num% GB edinin"
+   },
+   "settings_free_gbs_promote_socials_info": {
+      "message": "X veya Facebook'ta bir gönderi yazın ve bağlantısını bizimle paylaşın. İnceleyeceğiz ve hesabınıza %your_gb% GB ekleyeceğiz. Toplamda %total_gb% GB'a kadar kazanabilirsiniz"
+   },
+   "settings_free_gbs_promote_socials_title": {
+      "message": "AdGuard VPN'i sosyal medyada tanıtın ve %your_gb%GB kazanın"
+   },
+   "settings_free_gbs_subtitle": {
+      "message": "İşte nasıl fazladan VPN verisi elde edebileceğiniz"
+   },
+   "settings_free_gbs_task_complete": {
+      "message": "%num% GB'ınız var"
+   },
+   "settings_free_gbs_upgrade": {
+      "message": "Unlimited'a yükseltin"
+   },
+   "settings_general_title": {
+      "message": "Genel"
+   },
+   "settings_help_us_improve_modal_button": {
+      "message": "Anladım"
+   },
+   "settings_help_us_improve_modal_desc_data": {
+      "message": "Bu veriler şunları içerir:"
+   },
+   "settings_help_us_improve_modal_desc_data_buttons": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Tıkladığınız düğmelerin adları"
+   },
+   "settings_help_us_improve_modal_desc_data_screens": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Etkileşimde bulunduğunuz ekranların adları"
+   },
+   "settings_help_us_improve_modal_desc_data_sessions": {
+      "message": "Oturum tanımlayıcıları"
+   },
+   "settings_help_us_improve_modal_desc_improve": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "AdGuard VPN'in işlevselliğini analiz etmek ve geliştirmek için bu bilgilere ihtiyacımız var"
+   },
+   "settings_help_us_improve_modal_desc_internally": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "Bu veriler anonimdir ve yalnızca kendimiz kullanırız. Üçüncü taraflarla asla paylaşmayız"
+   },
+   "settings_help_us_improve_modal_privacy_policy": {
+      "description": "Contains non-breaking space ( ) to prevent unwanted line breaks",
+      "message": "Gizlilik politikası"
+   },
+   "settings_help_us_improve_modal_title": {
+      "message": "Uzantı kullanım verileri"
+   },
+   "settings_help_us_improve_title": {
+      "message": "AdGuard VPN'in iyileştirilmesine yardımcı ol"
+   },
+   "settings_language_browser_default": {
+      "message": "Tarayıcı varsayılanı"
+   },
+   "settings_language_label": {
+      "message": "Dil"
+   },
+   "settings_quick_connect_fastest": {
+      "message": "En hızlı konum"
+   },
+   "settings_quick_connect_last_used": {
+      "message": "Son kullanılan konum"
+   },
+   "settings_quick_connect_subtitle": {
+      "message": "Bağlan öğesine tıkladığınızda seçilen VPN konumu"
+   },
+   "settings_quick_connect_title": {
+      "message": "Hızlı bağlantı"
+   },
+   "settings_rate_us": {
+      "message": "Bizi derecelendirin"
+   },
+   "settings_referral_copy_link": {
+      "message": "Davet bağlantısını kopyala"
+   },
+   "settings_referral_info_friends": {
+      "message": "Arkadaşınıza bir davet bağlantısı gönderin. Bağlantınız aracılığıyla AdGuard VPN'e kaydolduklarında, ikiniz de %your_gb% GB hızlı VPN edinirsiniz. Kullanılmayan miktar sona ermez — aylar boyunca kullanabilirsiniz. %max_friends% arkadaşınıza kadar davet edin ve toplamda %total_gb% GB'a kadar edinin"
+   },
+   "settings_referral_invite_link": {
+      "message": "Davet bağlantısı"
+   },
+   "settings_referral_invited_friends": {
+      "message": "Davet edilen arkadaşlar %count%/%limit%"
+   },
+   "settings_referral_link_copied": {
+      "message": "Davet bağlantısı panoya kopyalandı"
+   },
+   "settings_theme_dark": {
+      "message": "Koyu"
+   },
+   "settings_theme_label": {
+      "message": "Tema"
+   },
+   "settings_theme_light": {
+      "message": "Açık"
+   },
+   "settings_theme_system": {
+      "message": "Tarayıcı varsayılanı"
+   },
+   "settings_vpn_connecting": {
+      "message": "Bağlanıyor..."
+   },
+   "settings_vpn_disabled": {
+      "message": "Bağlantı kesildi"
+   },
+   "settings_vpn_enabled": {
+      "message": "Bağlandı"
+   },
+   "settings_webrtc_desc": {
+      "message": "Proxy veya VPN kullansanız bile gerçek IP adresinizi sızdırabilecek WebRTC'i engeller"
+   },
+   "settings_webrtc_label": {
+      "message": "WebRTC'i engelle"
+   },
+   "settings_webrtc_warning": {
+      "message": "Bazı mesajlaşma uygulamaları, canlı yayın akışı platformları veya oyunlar düzgün çalışmayabilir"
+   },
+   "short_name": {
+      "message": "AdGuard VPN"
+   }
+}

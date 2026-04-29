@@ -1,0 +1,18 @@
+2026/04/29-20:49:54.994 51821b Reusing MANIFEST /Users/diego/dev/ruptur-cloud/wdp/~/.selenium_profile_diego2/Default/IndexedDB/https_betboom.bet.br_0.indexeddb.leveldb/MANIFEST-000001
+2026/04/29-20:49:54.995 51821b Recovering log #6
+2026/04/29-20:49:54.995 51821b Reusing old log /Users/diego/dev/ruptur-cloud/wdp/~/.selenium_profile_diego2/Default/IndexedDB/https_betboom.bet.br_0.indexeddb.leveldb/000006.log 
+2026/04/29-20:49:55.092 518232 Level-0 table #11: started
+2026/04/29-20:49:55.096 518232 Level-0 table #11: 1457 bytes OK
+2026/04/29-20:49:55.100 518232 Delete type=0 #6
+2026/04/29-20:49:55.100 518219 Manual compaction at level-0 from '\x00\x07\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/04/29-20:49:55.188 518219 Manual compaction at level-0 from '\x00\x08\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x09\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/04/29-20:49:55.198 518219 Level-0 table #13: started
+2026/04/29-20:49:55.201 518219 Level-0 table #13: 2201 bytes OK
+2026/04/29-20:49:55.203 518219 Delete type=0 #10
+2026/04/29-20:49:55.204 518219 Manual compaction at level-0 from '\x00\x09\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0a\x00\x00\x00' @ 0 : 0; will stop at '\x00\x09\x00\x00\x05' @ 990 : 1
+2026/04/29-20:49:55.204 518219 Compacting 1@0 + 1@1 files
+2026/04/29-20:49:55.206 518219 Generated table #14@0: 72 keys, 1905 bytes
+2026/04/29-20:49:55.206 518219 Compacted 1@0 + 1@1 files => 1905 bytes
+2026/04/29-20:49:55.208 518219 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/29-20:49:55.209 518219 Delete type=2 #13
+2026/04/29-20:49:55.210 51822a Manual compaction at level-0 from '\x00\x09\x00\x00\x05' @ 990 : 1 .. '\x00\x0a\x00\x00\x00' @ 0 : 0; will stop at (end)

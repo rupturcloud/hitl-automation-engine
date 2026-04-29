@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "Tambahkan Tab Baru MSN untuk akses cepat ke berita terbaru, situs yang paling sering Anda kunjungi, pencarian web, dan banyak lagi."
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "id-id"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "Tab Baru MSN"
+   }
+}

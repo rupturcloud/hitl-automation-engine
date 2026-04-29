@@ -1,0 +1,1238 @@
+{
+   "a11y_go_back": {
+      "message": "برگرد"
+   },
+   "about_title": {
+      "message": "درباره"
+   },
+   "account_edit": {
+      "message": "تنظیمات حساب را باز کنید"
+   },
+   "account_free": {
+      "message": "رایگان"
+   },
+   "account_get_subscription": {
+      "message": "دریافت اشتراک"
+   },
+   "account_logged_in_as": {
+      "message": "وارد شده به عنوان \u003Cb>%username%\u003C/b>"
+   },
+   "account_max_devices_count": {
+      "message": "تا \u003Cb>%num%\u003C/b> دستگاه همزمان"
+   },
+   "account_monthly_paid": {
+      "message": "اشتراک پرداخت ماهانه"
+   },
+   "account_sign_out": {
+      "message": "خروج"
+   },
+   "account_sign_out_description": {
+      "message": "از حساب خود خارج خواهید شد. حفاظت VPN متوقف خواهد شد"
+   },
+   "account_sign_out_popup_cancel": {
+      "message": "لغو"
+   },
+   "account_sign_out_question": {
+      "message": "خارج می‌شوید؟"
+   },
+   "account_title": {
+      "message": "اکانت"
+   },
+   "account_two_year_paid": {
+      "message": "اشتراک پرداخت برای دو سال"
+   },
+   "account_unlimited": {
+      "message": "نامحدود"
+   },
+   "account_unlimited_title": {
+      "message": "نسخه نامحدود را بگیرید!"
+   },
+   "account_valid_until": {
+      "message": "اعتبار تا \u003Cb>%date%\u003C/b>"
+   },
+   "account_version": {
+      "message": "نسخه"
+   },
+   "account_yearly_paid": {
+      "message": "اشتراک پرداخت سالانه"
+   },
+   "all_rights_reserved": {
+      "message": "همه حقوق محفوظ است."
+   },
+   "auth_failed_to_login_button": {
+      "message": "بستن"
+   },
+   "auth_failed_to_login_description": {
+      "message": "لطفاً دوباره تلاش کنید یا \u003Ca>با پشتیبانی تماس بگیرید\u003C/a>"
+   },
+   "auth_failed_to_login_description_without_support": {
+      "message": "لطفا دوباره امتحان کنید"
+   },
+   "auth_failed_to_login_title": {
+      "message": "ورود شما به سیستم انجام نشد"
+   },
+   "auth_loading_button_cancel": {
+      "message": "لغو"
+   },
+   "auth_loading_button_reopen": {
+      "message": "بازگشایی صفحه ورود"
+   },
+   "auth_loading_description": {
+      "message": "اگر مجوز AdGuard VPN دارید، به طور خودکار اعمال می شود"
+   },
+   "auth_loading_title": {
+      "message": "از طریق مرورگر خود وارد شوید یا ثبت نام کنید"
+   },
+   "auth_success_description": {
+      "message": "به افزونه AdGuard VPN برگردید - همه چیز تنظیم شده است"
+   },
+   "auth_success_title": {
+      "message": "به سیستم وارد شده اید"
+   },
+   "authentication_successful_notification": {
+      "message": "با موفقیت احراز هویت شد! می توانید AdGuard VPN را باز کرده و شروع به استفاده کنید."
+   },
+   "confirm_email_done_info": {
+      "message": "انتقال داده اینترنتی استفاده‌نشده به ماه‌های بعد منتقل می‌شود. و با AdGuard VPN Unlimited می‌توانید از گشت‌و‌گذار سریع بدون محدودیت لذت ببرید"
+   },
+   "confirm_email_done_title_gb": {
+      "message": "شما %your_gb% GB به عنوان جایزه خوش‌آمدگویی یک‌باره دریافت کردید"
+   },
+   "context_menu_debug_level": {
+      "message": "ثبت اشکالزدایی"
+   },
+   "context_menu_disable_vpn": {
+      "message": "VPN را در این وب سایت غیرفعال کنید"
+   },
+   "context_menu_enable_vpn": {
+      "message": "VPN را در این وب سایت فعال کنید"
+   },
+   "context_menu_export_logs": {
+      "message": "خروجیگیری وقایع"
+   },
+   "context_menu_general_mode": {
+      "message": "حالت عمومی"
+   },
+   "context_menu_selective_mode": {
+      "message": "حالت گزینشی"
+   },
+   "control_error_description": {
+      "message": "به نظر می‌رسد که یک افزونه VPN دیگر در حال کنترل اتصال شماست. برای استفاده از AdGuard VPN، لطفاً افزونه دیگر را غیر فعال کنید"
+   },
+   "control_error_disable": {
+      "message": "غيرفعالسازي"
+   },
+   "control_error_title": {
+      "message": "برای اتصال، یک افزونه VPN دیگر را غیر فعال کنید"
+   },
+   "description": {
+      "description": "TEXT MAX LENGTH: 132",
+      "message": "استفاده از AdGuard VPN برای گشت‌وگذار سریع، ایمن و ناشناس در اینترنت. حریم خصوصی‌تان را محافظت کنید و ناشناس بمانید."
+   },
+   "endpoints_all": {
+      "message": "همه مکانها"
+   },
+   "endpoints_countries": {
+      "message": "مکان‌ها"
+   },
+   "endpoints_empty_saved": {
+      "description": "Respect spaces between text and tags. Use \u003Cb> tag for bold text",
+      "message": "برای مشاهده مکان‌ها در اینجا، \u003Cb>همه\u003C/b> را انتخاب کرده و بر روی شمایل کنار یک مکان کلیک کنید"
+   },
+   "endpoints_fastest": {
+      "message": "سریع ترین"
+   },
+   "endpoints_location_virtual": {
+      "message": "افتراضی"
+   },
+   "endpoints_not_found": {
+      "message": "مکان‌ها یافت نشد"
+   },
+   "endpoints_saved": {
+      "message": "ذخیره شده"
+   },
+   "endpoints_saved_location_deleted": {
+      "message": "مکان از لیست ذخیره‌شده حذف شد"
+   },
+   "endpoints_search": {
+      "message": "جستجوی مکان"
+   },
+   "endpoints_tab_all": {
+      "message": "همه"
+   },
+   "endpoints_tab_saved": {
+      "message": "ذخیره شده"
+   },
+   "eula": {
+      "message": "توافقنامه نهایی با کاربر"
+   },
+   "global_error_description": {
+      "message": "لطفاً در صورت ادامه مشاهده این پیام با ما تماس بگیرید"
+   },
+   "global_error_learn_more": {
+      "message": "بیشتر بدانید"
+   },
+   "global_error_title": {
+      "message": "خطا رخ داده"
+   },
+   "global_error_try_again": {
+      "message": "امتحان دوباره"
+   },
+   "limited_offer_notification_desc": {
+      "message": "عرض ویژه تنها 6 ساعت. برای اطلاعات بیشتر به افزونه AdGuard VPN خود مراجعه کنید"
+   },
+   "limited_offer_notification_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "%discount%%% تخفیف AdGuard VPN"
+   },
+   "name": {
+      "message": "AdGuard VPN: پراکسی رایگان و امن"
+   },
+   "notification_data_left_description": {
+      "message": "سرعت اتصال VPN به زودی کاهش خواهد یافت."
+   },
+   "notification_data_left_mb": {
+      "message": "%num% مگابایت باقی مانده است."
+   },
+   "notification_data_limit_reached_description": {
+      "message": "سرعت اتصال VPN کاهش یافته است."
+   },
+   "notification_data_limit_reached_title": {
+      "message": "حد داده ماهانه سر رسید"
+   },
+   "official_website": {
+      "message": "وبسایت رسمی"
+   },
+   "offline_title": {
+      "message": "آفلاین"
+   },
+   "options_bug_report_email_invalid": {
+      "message": "آدرس ایمیل نادرست است"
+   },
+   "options_bug_report_email_label": {
+      "message": "ایمیل"
+   },
+   "options_bug_report_include_log_label": {
+      "message": "شامل یک گزارش تشخیصی به این پیام"
+   },
+   "options_bug_report_new_report_button": {
+      "message": "New report"
+   },
+   "options_bug_report_page_success": {
+      "message": "متشکرم، پیام شما با موفقیت ارسال شد!"
+   },
+   "options_bug_report_request_error": {
+      "message": "خطایی پیش آمد. لطفا بعدا دوباره امتحان کنید."
+   },
+   "options_bug_report_send_button": {
+      "message": "ارسال گزارش"
+   },
+   "options_bug_report_sending_button": {
+      "message": "ارسال گزارش..."
+   },
+   "options_bug_report_textarea_invalid": {
+      "message": "این قسمت الزامی است"
+   },
+   "options_bug_report_textarea_label": {
+      "message": "پيام"
+   },
+   "options_bug_report_textarea_placeholder": {
+      "message": "جزئیات مشکل"
+   },
+   "options_exclusions_added_exclusions": {
+      "message": "استثناعات افزوده شده: %count%"
+   },
+   "options_exclusions_delete_cancel_button": {
+      "message": "لغو"
+   },
+   "options_exclusions_deleted_exclusions": {
+      "message": "استثناعات حذف شده: %count%"
+   },
+   "options_exclusions_import_error_invalid_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "فایل «%filename%» یک آرشیو زیپ معتبر نیست"
+   },
+   "options_exclusions_import_error_wrong_extensions": {
+      "message": "فایل استثنائات باید یکی از پسوندهای زیر را داشته باشد: %extensions%"
+   },
+   "options_exclusions_import_error_wrong_extensions_in_zip": {
+      "description": "IMPORTANT: Be careful with “%filename%” it must remain the same in translations",
+      "message": "بایگانی زیپ: «%filename%» حاوی فایل‌هایی با پسوند %extensions%نیست"
+   },
+   "options_exclusions_import_select_regular": {
+      "message": "I want VPN to be off for these websites"
+   },
+   "options_exclusions_import_select_selective": {
+      "message": "می‌خواهم VPN برای این وب‌سایت‌ها فعال باشد"
+   },
+   "options_exclusions_import_select_subtitle": {
+      "message": "وبسایت های موجود در لیست وارد شده به استثنائات موجود افزوده خواهند شد"
+   },
+   "options_exclusions_import_select_title": {
+      "message": "How to use this list of exclusions?"
+   },
+   "options_exclusions_import_successful": {
+      "message": "Imported exclusions: %count%"
+   },
+   "options_exclusions_remove_all_success": {
+      "message": "تمام استثناعات برای حالت فعلی با موفقیت حذف شد."
+   },
+   "options_report_bug_title": {
+      "message": "گزارش مشکل"
+   },
+   "options_signedout_page_description": {
+      "message": "برای ادامه گشت‌وگذار خصوصی، روی شمایل AdGuard VPN کلیک کنید و دوباره وارد شوید."
+   },
+   "options_signedout_page_description_not_secure": {
+      "message": "اتصال شما امن نیست!"
+   },
+   "options_signedout_page_title": {
+      "message": "شما از AdGuard VPN خارج شده اید"
+   },
+   "options_support_faq_description": {
+      "message": "پرسش ها و پاسخ ها"
+   },
+   "options_support_faq_title": {
+      "message": "پرسش و پاسخ های متداول"
+   },
+   "options_support_feedback_description": {
+      "message": "ارائه پیشنهادات و درخواست برای امکانات برنامه"
+   },
+   "options_support_feedback_title": {
+      "message": "ارسال نظر"
+   },
+   "options_support_report_description": {
+      "message": "اگر موردی در برنامه به درستی کار نمیکند"
+   },
+   "options_support_report_title": {
+      "message": "گزارش مشکل"
+   },
+   "options_support_title": {
+      "message": "پشتيباني"
+   },
+   "options_title": {
+      "message": "تنظیمات AdGuard VPN"
+   },
+   "popup_auth_help_us_improve_agreement": {
+      "message": "ارسال داده‌های استفاده از افزونه \u003Clink>به‌صورت ناشناس\u003C/link>"
+   },
+   "popup_auth_policy_agreement": {
+      "description": "WARNING! Respect spaces between tags",
+      "message": "من AdGuard VPN را قبول می کنم \u003Ceula>EULA\u003C/eula> و \u003Cprivacy>سیاست حریم خصوصی\u003C/privacy>"
+   },
+   "popup_auth_policy_agreement_continue_button": {
+      "message": "احراز هویت"
+   },
+   "popup_auth_policy_agreement_title": {
+      "message": "به عرشه خوش آمدید"
+   },
+   "popup_compare_button": {
+      "message": "چرا برنامه بهتر است"
+   },
+   "popup_confirm_rate_modal_confirm_button": {
+      "message": "برو به فروشگاه افزونه"
+   },
+   "popup_confirm_rate_modal_feedback_subtitle": {
+      "message": "لطفاً بگویید چه اشتباهی رخ داده است"
+   },
+   "popup_confirm_rate_modal_feedback_title": {
+      "message": "به ما کمک کنید تا پیشرفت کنیم"
+   },
+   "popup_confirm_rate_modal_leave_feedback_button": {
+      "message": "ثبت بازخورد"
+   },
+   "popup_confirm_rate_modal_rate_title": {
+      "message": "اوه! آیا می‌توانید ما را در فروشگاه افزونه نیز ارزیابی کنید؟"
+   },
+   "popup_connections_limit_description_cta_button_free": {
+      "message": "ارتقاء"
+   },
+   "popup_connections_limit_description_cta_button_premium": {
+      "message": "بیشتر بدانید"
+   },
+   "popup_connections_limit_description_end_free": {
+      "message": "برای استفاده از VPN در اینجا، خرید AdGuard VPN Unlimited را در نظر بگیرید"
+   },
+   "popup_connections_limit_description_end_premium": {
+      "message": "برای استفاده از VPN در این دستگاه، دستگاه دیگر را قطع کنید"
+   },
+   "popup_connections_limit_description_start": {
+      "message": "شما می‌توانید تا %maxDevicesAllowed% دستگاه را به طور همزمان متصل کنید."
+   },
+   "popup_connections_limit_title": {
+      "message": "محدودیت دستگاه رسیده است"
+   },
+   "popup_feedback_button": {
+      "message": "ثبت بازخورد"
+   },
+   "popup_feedback_title": {
+      "message": "ما مشتاقانه منتظر بازخورد شما هستیم"
+   },
+   "popup_free_traffic_info_days_left": {
+      "description": "Respect spaces between text, tags and placeholders. 40 characters max limit for every plural form",
+      "message": "ترافیک امروز تجدید می‌شود | ترافیک در %days% روز تجدید می‌شود | ترافیک در %days% روزها تجدید می‌شود"
+   },
+   "popup_free_traffic_info_left": {
+      "description": "Respect spaces between text, tags and placeholders",
+      "message": "%value% %unit% باقی مانده"
+   },
+   "popup_hint_popup_button": {
+      "message": "فهمیدم"
+   },
+   "popup_hint_popup_content": {
+      "message": "به هر حال، می‌توانید VPN را برای یک تارنما غیر فعال کنید و آن را برای تارنماهای دیگر فعال نگه دارید"
+   },
+   "popup_host_permission_error_btn_allow": {
+      "message": "اجازه دادن"
+   },
+   "popup_host_permission_error_info": {
+      "message": "برای استفاده از AdGuard VPN، به آن اجازه دهید تا به اطلاعات شما در وب‌سایت‌ها دسترسی پیدا کند. ما این اطلاعات را ذخیره نمی‌کنیم و با هیچ‌کس به اشتراک نمی‌گذاریم. \u003Cprivacy>سیاست حفظ حریم خصوصی\u003C/privacy>"
+   },
+   "popup_host_permission_error_title": {
+      "message": "اجازه دسترسی به وب‌سایت‌ها"
+   },
+   "popup_limited_offer_details_btn": {
+      "message": "گرفتن این معامله"
+   },
+   "popup_limited_offer_details_time_left": {
+      "message": "زمان باقی مانده: %time_left%"
+   },
+   "popup_limited_offer_details_title": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "| AdGuard VPN Unlimited برای %count% سال با \u003Cspan>%discount%%% تخفیف\u003C/span> | AdGuard VPN Unlimited برای %count% سال با \u003Cspan>%discount%%% تخفیف\u003C/span>"
+   },
+   "popup_limited_offer_notice": {
+      "description": "IMPORTANT: Be careful with percent sign after discount placeholder, it should be escaped with another percent sign",
+      "message": "%discount%%% تخفیف: \u003Cspan>%time_left%\u003C/span>"
+   },
+   "popup_mobile_edge_promo_modal_description": {
+      "message": "برای نصب Edge روی تلفن یا رایانه لوحی خود، کد QR را اسکن کنید. AdGuard VPN در پیشنهادات ظاهر می شود"
+   },
+   "popup_mobile_edge_promo_modal_do_not_show_btn": {
+      "message": "اینو دیگه نشون نده"
+   },
+   "popup_mobile_edge_promo_modal_got_it_btn": {
+      "message": "فهمیدم"
+   },
+   "popup_mobile_edge_promo_modal_title": {
+      "message": "AdGuard VPN برای Edge – اکنون در اندروید"
+   },
+   "popup_mobile_edge_promo_text": {
+      "message": "دریافت افزونه VPN برای Android"
+   },
+   "popup_newsletter_info": {
+      "message": "برای من ایمیل های دارای پیشنهادات ویژه و اخبار AdGuard را ارسال کنید"
+   },
+   "popup_newsletter_no_subscribe": {
+      "message": "خیر،ممنونم"
+   },
+   "popup_newsletter_subscribe": {
+      "message": "اشتراک"
+   },
+   "popup_newsletter_title": {
+      "message": "خبرنامه AdGuard"
+   },
+   "popup_no_locations_button": {
+      "message": "جستجو دوباره"
+   },
+   "popup_no_locations_title": {
+      "message": "مکان‌ها یافت نشد"
+   },
+   "popup_onboarding_next": {
+      "message": "بعدي"
+   },
+   "popup_onboarding_no_logging_policy": {
+      "message": "سیاست عدم ذخیره وقایع"
+   },
+   "popup_onboarding_no_logging_policy_info": {
+      "message": "AdGuard VPN شما را ناشناس می‌کند. هرگز داده‌های شما را جمع‌آوری یا هم‌رسانی نمی‌کند با طرف‌های ثالث"
+   },
+   "popup_onboarding_sites_apps_exclusions": {
+      "message": "استثناهای وب‌سایت و برنامه"
+   },
+   "popup_onboarding_sites_apps_exclusions_info": {
+      "message": "استثناها به شما کمک می‌کنند تا به سرعت وب‌سایت‌ها یا برنامه‌هایی را برای حفاظت AdGuard VPN مشخص کنید"
+   },
+   "popup_onboarding_unique_protocol": {
+      "message": "VPN مطمئن"
+   },
+   "popup_onboarding_unique_protocol_info": {
+      "message": "دستورالعمل TrustTunnel سریع کار می‌کند و انتقال داده اینترنتی VPN شما را نامحسوس می‌کند"
+   },
+   "popup_paywall_b_btn_maybe_later": {
+      "message": "شاید بعداً"
+   },
+   "popup_paywall_b_btn_upgrade": {
+      "message": "ارتقاء"
+   },
+   "popup_paywall_b_column_free": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "رایگان"
+   },
+   "popup_paywall_b_column_unlimited": {
+      "description": "Table header. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "نامحدود"
+   },
+   "popup_paywall_b_description": {
+      "message": "AdGuard VPN Unlimited را بررسی کنید. با طرح سالانه، 67%% ذخیره می‌کنید"
+   },
+   "popup_paywall_b_row_devices": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "دستگاه‌ها"
+   },
+   "popup_paywall_b_row_dns": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "AdGuard DNS"
+   },
+   "popup_paywall_b_row_locations": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "مکان‌های سرور"
+   },
+   "popup_paywall_b_row_locations_unlimited": {
+      "message": "%count%+"
+   },
+   "popup_paywall_b_row_speed": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "سرعت"
+   },
+   "popup_paywall_b_row_speed_free": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "کاهش‌یافته"
+   },
+   "popup_paywall_b_row_vpn_data": {
+      "description": "Table row. Keep the text short or it won't fit the container. Wrapping is fine.",
+      "message": "داده VPN"
+   },
+   "popup_paywall_b_row_vpn_data_free": {
+      "message": "%gb% GB\u003Cspan>/ماه\u003C/span>"
+   },
+   "popup_paywall_b_title": {
+      "message": "به سقف داده رسیدید — بارگذاری محتوا بیشتر طول می\fکشد"
+   },
+   "popup_rate_modal_cancel_button": {
+      "message": "لغو"
+   },
+   "popup_rate_modal_send_button": {
+      "message": "ارسال گزارش"
+   },
+   "popup_rate_modal_subtitle": {
+      "message": "لطفا به ما امتیاز دهید"
+   },
+   "popup_rate_modal_title": {
+      "message": "AdGuard VPN چقدر عالی است؟"
+   },
+   "popup_server_error_popup_action": {
+      "message": "تیم AdGuard را یادآوری کنید"
+   },
+   "popup_server_error_popup_cancel": {
+      "message": "لغو"
+   },
+   "popup_server_error_popup_close": {
+      "message": "بستن"
+   },
+   "popup_server_error_popup_info": {
+      "message": "احتمالاً، VPN در کشور شما مسدود شده است یا یک اشکال فنی وجود داشت. ما در حال حاضر در حال تلاش برای رفع آن هستیم"
+   },
+   "popup_server_error_popup_thankyou_message": {
+      "message": "متشکریم که به ما اطلاع دادید!"
+   },
+   "popup_server_error_popup_thankyou_title": {
+      "message": "داریم روی آن کار می‌کنیم"
+   },
+   "popup_server_error_popup_title": {
+      "message": "نمی توان به سرور متصل شد"
+   },
+   "popup_settings_disable_vpn": {
+      "message": "VPN را در این وب سایت غیرفعال کنید"
+   },
+   "popup_settings_enable_vpn_short": {
+      "message": "فعال‌سازی"
+   },
+   "popup_settings_feedback": {
+      "message": "دیدگاه"
+   },
+   "popup_settings_free_description": {
+      "message": "در AdGuard VPN Unlimited در دسترس است"
+   },
+   "popup_settings_open_settings": {
+      "message": "تنظیمات"
+   },
+   "popup_settings_other_products": {
+      "message": "محصولات دیگر"
+   },
+   "popup_settings_stats": {
+      "message": "آمار"
+   },
+   "popup_site_status_unaccessible": {
+      "message": "در شبکه محلی شما قرار دارد و از طریق VPN در دسترس نیست"
+   },
+   "popup_site_status_vpn_disabled": {
+      "message": "VPN در این وب‌سایت غیرفعال است"
+   },
+   "popup_skeleton_status": {
+      "message": "جستجوی مکان‌ها..."
+   },
+   "popup_stats": {
+      "message": "آمار"
+   },
+   "popup_stats_connection_to_vpn": {
+      "message": "متصل به VPN"
+   },
+   "popup_stats_connection_to_vpn_days": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%days% د"
+   },
+   "popup_stats_connection_to_vpn_hours": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%hours% ساعت"
+   },
+   "popup_stats_connection_to_vpn_minutes": {
+      "description": "IMPORTANT: Be careful with percent sign before unit, also respect space between placeholder and unit!",
+      "message": "%minutes% متر"
+   },
+   "popup_stats_data_since": {
+      "description": "IMPORTANT: Be careful with percent sign around startDate. StartDate will be replaced with the date when stats collection started. For example on - 17 Sept 2025, date format respects locale.",
+      "message": "از %startDate%"
+   },
+   "popup_stats_data_usage": {
+      "message": "داده"
+   },
+   "popup_stats_data_usage_downloaded": {
+      "message": "دریافت"
+   },
+   "popup_stats_data_usage_uploaded": {
+      "message": "آپلود"
+   },
+   "popup_stats_disabled_notice": {
+      "message": "آمار غیرفعال است"
+   },
+   "popup_stats_empty": {
+      "message": "هنوز آماری وجود ندارد - برای مشاهده آنها از AdGuard VPN استفاده کنید"
+   },
+   "popup_stats_enable_btn": {
+      "message": "فعالسازي"
+   },
+   "popup_stats_locations": {
+      "message": "مکان‌ها"
+   },
+   "popup_stats_menu_clear_stats_btn": {
+      "message": "پاک‌سازی آمار"
+   },
+   "popup_stats_menu_clear_stats_cancel_btn": {
+      "message": "لغو"
+   },
+   "popup_stats_menu_clear_stats_clear_btn": {
+      "message": "پاکسازی"
+   },
+   "popup_stats_menu_clear_stats_description": {
+      "message": "همه آمار به طور دائم حذف خواهند شد"
+   },
+   "popup_stats_menu_clear_stats_title": {
+      "message": "آمارها پاک‌سازی شوند؟"
+   },
+   "popup_stats_menu_disable_stats_btn": {
+      "message": "غیرفعال کردن آمار"
+   },
+   "popup_stats_menu_disable_stats_cancel_btn": {
+      "message": "لغو"
+   },
+   "popup_stats_menu_disable_stats_description": {
+      "message": "آمارهای جدید جمع‌آوری نمی‌شوند. شما همچنان می‌توانید به آمارهای موجود خود دسترسی داشته باشید."
+   },
+   "popup_stats_menu_disable_stats_disable_btn": {
+      "message": "غيرفعالسازي"
+   },
+   "popup_stats_menu_disable_stats_title": {
+      "message": "غیرفعال کردن آمار؟"
+   },
+   "popup_stats_menu_enable_stats_btn": {
+      "message": "فعال کردن آمار"
+   },
+   "popup_stats_menu_why_safe_description_1": {
+      "message": "آمار نشان می دهد که چه مقدار داده VPN استفاده کرده اید و مکان های برتر خود را رتبه بندی کنید"
+   },
+   "popup_stats_menu_why_safe_description_2": {
+      "message": "آمار هرگز شامل سابقه مرور شما نمی شود. رمزگذاری شده است، بنابراین هیچ نمی تواند شما را ردیابی کند"
+   },
+   "popup_stats_menu_why_safe_description_3": {
+      "message": "اگر از AdGuard VPN در چندین مرورگر استفاده می کنید، آمار شما برای هر یک متفاوت خواهد بود. آنها در دستگاه ذخیره می شوند و فقط شما می توانید به آنها دسترسی داشته باشید"
+   },
+   "popup_stats_menu_why_safe_got_it": {
+      "message": "متوجه شدم"
+   },
+   "popup_stats_menu_why_safe_title": {
+      "message": "درباره آمار شما"
+   },
+   "popup_stats_most_used_locations": {
+      "message": "مکان‌های پرتکرار"
+   },
+   "popup_stats_range_all_time": {
+      "message": "همیشه"
+   },
+   "popup_stats_range_days_30": {
+      "message": "30 روز"
+   },
+   "popup_stats_range_days_7": {
+      "message": "7 روز"
+   },
+   "popup_stats_range_hours_24": {
+      "message": "24 ساعت"
+   },
+   "popup_stats_usage_time": {
+      "message": "زمان"
+   },
+   "popup_stats_view_all_locations": {
+      "message": "مشاهده تمامی مکان ها"
+   },
+   "popup_streaming_icon_title": {
+      "message": "برای سرویس های استریم خوب است"
+   },
+   "popup_streaming_modal_button_ok": {
+      "message": "متوجه شدم"
+   },
+   "popup_streaming_modal_title": {
+      "message": "پخش های زنده موجود در این مکان"
+   },
+   "popup_traffic_limit_exceeded_cta_btn": {
+      "message": "ارتقاء"
+   },
+   "popup_traffic_limit_exceeded_description": {
+      "message": "شما به محدودیت داده رایگان دست یافته‌اید و AdGuard VPN به آرامی کار می‌کند"
+   },
+   "popup_traffic_limit_exceeded_title": {
+      "message": "سرعت کاهش یافته است"
+   },
+   "popup_traffic_limit_reached": {
+      "message": "حد داده ماهانه سر رسید"
+   },
+   "popup_traffic_limited_speed": {
+      "message": "سرعت محدود"
+   },
+   "popup_upgrade_b_btn_get_unlimited": {
+      "message": "نامحدود را دریافت کنید"
+   },
+   "popup_upgrade_b_btn_maybe_later": {
+      "message": "شاید بعداً"
+   },
+   "popup_upgrade_b_description": {
+      "message": "اتصال\fهای پرسرعت، دسترسی به\u00160همه\u00160موقعیت\fها و موارد بیشتر را ارائه می\fدهد"
+   },
+   "popup_upgrade_b_feature_devices": {
+      "message": "AdGuard VPN را هم‌زمان روی %count% دستگاه استفاده کنید"
+   },
+   "popup_upgrade_b_feature_dns": {
+      "message": "فعالیت وب خود را با\u00160AdGuard\u00160DNS به\u00160عنوان\u00160یک امتیاز نهان\fسازی کنید"
+   },
+   "popup_upgrade_b_feature_locations": {
+      "message": "محتوا را از %count%+ مکانِ سرور تماشا کنید"
+   },
+   "popup_upgrade_b_feature_speed": {
+      "message": "با سرعت‌های بالا و بدون محدودیت پخش برخط کنید"
+   },
+   "popup_upgrade_b_title_line1": {
+      "message": "AdGuard VPN Unlimited"
+   },
+   "popup_upgrade_screen_all_locations": {
+      "message": "همه مکان‌ها"
+   },
+   "popup_upgrade_screen_all_locations_desc": {
+      "message": "6 قاره و ده ها کشور. شهری را انتخاب نمایید و به طور امن در شبکه اینترنت بگردید!"
+   },
+   "popup_upgrade_screen_connect_devices": {
+      "message": "حداکثر %potential_num% دستگاه"
+   },
+   "popup_upgrade_screen_connect_devices_desc": {
+      "message": "تمام ابزارک‌های خود را به‌طور همزمان به AdGuard VPN متصل نمایید — یا از کل خانواده محافظت کنید!"
+   },
+   "popup_upgrade_screen_continue_free": {
+      "message": "به طور رایگان ادامه دهید"
+   },
+   "popup_upgrade_screen_info_with_devices": {
+      "message": "به همه موقعیت‌ها دسترسی پیدا کنید، بدون محدودیت سرعت گشت‌و‌گذار کنید و همزمان تا %maxDevicesAllowed% دستگاه متصل کنید"
+   },
+   "popup_upgrade_screen_title": {
+      "message": "ارتقا به نامحدود"
+   },
+   "popup_upgrade_screen_unlimited_data": {
+      "message": "حجم داده نامحدود"
+   },
+   "popup_upgrade_screen_unlimited_data_desc": {
+      "message": "تنها محدودیت این است که داده شما هرگز\nاشتراک نیافته است. تا سرحد رضایتتان در اینترنت بگردید!"
+   },
+   "popup_upgrade_screen_unlimited_speed": {
+      "message": "سرعت نامحدود"
+   },
+   "popup_upgrade_screen_unlimited_speed_desc": {
+      "message": "بدون محدودیت سرعت. بیشترین بهره را از ارئه دهنده سرویس تان ببرید!"
+   },
+   "popup_upgrade_screen_upgrade_button": {
+      "message": "ارتقاء"
+   },
+   "popup_vpn_blocked_error_details_description": {
+      "message": "اگر متوجه مشکلات اتصال شدید، توصیه می‌کنیم به نسخه رومیزی تغییر دهید — نرم‌تر عمل می‌کند"
+   },
+   "popup_vpn_blocked_error_details_description_linux": {
+      "message": "اگر متوجه مشکلات اتصال شدید، کلاینت VPN Linux ما را توصیه می‌کنیم. نرم‌تر عمل می‌کند"
+   },
+   "popup_vpn_blocked_error_details_description_mobile": {
+      "message": "اگر متوجه مشکلات اتصال شدید، توصیه می‌کنیم به نسخه تلفن همراه تغییر دهید. نرم‌تر عمل می‌کند"
+   },
+   "popup_vpn_blocked_error_details_get_app_button": {
+      "message": "دانلود"
+   },
+   "popup_vpn_blocked_error_details_get_app_button_linux": {
+      "message": "نحوه نصب"
+   },
+   "popup_vpn_blocked_error_details_later_button": {
+      "message": "بعد"
+   },
+   "popup_vpn_blocked_error_details_title": {
+      "message": "برای اتصال پایدارتر به نسخه رومیزی تغییر دهید"
+   },
+   "popup_vpn_blocked_error_details_title_linux": {
+      "message": "برای اتصال پایدارتر به AdGuard VPN برای Linux تغییر دهید"
+   },
+   "popup_vpn_blocked_error_details_title_mobile": {
+      "message": "برای اتصال پایدارتر به نسخه تلفن همراه تغییر دهید"
+   },
+   "popup_vpn_blocked_error_notice": {
+      "message": "ارتباط با جریان ارسالی DNS ندارد?"
+   },
+   "popup_vpn_blocked_error_notice_alt": {
+      "message": "برای اتصال پایدارتر به نسخه رومیزی تغییر دهید"
+   },
+   "popup_vpn_blocked_error_notice_alt_linux": {
+      "message": "برای اتصال پایدارتر به AdGuard VPN برای Linux تغییر دهید"
+   },
+   "popup_vpn_blocked_error_notice_alt_mobile": {
+      "message": "برای اتصال پایدارتر به نسخه تلفن همراه تغییر دهید"
+   },
+   "premium_upgrade": {
+      "message": "ارتقاء"
+   },
+   "privacy_policy": {
+      "message": "سیاست حریم خصوصی"
+   },
+   "rate_description": {
+      "message": "آیا از AdGuard VPN راضی هستید؟"
+   },
+   "rate_hide": {
+      "message": "پنهان کن"
+   },
+   "referral_get_free_traffic": {
+      "message": "حجم داده‌های رایگان دریافت کنید!"
+   },
+   "settings_connect": {
+      "message": "اتصال"
+   },
+   "settings_context_menus_description": {
+      "message": "مدیریت استثنائات VPN برای یک تارنما خاص را امکان‌پذیر می‌کند"
+   },
+   "settings_context_menus_title": {
+      "message": "نمایش AdGuard VPN در منوی زمینه مرورگر"
+   },
+   "settings_disconnect": {
+      "message": "قطع ارتباط"
+   },
+   "settings_dns_add_custom_server": {
+      "message": "افزودن سرور DNS دستی"
+   },
+   "settings_dns_add_custom_server_address": {
+      "message": "آدرس سرور"
+   },
+   "settings_dns_add_custom_server_address_placeholder": {
+      "message": "نشانی IP یا tls://"
+   },
+   "settings_dns_add_custom_server_duplicate_address": {
+      "message": "سرور DNS قبلاً اضافه شده است"
+   },
+   "settings_dns_add_custom_server_info": {
+      "message": "ارائه دهندگان DNS شناخته شده"
+   },
+   "settings_dns_add_custom_server_invalid_address": {
+      "message": "آدرس سرور نامعتبر"
+   },
+   "settings_dns_add_custom_server_name": {
+      "message": "نام سرور"
+   },
+   "settings_dns_add_custom_server_name_placeholder": {
+      "message": "سرور DNS من"
+   },
+   "settings_dns_add_custom_server_save": {
+      "message": "ذخیره"
+   },
+   "settings_dns_add_custom_server_save_and_select": {
+      "message": "ذخیره و انتخاب"
+   },
+   "settings_dns_add_custom_server_too_long_name": {
+      "message": "نام سرور از حد حداکثر %max% کاراکتر (در حال حاضر %current%) تجاوز می‌کند"
+   },
+   "settings_dns_custom_servers": {
+      "message": "سرورهای DNS سفارشی"
+   },
+   "settings_dns_delete_custom_server_notification": {
+      "message": "سرور DNS سفارشی حذف شد"
+   },
+   "settings_dns_description": {
+      "message": "به انتخاب یک سرور DNS برای resolve درخواست‌های DNS، block کردن تبلیغات و رَدیاب‌ها، و encrypt کردن انتقال داده اینترنتی DNS هنگام اتصال به VPN اجازه می‌دهد"
+   },
+   "settings_dns_description_current": {
+      "message": "فعلی: %dnsServerName%"
+   },
+   "settings_dns_edit_custom_server": {
+      "message": "افزودن سرور DNS دلخواه"
+   },
+   "settings_dns_label": {
+      "message": "سرور DNS"
+   },
+   "settings_dns_popular_servers": {
+      "message": "ارائه دهندگان معروف DNS:"
+   },
+   "settings_dns_selector_adguard_desc": {
+      "message": "تبلیغات و ردیاب‌ها را از دستگاه شما حذف می‌کند"
+   },
+   "settings_dns_selector_adguard_family_desc": {
+      "message": "دی اِن اِس AdGuard با جستجوی اَمن و محدودسازی محتوای بزرگسال"
+   },
+   "settings_dns_selector_adguard_family_title": {
+      "message": "حفاظت خانواده AdGuard DNS"
+   },
+   "settings_dns_selector_adguard_nonfiltering_desc": {
+      "message": "DNS آمن بدون ثبت فعالیت (بدون پالایش تبلیغات و ردیاب‌ها)"
+   },
+   "settings_dns_selector_adguard_nonfiltering_title": {
+      "message": "AdGuard DNS بدون فیلتر"
+   },
+   "settings_dns_selector_adguard_title": {
+      "message": "AdGuard DNS"
+   },
+   "settings_dns_selector_cisco_desc": {
+      "message": "سرور دی اِن اِس با فیلترینگ سفارشی سازی و حفاظت از رایانه در برابر بد افزار"
+   },
+   "settings_dns_selector_cisco_title": {
+      "message": "Cisco OpenDNS"
+   },
+   "settings_dns_selector_cloudflare_desc": {
+      "message": "سرویس DNS رایگان با Cloudflare"
+   },
+   "settings_dns_selector_cloudflare_title": {
+      "message": "Cloudflare DNS"
+   },
+   "settings_dns_selector_default_desc": {
+      "message": "از سرورهای DNS ارائه شده توسط AdGuard VPN استفاده می کند"
+   },
+   "settings_dns_selector_default_title": {
+      "message": "پيش فرض"
+   },
+   "settings_dns_selector_google_desc": {
+      "message": "سرویس دی اِن اِس جایگزین رایگان از گوگل"
+   },
+   "settings_dns_selector_google_title": {
+      "message": "Google DNS"
+   },
+   "settings_dns_selector_quad9_desc": {
+      "message": "سرویس DNS جایگزین رایگان برای حفاظت در برابر فیشینگ و جاسوس افزار"
+   },
+   "settings_dns_selector_quad9_title": {
+      "message": "Quad9"
+   },
+   "settings_exclusion_actions": {
+      "message": "اقدامات"
+   },
+   "settings_exclusion_add": {
+      "message": "افزودن"
+   },
+   "settings_exclusion_add_from_list": {
+      "message": "از فهرست"
+   },
+   "settings_exclusion_add_manually": {
+      "message": "به طور دستی"
+   },
+   "settings_exclusion_add_manually_add": {
+      "message": "به طور دستی اضافه کنید"
+   },
+   "settings_exclusion_add_subdomain": {
+      "message": "افزودن یک زیر دامنه"
+   },
+   "settings_exclusion_add_website": {
+      "message": "افزودن وبسایت"
+   },
+   "settings_exclusion_change_mode_modal_title": {
+      "message": "کجا VPN روشن است"
+   },
+   "settings_exclusion_connection_problem": {
+      "message": "مشکل اتصال"
+   },
+   "settings_exclusion_domain_name": {
+      "message": "نام دامنه"
+   },
+   "settings_exclusion_general_mode_info": {
+      "message": "VPN در \u003Cspan>همه جا\u003C/span> فعال است به جز وب‌سایت‌های زیر"
+   },
+   "settings_exclusion_general_title": {
+      "message": "حالت عمومی"
+   },
+   "settings_exclusion_group_settings_subtitle_regular_mode": {
+      "message": "ادگارد vpn برای زیر دامنه ها و دامنه های علامت زده خاموش است"
+   },
+   "settings_exclusion_group_settings_subtitle_selective_mode": {
+      "message": "ادگارد vpn برای زیر دامنه ها و دامنه های علامت زده روشن است"
+   },
+   "settings_exclusion_import_button": {
+      "message": "وارد کردن"
+   },
+   "settings_exclusion_invalid_subdomain": {
+      "message": "زیر دامنه نا معتبر است"
+   },
+   "settings_exclusion_modal_cancel": {
+      "message": "لغو"
+   },
+   "settings_exclusion_modal_remove": {
+      "message": "حذف"
+   },
+   "settings_exclusion_modal_save": {
+      "message": "ذخیره"
+   },
+   "settings_exclusion_nothing_found": {
+      "message": "نتیجه ای پیدا نشد"
+   },
+   "settings_exclusion_placeholder_search": {
+      "message": "جستجو"
+   },
+   "settings_exclusion_reset_button": {
+      "message": "ريست"
+   },
+   "settings_exclusion_reset_service_confirmation_message": {
+      "message": "آیا تنظیمات پیش فرض برای %hostname% به حالت اولیه تنظیم شود؟ این کار هر دامنه از دست رفته را بازگردانی کرده و تمام علائم تیک را به حالت روشن در می آورد."
+   },
+   "settings_exclusion_reset_to_default": {
+      "message": "بازگرداندن به پیش فرض"
+   },
+   "settings_exclusion_search_website": {
+      "message": "وبسایت جستجو"
+   },
+   "settings_exclusion_selective_mode_info": {
+      "message": "VPN به \u003Cspan>صورت انتخابی\u003C/span> فعال است: فقط برای وب‌سایت‌های زیر"
+   },
+   "settings_exclusion_selective_mode_warning": {
+      "message": "خالی گذاشتن این لیست موجب غیرفعال شدن VPN برای تمام وب‌سایت‌ها می‌شود"
+   },
+   "settings_exclusion_selective_title": {
+      "message": "فقط در تارنماهای انتخاب شده"
+   },
+   "settings_exclusion_status_all_subdomains": {
+      "message": "تمام زیر دامنه ها"
+   },
+   "settings_exclusion_status_domain": {
+      "message": "دامنه"
+   },
+   "settings_exclusion_status_subdomain": {
+      "message": "زیر دامنه"
+   },
+   "settings_exclusion_subdomain_name": {
+      "message": "زیر دامنه"
+   },
+   "settings_exclusion_title": {
+      "message": "مدیریت استثنائات..."
+   },
+   "settings_exclusions_action_export": {
+      "message": "خروجی استثناها"
+   },
+   "settings_exclusions_action_import": {
+      "message": "وارد کردن موارد استثناء"
+   },
+   "settings_exclusions_action_remove_all": {
+      "message": "حذف همه"
+   },
+   "settings_exclusions_add_invalid_domain": {
+      "message": "\"%url%\" دامنه نا معتبر است. آیا مایل به افزودن آن به فهرست هستید؟"
+   },
+   "settings_exclusions_remove_all_exclusions": {
+      "message": "حذف تمام استثناعات"
+   },
+   "settings_exclusions_remove_all_exclusions_message": {
+      "message": "آیا می خواهید تمام لیست استثنائات را حذف کنید؟"
+   },
+   "settings_exclusions_undo": {
+      "message": "برگرداندن"
+   },
+   "settings_free_gbs": {
+      "message": "گیگابایت رایگان"
+   },
+   "settings_free_gbs_add_device": {
+      "message": "دستگاه جدیدی اضافه کنید"
+   },
+   "settings_free_gbs_add_device_info_gb": {
+      "message": "برای دریافت یک جایزه یک‌باره %your_gb% GB، با %email% در AdGuard VPN روی دستگاه دیگری وارد شوید"
+   },
+   "settings_free_gbs_add_device_products_button": {
+      "message": "محصول را انتخاب کنید"
+   },
+   "settings_free_gbs_add_device_title_gb": {
+      "message": "یک دستگاه جدید اضافه کنید و %your_gb% GB رایگان دریافت کنید"
+   },
+   "settings_free_gbs_add_device_wait_to_update": {
+      "message": "به‌روزرسانی سقف ماهانه شما ممکن است کمی زمان ببرد — چند دقیقه صبر کنید یا برنامک را مجدداً راه‌اندازی کنید"
+   },
+   "settings_free_gbs_devices_added_info": {
+      "message": "انتقال داده اینترنتی استفاده‌نشده به ماه‌های بعد منتقل می‌شود. و با AdGuard VPN Unlimited می‌توانید از گشت‌و‌گذار سریع بدون محدودیت لذت ببرید"
+   },
+   "settings_free_gbs_devices_added_title_gb": {
+      "message": "شما برای افزودن یک دستگاه جدید %your_gb% GB دریافت کردید"
+   },
+   "settings_free_gbs_get_GB": {
+      "message": "دریافت %num% گیگابایت"
+   },
+   "settings_free_gbs_invite_friend_complete": {
+      "message": "شما %num% گیگابایت دریافت کردید"
+   },
+   "settings_free_gbs_invite_friend_completed_thank_you": {
+      "message": "از شما متشکریم که به رشد ما کمک می‌کنید! نحوه دریافت جایزه‌های بیشتر را در بخش GBهای رایگان یاد بگیرید. یا AdGuard VPN Unlimited را تهیّه کنید تا از گشت‌و‌گذار سریع بدون محدودیت لذت ببرید"
+   },
+   "settings_free_gbs_invite_friend_count": {
+      "message": "دعوت از یک دوست (%invited_count%/%max_invites%)"
+   },
+   "settings_free_gbs_invite_friend_get_GB": {
+      "message": "دریافت تا %num% گیگابایت"
+   },
+   "settings_free_gbs_invite_friend_title": {
+      "message": "یک دوست دعوت کنید و %your_gb% GB انتقال داده اینترنتی سریع VPN دریافت کنید"
+   },
+   "settings_free_gbs_invite_friend_title_success": {
+      "message": "شما %total_invites% دوست را دعوت کرده‌اید و مجموعاً %total_gbs% GB دریافت کرده‌اید"
+   },
+   "settings_free_gbs_join_adguard": {
+      "message": "به AdGuard VPN بپیوندید"
+   },
+   "settings_free_gbs_promote_socials": {
+      "message": "AdGuard VPN را در شبکه‌های اجتماعی ترویج کنید"
+   },
+   "settings_free_gbs_promote_socials_button": {
+      "message": "دریافت پاداش"
+   },
+   "settings_free_gbs_promote_socials_get_gb": {
+      "message": "دریافت %num% گیگابایت"
+   },
+   "settings_free_gbs_promote_socials_info": {
+      "message": "در X یا Facebook یک پست بنویسید و پیوند را با ما هم‌رسانی کنید. آن را بررسی می‌کنیم و %your_gb% GB به حساب شما اضافه می‌کنیم. در مجموع می‌توانید تا %total_gb% GB دریافت کنید"
+   },
+   "settings_free_gbs_promote_socials_title": {
+      "message": "AdGuard VPN را در شبکه‌های اجتماعی ترویج کنید و %your_gb% GB دریافت کنید"
+   },
+   "settings_free_gbs_subtitle": {
+      "message": "در اینجا نحوه دریافت انتقال داده اینترنتی اضافی VPN را مشاهده می‌کنید"
+   },
+   "settings_free_gbs_task_complete": {
+      "message": "شما %num% گیگابایت دریافت کردید"
+   },
+   "settings_free_gbs_upgrade": {
+      "message": "ارتقا به نامحدود"
+   },
+   "settings_general_title": {
+      "message": "عمومی"
+   },
+   "settings_help_us_improve_modal_button": {
+      "message": "فهمیدم"
+   },
+   "settings_help_us_improve_modal_desc_data": {
+      "message": "این داده ها شامل:"
+   },
+   "settings_help_us_improve_modal_desc_data_buttons": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "نامهای دکمه‌هایی که روی آنها کلیک می‌کنید"
+   },
+   "settings_help_us_improve_modal_desc_data_screens": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "نام‌های صفحه‌هایی که با آن‌ها تعامل دارید"
+   },
+   "settings_help_us_improve_modal_desc_data_sessions": {
+      "message": "شناسه‌های جلسه"
+   },
+   "settings_help_us_improve_modal_desc_improve": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "ما به این اطلاعات نیاز داریم تا عملکرد AdGuard VPN را تجزیه و تحلیل و بهبود بخشیم"
+   },
+   "settings_help_us_improve_modal_desc_internally": {
+      "description": "Contains non-breaking spaces ( ) to prevent unwanted line breaks",
+      "message": "این داده‌ها ناشناس هستند و فقط به صورت داخلی استفاده می‌شوند. ما هرگز آن را با اشخاص ثالث به اشتراک نمی‌گذاریم"
+   },
+   "settings_help_us_improve_modal_privacy_policy": {
+      "description": "Contains non-breaking space ( ) to prevent unwanted line breaks",
+      "message": "خط مشی حریم خصوصی"
+   },
+   "settings_help_us_improve_modal_title": {
+      "message": "داده‌های استفاده از افزونه"
+   },
+   "settings_help_us_improve_title": {
+      "message": "به بهبود پالایش‌های AdGuard کمک کنید"
+   },
+   "settings_language_browser_default": {
+      "message": "پیش‌فرض مرورگر"
+   },
+   "settings_language_label": {
+      "message": "زبان"
+   },
+   "settings_quick_connect_fastest": {
+      "message": "سریع ترین مکان"
+   },
+   "settings_quick_connect_last_used": {
+      "message": "آخرین مکان استفاده شده"
+   },
+   "settings_quick_connect_subtitle": {
+      "message": "محل VPN انتخاب شده وقتی که روی اتصال کلیک کنید"
+   },
+   "settings_quick_connect_title": {
+      "message": "اتصال سریع"
+   },
+   "settings_rate_us": {
+      "message": "لطفا به ما امتیاز دهید"
+   },
+   "settings_referral_copy_link": {
+      "message": "رایانامه دعوت را کپی کنید"
+   },
+   "settings_referral_info_friends": {
+      "message": "یک لینک دعوت برای دوست خود ارسال کنید. وقتی او از طریق لینک شما در AdGuard VPN ثبت‌نام کند، هر دو %your_gb% GB انتقال داده اینترنتی سریع VPN دریافت می‌کنید. مقدار استفاده‌نشده هرگز منقضی نمی‌شود — می‌توانید آن را طی ماه‌های مختلف استفاده کنید. تا %max_friends% دوست دعوت کنید و مجموعاً تا %total_gb% GB دریافت کنید."
+   },
+   "settings_referral_invite_link": {
+      "message": "لینک دعوت"
+   },
+   "settings_referral_invited_friends": {
+      "message": "دوستان دعوت شده %count%/%limit%"
+   },
+   "settings_referral_link_copied": {
+      "message": "پیوند رونویسی شد"
+   },
+   "settings_theme_dark": {
+      "message": "تیره"
+   },
+   "settings_theme_label": {
+      "message": "پوسته"
+   },
+   "settings_theme_light": {
+      "message": "روشن"
+   },
+   "settings_theme_system": {
+      "message": "پیش‌فرض مرورگر"
+   },
+   "settings_vpn_connecting": {
+      "message": "درحال اتصال..."
+   },
+   "settings_vpn_disabled": {
+      "message": "قطع شده است"
+   },
+   "settings_vpn_enabled": {
+      "message": "متصل"
+   },
+   "settings_webrtc_desc": {
+      "message": "WebRTC را مسدود می‌کند که می‌تواند نشانی IP واقعی شما را حتی در صورت استفاده از پراکسی یا VPN افشا کند."
+   },
+   "settings_webrtc_label": {
+      "message": "مسدودسازی وب آر تی سی"
+   },
+   "settings_webrtc_warning": {
+      "message": "برخی پیام‌رسان‌ها، پلتفرم‌های پخش برخط یا بازی‌ها ممکن است به درستی کار نکنند"
+   },
+   "short_name": {
+      "message": "AdGuard VPN"
+   }
+}

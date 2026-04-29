@@ -1,0 +1,14 @@
+{
+   "ExtnDescription": {
+      "Description": "Extension description",
+      "message": "MSN New Tab을 추가하여 최신 뉴스, 가장 자주 방문하는 사이트, 웹 검색 등에 빠르게 액세스하세요."
+   },
+   "ExtnMarket": {
+      "Description": "Market",
+      "message": "ko-kr"
+   },
+   "ExtnName": {
+      "Description": "Extension short name",
+      "message": "MSN New Tab"
+   }
+}

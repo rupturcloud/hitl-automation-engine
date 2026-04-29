@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PORT="${CLAUDEGROK_PORT:-4141}"
+HOST="${CLAUDEGROK_HOST:-127.0.0.1}"
+LOG_DIR="$ROOT/.claude"
+LOG_FILE="$LOG_DIR/claudegrok_proxy.log"
+PID_FILE="$LOG_DIR/claudegrok_proxy.pid"
+
+mkdir -p "$LOG_DIR"
+
+is_listening() {
+  lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1
+}
+
+if ! is_listening; then
+  echo "Iniciando proxy Grok em http://$HOST:$PORT ..."
+  nohup python3 "$ROOT/scripts/claudegrok_proxy.py" --host "$HOST" --port "$PORT" >"$LOG_FILE" 2>&1 &
+  echo "$!" > "$PID_FILE"
+
+  for _ in {1..30}; do
+    if is_listening; then
+      break
+    fi
+    sleep 0.2
+  done
+fi
+
+if ! is_listening; then
+  echo "Erro: proxy não subiu em http://$HOST:$PORT. Veja: $LOG_FILE" >&2
+  exit 1
+fi
+
+cd "$ROOT"
+exec claude "$@"

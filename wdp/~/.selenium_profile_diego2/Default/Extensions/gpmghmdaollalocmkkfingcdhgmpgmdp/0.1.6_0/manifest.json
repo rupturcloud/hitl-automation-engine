@@ -1,0 +1,35 @@
+{
+   "action": {
+      "default_icon": "icons/icon16.png"
+   },
+   "author": "Extensions for IG",
+   "background": {
+      "service_worker": "background.js"
+   },
+   "content_scripts": [ {
+      "all_frames": true,
+      "css": [ "styles.css" ],
+      "js": [ "igsd.js" ],
+      "matches": [ "*://*.instagram.com/*" ],
+      "run_at": "document_idle"
+   } ],
+   "default_locale": "en_US",
+   "description": "__MSG_APPDESC__",
+   "host_permissions": [ "*://*.instagram.com/*" ],
+   "icons": {
+      "128": "icons/icon128.png",
+      "16": "icons/icon16.png",
+      "300": "icons/icon300.png",
+      "48": "icons/icon48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApNAMNL6fIOq4zmzR5bih9dgBF0l3qJ1/SZaZH4Eu7vzPlk52D0IQuR+1vqSaT70wSJgHgSHzmqGKBISwX40X0n4QlUca5OYDjFVWBlGT1g/0yBpqW3bblJWrCiBfkzasoJ/DSEI16GOKCSKDZCgErxJrDrYXozQZ0y+9xh+69Q5dD93zliBp1slQE3x1BwwYQFgAB6cGiHn7uK4U1c7b2Fm2NhGXS06Z6Gy7yPpawS/1/2+RDrNDMFa90mV35AP8LsIIfI6IC29MdwmRUUTLvgZkih871fJvuTmJT0sXC1kdK31DWElbZbRkG040Urw97TqikWN9+gcU/6g75AFqCwIDAQAB",
+   "manifest_version": 3,
+   "name": "__MSG_APPNAME__",
+   "permissions": [ "cookies", "downloads", "storage", "tabs", "webRequest" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "0.1.6",
+   "web_accessible_resources": [ {
+      "matches": [ "*://*.instagram.com/*" ],
+      "resources": [ "styles.css", "icons/*" ]
+   } ]
+}

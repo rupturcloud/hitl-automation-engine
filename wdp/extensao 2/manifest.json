@@ -65,7 +65,22 @@
         "chipCalibrator.js",
         "sessionMonitor.js",
         "seleniumBridge.js",
-        "realizarAposta.js",
+        "realizarAposta.js"
+      ],
+      "run_at": "document_end",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://*.evolutiongaming.com/*",
+        "https://*.evo-games.com/*",
+        "https://*.betboom.com/*",
+        "https://betboom.bet.br/*",
+        "https://*.billing-boom.com/*",
+        "https://launch.billing-boom.com/*"
+      ],
+      "js": [
         "content.js"
       ],
       "run_at": "document_end",
