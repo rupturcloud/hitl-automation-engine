@@ -1,57 +1,68 @@
 #!/usr/bin/env python3
 """
-selenium_driver.py — Orquestrador SeleniumBase para o Will Dados Pro (extensao 3).
+selenium_driver.py — Clicker CDP para Will Dados Pro (extensao 3).
 
-Fluxo:
-  1. Abre o Chrome com a extensão carregada (UC mode, isTrusted: true).
-  2. Conecta ao ws_server.py em ws://localhost:8765.
-  3. Aguarda mensagens {type: "PERFORM_BET", id, acao, stake, options}.
-  4. Executa clique real via SeleniumBase no iframe correto da mesa.
-  5. Envia {type: "BET_RESULT", id, ok, motivo} de volta ao ws_server.py.
-     O ws_server.py repassa para a extensão, que resolve o pendingBets[id].
+Conecta ao Chrome JÁ ABERTO via remote debugging port (9222) e executa
+cliques reais (isTrusted=true) via Input.dispatchMouseEvent do CDP.
 
-Uso:
-  python3 selenium_driver.py [url_do_jogo]
+NÃO abre uma nova janela — usa o Chrome do usuário com o jogo aberto.
 
-  Exemplo:
-    python3 selenium_driver.py https://betboom.bet.br
+━━━ SETUP (uma vez só) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Feche o Chrome completamente e reabra com a flag de debug:
+
+  macOS:
+    open -a "Google Chrome" --args --remote-debugging-port=9222
+
+  Windows:
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" --remote-debugging-port=9222
+
+Depois abra o jogo normalmente. Então rode este script:
+
+  python3 selenium_driver.py
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Dependências:
-  pip install seleniumbase websockets
+  pip install selenium websockets
+  (chromedriver será baixado automaticamente pelo selenium-manager)
 """
 
 import asyncio
 import json
 import sys
 import time
-import threading
-from pathlib import Path
+import urllib.request
 
-def _verificar_dependencias():
-    faltando = []
-    for pkg in ("websockets", "seleniumbase"):
-        try:
-            __import__(pkg)
-        except ImportError:
-            faltando.append(pkg)
+BAC_BO_CHIPS = [2500, 500, 125, 25, 10, 5]
+WS_SERVER = "ws://localhost:8765"
+CDP_HOST = "localhost"
+CDP_PORT = 9222
+
+
+def _instalar_se_precisar(pkgs: list[str]):
+    import importlib, subprocess
+    faltando = [p for p in pkgs if not _pode_importar(p)]
     if not faltando:
         return
-    print(f"[WDP] Instalando dependências faltando: {' '.join(faltando)}")
-    import subprocess
+    print(f"[WDP] Instalando: {' '.join(faltando)}")
     subprocess.check_call([sys.executable, "-m", "pip", "install", *faltando])
-    print("[WDP] Instalação concluída. Recarregando...")
-    import importlib
-    for pkg in faltando:
-        globals()[pkg] = importlib.import_module(pkg)
 
-_verificar_dependencias()
 
+def _pode_importar(nome: str) -> bool:
+    try:
+        __import__(nome)
+        return True
+    except ImportError:
+        return False
+
+
+_instalar_se_precisar(["selenium", "websockets"])
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import websockets
-from seleniumbase import SB
-
-WS_SERVER = "ws://localhost:8765"
-BAC_BO_CHIPS = [2500, 500, 125, 25, 10, 5]
-EXTENSION_PATH = str(Path(__file__).parent.resolve())
 
 
 def decompor_stake(stake: float) -> list[int]:
@@ -64,48 +75,57 @@ def decompor_stake(stake: float) -> list[int]:
     return chips if restante == 0 else []
 
 
-class SeleniumBridge:
-    """Gerencia o browser SeleniumBase e executa apostas com cliques reais."""
+def conectar_chrome() -> webdriver.Chrome:
+    """Conecta ao Chrome já aberto com --remote-debugging-port=9222."""
+    try:
+        with urllib.request.urlopen(f"http://{CDP_HOST}:{CDP_PORT}/json/version", timeout=3) as r:
+            info = json.loads(r.read())
+        print(f"[WDP] Chrome encontrado: {info.get('Browser', '?')}")
+    except Exception:
+        print(f"\n[WDP] ✗ Chrome não encontrado em localhost:{CDP_PORT}")
+        print("[WDP] Feche o Chrome e reabra com:")
+        print('[WDP]   macOS:   open -a "Google Chrome" --args --remote-debugging-port=9222')
+        print('[WDP]   Windows: chrome.exe --remote-debugging-port=9222')
+        sys.exit(1)
 
-    def __init__(self):
-        self._sb_ctx = None
-        self.sb = None
-        self._lock = threading.Lock()
+    opts = Options()
+    opts.add_experimental_option("debuggerAddress", f"{CDP_HOST}:{CDP_PORT}")
+    # Suprime logs do chromedriver
+    opts.add_experimental_option("excludeSwitches", ["enable-logging"])
 
-    def iniciar(self, url_jogo: str):
-        print(f"[WDP] Abrindo Chrome com extensão: {EXTENSION_PATH}")
-        self._sb_ctx = SB(
-            uc=True,
-            extension_dir=EXTENSION_PATH,
-            headed=True,
-        )
-        self.sb = self._sb_ctx.__enter__()
-        self.sb.open(url_jogo)
-        print("[WDP] Navegador pronto. Aguardando comandos...")
+    driver = webdriver.Chrome(options=opts)
+    print(f"[WDP] ✓ Conectado ao Chrome | Aba atual: {driver.title[:60]}")
+    return driver
 
-    def executar_aposta(self, acao: str, stake: float, options: dict) -> dict:
-        if not self.sb:
-            return {"ok": False, "motivo": "Driver não iniciado"}
-        with self._lock:
-            try:
-                return self._realizar_aposta(acao, stake, options)
-            except Exception as e:
-                return {"ok": False, "motivo": f"Exceção SeleniumBase: {e}"}
 
-    def _realizar_aposta(self, acao: str, stake: float, options: dict) -> dict:
-        sb = self.sb
+class BacBoClicker:
+    """Executa apostas reais no iframe da mesa via Selenium + CDP."""
+
+    def __init__(self, driver: webdriver.Chrome):
+        self.driver = driver
+
+    def realizar_aposta(self, acao: str, stake: float, options: dict) -> dict:
+        try:
+            return self._realizar(acao, stake, options)
+        except Exception as e:
+            return {"ok": False, "motivo": f"Exceção: {e}"}
+
+    def _realizar(self, acao: str, stake: float, options: dict) -> dict:
+        driver = self.driver
+
+        # Entra no iframe da mesa
         em_frame = self._entrar_frame_jogo()
 
         r = self._selecionar_chip(stake)
         if not r["ok"]:
             if em_frame:
-                sb.switch_to_default_content()
+                driver.switch_to.default_content()
             return r
 
         r2 = self._clicar_area(acao)
         if not r2["ok"]:
             if em_frame:
-                sb.switch_to_default_content()
+                driver.switch_to.default_content()
             return r2
 
         # Proteção de empate
@@ -116,47 +136,48 @@ class SeleniumBridge:
                 self._clicar_area("T")
 
         if em_frame:
-            sb.switch_to_default_content()
+            driver.switch_to.default_content()
 
-        return {"ok": True, "motivo": f"{acao} R${stake:.0f} ✓ (SeleniumBase)"}
+        return {"ok": True, "motivo": f"{acao} R${stake:.0f} ✓ (isTrusted)"}
 
     def _entrar_frame_jogo(self) -> bool:
-        """Entra no iframe da mesa Evolution. Retorna True se entrou em algum frame."""
-        sb = self.sb
+        driver = self.driver
+        driver.switch_to.default_content()
         try:
-            iframes = sb.find_elements("css selector", "iframe")
+            iframes = driver.find_elements(By.TAG_NAME, "iframe")
             for iframe in iframes:
                 src = (iframe.get_attribute("src") or "").lower()
                 if any(k in src for k in ["bacbo", "bac-bo", "evo-games", "evolutiongaming", "billing-boom"]):
-                    sb.switch_to_frame(iframe)
+                    driver.switch_to.frame(iframe)
                     return True
         except Exception:
             pass
         return False
 
     def _selecionar_chip(self, stake: float) -> dict:
-        sb = self.sb
+        driver = self.driver
         valor = round(stake)
+        wait = WebDriverWait(driver, 4)
 
-        # Seletores diretos por atributo de valor (mais confiáveis)
+        # Seletores por atributo de valor
         for sel in [f'[data-value="{valor}"]', f'[data-amount="{valor}"]', f'button[value="{valor}"]']:
             try:
-                sb.wait_for_element_visible(sel, timeout=3)
-                sb.uc_click(sel)
-                time.sleep(0.35)
+                el = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, sel)))
+                el.click()
+                time.sleep(0.3)
                 return {"ok": True, "motivo": f"Chip R${valor}"}
             except Exception:
                 pass
 
-        # XPath por texto exato no botão
+        # XPath por texto exato
         for xpath in [
             f'//button[normalize-space(text())="{valor}"]',
             f'//*[contains(@class,"chip") and normalize-space(text())="{valor}"]',
         ]:
             try:
-                sb.wait_for_element_visible(xpath, timeout=2)
-                sb.uc_click(xpath)
-                time.sleep(0.35)
+                el = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+                el.click()
+                time.sleep(0.3)
                 return {"ok": True, "motivo": f"Chip R${valor} (xpath)"}
             except Exception:
                 pass
@@ -164,84 +185,73 @@ class SeleniumBridge:
         # Decomposição em chips menores
         chips = decompor_stake(valor)
         if not chips:
-            return {"ok": False, "motivo": f"Não foi possível compor R${valor} com os chips disponíveis"}
+            return {"ok": False, "motivo": f"Não foi possível compor R${valor}"}
 
         for chip in chips:
-            clicou = False
+            ok = False
             for sel in [f'[data-value="{chip}"]', f'[data-amount="{chip}"]',
                         f'//button[normalize-space(text())="{chip}"]']:
+                by = By.XPATH if sel.startswith("//") else By.CSS_SELECTOR
                 try:
-                    sb.wait_for_element_visible(sel, timeout=3)
-                    sb.uc_click(sel)
-                    time.sleep(0.28)
-                    clicou = True
+                    el = wait.until(EC.element_to_be_clickable((by, sel)))
+                    el.click()
+                    time.sleep(0.25)
+                    ok = True
                     break
                 except Exception:
                     pass
-            if not clicou:
+            if not ok:
                 return {"ok": False, "motivo": f"Chip R${chip} não encontrado para compor R${valor}"}
 
         return {"ok": True, "motivo": f"Chips compostos: {chips}"}
 
     def _clicar_area(self, acao: str) -> dict:
-        sb = self.sb
+        driver = self.driver
+        wait = WebDriverWait(driver, 4)
         data_bet = {"P": "player", "B": "banker", "T": "tie"}.get(acao, "")
-        termos = {
-            "P": ["player", "jogador"],
-            "B": ["banker", "banca"],
-            "T": ["tie", "empate"],
-        }.get(acao, [])
+        termos = {"P": ["player", "jogador"], "B": ["banker", "banca"], "T": ["tie", "empate"]}.get(acao, [])
 
-        # Seletores diretos por data-bet (mais estáveis entre versões da UI)
-        for sel in [
-            f'[data-bet="{data_bet}"]',
-            f'[data-role*="{data_bet}" i]',
-        ]:
+        # data-bet (mais estável entre versões de UI)
+        for sel in [f'[data-bet="{data_bet}"]', f'[data-role*="{data_bet}" i]']:
             try:
-                sb.wait_for_element_visible(sel, timeout=2)
-                sb.uc_click(sel)
-                time.sleep(0.45)
+                el = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, sel)))
+                el.click()
+                time.sleep(0.4)
                 return {"ok": True, "motivo": f"Área {acao} ({sel})"}
             except Exception:
                 pass
 
-        # XPath por texto — exclui elementos de histórico/road
+        # XPath por texto, excluindo histórico/road
         for termo in termos:
             xpath = (
                 f'//*['
-                f'contains(translate(normalize-space(.),"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz"),"{termo}")'
+                f'contains(translate(normalize-space(.),'
+                f'"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz"),"{termo}")'
                 f' and not(contains(@class,"history"))'
                 f' and not(contains(@class,"road"))'
                 f' and not(contains(@class,"score"))'
                 f']'
             )
             try:
-                sb.wait_for_element_visible(xpath, timeout=2)
-                sb.uc_click(xpath)
-                time.sleep(0.45)
-                return {"ok": True, "motivo": f"Área {acao} (texto '{termo}')"}
+                el = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+                el.click()
+                time.sleep(0.4)
+                return {"ok": True, "motivo": f"Área {acao} ('{termo}')"}
             except Exception:
                 pass
 
         return {"ok": False, "motivo": f"Área {acao} não encontrada na UI"}
 
-    def fechar(self):
-        if self._sb_ctx:
-            try:
-                self._sb_ctx.__exit__(None, None, None)
-            except Exception:
-                pass
 
-
-async def loop_ws(bridge: SeleniumBridge):
-    """Loop de reconexão ao ws_server.py. Processa PERFORM_BET e responde BET_RESULT."""
+async def loop_ws(clicker: BacBoClicker):
+    """Conecta ao ws_server.py e processa PERFORM_BET com retry automático."""
     while True:
         try:
             print(f"[WDP] Conectando ao ws_server em {WS_SERVER}...")
             async with websockets.connect(WS_SERVER) as ws:
-                print("[WDP] ✓ Conectado. Aguardando PERFORM_BET...")
+                print("[WDP] ✓ Conectado ao ws_server. Aguardando PERFORM_BET...\n")
                 await ws.send(json.dumps({
-                    "type": "SELENIUM_HELLO",
+                    "type": "CDP_CLICKER_HELLO",
                     "source": "selenium_driver",
                     "timestamp": time.time()
                 }))
@@ -252,24 +262,24 @@ async def loop_ws(bridge: SeleniumBridge):
                     except json.JSONDecodeError:
                         continue
 
-                    # Ignora mensagens que não são PERFORM_BET
                     if data.get("type") != "PERFORM_BET":
                         continue
 
                     cmd_id = data.get("id")
-                    acao = data.get("acao", "")
-                    stake = float(data.get("stake", 0))
-                    options = data.get("options") or {}
+                    acao   = data.get("acao", "")
+                    stake  = float(data.get("stake", 0))
+                    opts   = data.get("options") or {}
 
-                    print(f"[WDP] ► {acao} R${stake:.0f}  id={cmd_id}")
+                    print(f"[WDP] ► PERFORM_BET {acao} R${stake:.0f}  id={cmd_id}")
 
-                    # Executa em thread separada para não bloquear o loop asyncio
+                    # Executa em thread para não bloquear o loop asyncio
                     result = await asyncio.get_event_loop().run_in_executor(
                         None,
-                        lambda: bridge.executar_aposta(acao, stake, options)
+                        lambda: clicker.realizar_aposta(acao, stake, opts)
                     )
 
-                    print(f"[WDP] {'✓' if result['ok'] else '✗'} {result['motivo']}")
+                    status = "✓" if result["ok"] else "✗"
+                    print(f"[WDP] {status} {result['motivo']}")
 
                     try:
                         await ws.send(json.dumps({
@@ -280,34 +290,34 @@ async def loop_ws(bridge: SeleniumBridge):
                             "timestamp": time.time()
                         }))
                     except Exception:
-                        pass  # Se perdeu conexão, o timeout no content.js resolve
+                        pass
 
         except (websockets.ConnectionClosed, OSError) as e:
-            print(f"[WDP] WebSocket caiu: {e}. Reconectando em 5s...")
+            print(f"[WDP] WS caiu ({e}). Reconectando em 5s...")
             await asyncio.sleep(5)
         except Exception as e:
-            print(f"[WDP] Erro inesperado: {e}. Reconectando em 5s...")
+            print(f"[WDP] Erro: {e}. Reconectando em 5s...")
             await asyncio.sleep(5)
 
 
 def main():
-    url_jogo = sys.argv[1] if len(sys.argv) > 1 else "https://betboom.bet.br"
+    print("=" * 58)
+    print("  Will Dados Pro — CDP Clicker")
+    print(f"  Chrome: localhost:{CDP_PORT} | WS: {WS_SERVER}")
+    print("  Cliques: isTrusted=true via Selenium WebDriver")
+    print("=" * 58)
 
-    bridge = SeleniumBridge()
-    bridge.iniciar(url_jogo)
-
-    print("\n" + "=" * 55)
-    print("  Will Dados Pro — SeleniumBase Driver")
-    print(f"  Browser: aberto | WS: {WS_SERVER}")
-    print("  Cliques: isTrusted=true via WebDriver")
-    print("  Ctrl+C para encerrar")
-    print("=" * 55 + "\n")
+    driver = conectar_chrome()
+    clicker = BacBoClicker(driver)
 
     try:
-        asyncio.run(loop_ws(bridge))
+        asyncio.run(loop_ws(clicker))
     except KeyboardInterrupt:
-        print("\n[WDP] Encerrando...")
-        bridge.fechar()
+        print("\n[WDP] Encerrando.")
+        try:
+            driver.quit()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
