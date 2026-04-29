@@ -16,6 +16,7 @@ Dependências instaladas automaticamente se faltarem:
 
 import asyncio
 import json
+import os
 import queue
 import sys
 import threading
@@ -26,6 +27,8 @@ BAC_BO_CHIPS = [2500, 500, 125, 25, 10, 5]
 WS_SERVER    = "ws://localhost:8765"
 EXT_PATH     = str(Path(__file__).parent.resolve())
 URL_PADRAO   = "https://betboom.bet.br"
+PROFILE_NAME = os.environ.get("WDP_PROFILE", "diegoizac")
+PROFILE_DIR  = Path(__file__).resolve().parents[1] / ".wdp_chrome_profiles" / PROFILE_NAME
 
 
 # ── dependências ──────────────────────────────────────────────────────────────
@@ -70,10 +73,13 @@ def decompor_stake(stake: float) -> list:
 class BacBoClicker:
     def __init__(self, url: str):
         print(f"[WDP] Abrindo Chrome com extensão: {EXT_PATH}")
+        PROFILE_DIR.mkdir(parents=True, exist_ok=True)
+        print(f"[WDP] Perfil persistente: {PROFILE_DIR}")
         self.driver = Driver(
             uc=True,
             headed=True,
             extension_dir=EXT_PATH,
+            user_data_dir=str(PROFILE_DIR),
         )
         self.driver.open(url)
         print(f"[WDP] ✓ Chrome aberto → {url}")

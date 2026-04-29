@@ -88,3 +88,6 @@ public/
 selector_map/
 downloaded_files/
 .playwright-mcp/
+
+# Perfis locais do Chrome/SeleniumBase (cookies e sessões; não versionar)
+wdp/.wdp_chrome_profiles/
