@@ -14,6 +14,8 @@
   
   // --- Sistema Visual do Robô ---
   let robotCursor = null;
+  let lastRobotX = 0;
+  let lastRobotY = 0;
 
   function initRobotVisuals() {
     if (robotCursor || !document.body) return;
