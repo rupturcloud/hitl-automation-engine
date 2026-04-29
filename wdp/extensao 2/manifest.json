@@ -62,6 +62,9 @@
       ],
       "js": [
         "lib/will-dados-robo.js",
+        "chipCalibrator.js",
+        "sessionMonitor.js",
+        "seleniumBridge.js",
         "realizarAposta.js",
         "content.js"
       ],
