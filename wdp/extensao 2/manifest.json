@@ -81,6 +81,7 @@
         "https://launch.billing-boom.com/*"
       ],
       "js": [
+        "lib/will-dados-robo.js",
         "content.js"
       ],
       "run_at": "document_end",
