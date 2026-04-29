@@ -18,6 +18,7 @@
 
   const frameSnapshots = new Map();
   const pendingCommands = new Map();
+  const pendingBets = new Map(); // aguarda BET_RESULT do selenium_driver.py
   const wsState = {
     installed: false,
     history: [],
@@ -81,6 +82,105 @@
       userCursor.style.top = e.clientY + 'px';
     }
   }, { passive: true });
+
+  document.addEventListener('mouseleave', () => {
+    if (userCursor) userCursor.style.opacity = '0';
+  });
+
+  document.addEventListener('mouseenter', () => {
+    if (userCursor) userCursor.style.opacity = '1';
+  });
+
+  // --- Sistema Unificado do Cursor do Robô (Top Frame) ---
+  let topRobotCursor = null;
+
+  function initTopRobotCursor() {
+    if (topRobotCursor || !IS_TOP_FRAME || !document.body) return;
+    topRobotCursor = document.createElement('div');
+    topRobotCursor.id = 'wdp-top-robot-cursor';
+    topRobotCursor.style.cssText = `
+      position: fixed;
+      z-index: 2147483647;
+      pointer-events: none;
+      display: flex;
+      align-items: flex-start;
+      transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+      opacity: 0;
+      transform: translate(-2px, -2px);
+    `;
+    topRobotCursor.innerHTML = `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="#ef4444" stroke="white" stroke-width="1.5" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+        <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+      </svg>
+      <div style="
+        background: #ef4444;
+        color: white;
+        font-family: 'Inter', sans-serif, system-ui;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-left: -2px;
+        margin-top: 14px;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        white-space: nowrap;
+      ">Robô</div>
+    `;
+    document.body.appendChild(topRobotCursor);
+  }
+
+  function criarRastroRoboTop(x, y) {
+    if (!IS_TOP_FRAME) return;
+    const trail = document.createElement('div');
+    trail.style.cssText = `
+      position: fixed;
+      left: ${x}px;
+      top: ${y}px;
+      width: 4px;
+      height: 4px;
+      background: rgba(239, 68, 68, 0.6);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2147483646;
+      transition: all 0.5s ease-out;
+    `;
+    document.body.appendChild(trail);
+    setTimeout(() => {
+      trail.style.transform = 'scale(0)';
+      trail.style.opacity = '0';
+      setTimeout(() => trail.remove(), 500);
+    }, 50);
+  }
+
+  function efeitoCliqueRoboTop(x, y) {
+    if (!IS_TOP_FRAME) return;
+    const ripple = document.createElement('div');
+    ripple.style.cssText = `
+      position: fixed;
+      left: ${x}px;
+      top: ${y}px;
+      width: 10px;
+      height: 10px;
+      margin-left: -5px;
+      margin-top: -5px;
+      border: 3px solid #ef4444;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2147483647;
+      transition: all 0.4s ease-out;
+    `;
+    document.body.appendChild(ripple);
+    requestAnimationFrame(() => {
+      ripple.style.width = '60px';
+      ripple.style.height = '60px';
+      ripple.style.marginLeft = '-30px';
+      ripple.style.marginTop = '-30px';
+      ripple.style.opacity = '0';
+      ripple.style.borderWidth = '1px';
+    });
+    setTimeout(() => ripple.remove(), 400);
+  }
 
   // O wrapper de WebSocket (ws-bridge.js) é carregado automaticamente
   // pelo manifest.json no MAIN world com run_at: document_start.
@@ -366,6 +466,45 @@
           pendingCommands.delete(data.commandId);
           pending.resolve(data.response || { ok: false, motivo: 'Resposta vazia' });
         }
+        return;
+      }
+
+      if (data.type === COMMAND_TYPE && data.command === 'SHOW_ROBOT_CURSOR') {
+        // Iframe is asking top frame to show the robot cursor
+        let offsetX = 0;
+        let offsetY = 0;
+        // Find the iframe element corresponding to event.source to get its offset
+        const iframes = document.querySelectorAll('iframe');
+        for (const iframe of iframes) {
+          try {
+            if (iframe.contentWindow === event.source) {
+              const rect = iframe.getBoundingClientRect();
+              offsetX = rect.left;
+              offsetY = rect.top;
+              break;
+            }
+          } catch (_) {}
+        }
+        
+        initTopRobotCursor();
+        if (topRobotCursor) {
+          const absX = data.x + offsetX;
+          const absY = data.y + offsetY;
+          topRobotCursor.style.opacity = '1';
+          topRobotCursor.style.left = absX + 'px';
+          topRobotCursor.style.top = absY + 'px';
+          
+          if (data.isClick) {
+            efeitoCliqueRoboTop(absX, absY);
+          } else {
+            criarRastroRoboTop(absX, absY);
+          }
+
+          clearTimeout(topRobotCursor.timeout);
+          topRobotCursor.timeout = setTimeout(() => {
+            topRobotCursor.style.opacity = '0';
+          }, 2000);
+        }
       }
     });
   }
@@ -429,16 +568,36 @@
     };
     const stakeAposta = resultado.stake || Core.estadoRobo.ultimaAposta?.stake || Core.estadoRobo.stakeAtual;
 
-    if (best.frameId) {
-      return enviarComandoParaFrame(best.frameId, {
-        command: 'PERFORM_BET',
-        acao: resultado.acao,
-        stake: stakeAposta,
-        options
-      });
+    // Animação visual do cursor — fire-and-forget, não bloqueia o clique real
+    if (Clicker?.realizarAposta) {
+      Clicker.realizarAposta(resultado.acao, stakeAposta, options).catch(() => {});
     }
-    if (!Clicker?.realizarAposta) return { ok: false, motivo: 'Clicker indisponível no frame principal' };
-    return Clicker.realizarAposta(resultado.acao, stakeAposta, options);
+
+    // Envia comando real para SeleniumBase via WebSocket (ws_server.py → selenium_driver.py)
+    const cmdId = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+
+    return new Promise((resolve) => {
+      pendingBets.set(cmdId, resolve);
+
+      // Timeout de segurança: 12s
+      setTimeout(() => {
+        if (pendingBets.has(cmdId)) {
+          pendingBets.delete(cmdId);
+          resolve({ ok: false, motivo: 'Timeout (12s): selenium_driver.py não respondeu. Verifique ws_server.py e selenium_driver.py.' });
+        }
+      }, 12000);
+
+      chrome.runtime.sendMessage({
+        action: 'SEND_TO_WS',
+        payload: { type: 'PERFORM_BET', id: cmdId, acao: resultado.acao, stake: stakeAposta, options }
+      }, (resp) => {
+        if (chrome.runtime.lastError) return;
+        if (!resp?.success && pendingBets.has(cmdId)) {
+          pendingBets.delete(cmdId);
+          resolve({ ok: false, motivo: 'WebSocket não conectado. Inicie ws_server.py e selenium_driver.py.' });
+        }
+      });
+    });
   }
 
   function criarOverlay() {
@@ -959,6 +1118,18 @@
     if (request.action === 'WS_MESSAGE') {
       const payload = request.payload || {};
       const action = payload.action || payload.type;
+
+      // Resultado de aposta executada pelo selenium_driver.py
+      if (payload.type === 'BET_RESULT' && payload.id) {
+        const resolve = pendingBets.get(payload.id);
+        if (resolve) {
+          pendingBets.delete(payload.id);
+          resolve({ ok: Boolean(payload.ok), motivo: payload.motivo || '' });
+        }
+        sendResponse({ success: true });
+        return true;
+      }
+
       if (action === 'CANCEL_BET') cancelarEntradaHitl('WebSocket');
       if (action === 'TOGGLE_ROBO') toggleRobo(Boolean(payload.ativo));
       if (action === 'UPDATE_CONFIG' && payload.config) {

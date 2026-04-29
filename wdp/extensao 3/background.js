@@ -227,7 +227,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   // Pass-through para content script
-  const passThrough = ['GET_STATUS', 'GET_LOGS', 'TOGGLE_ROBO', 'UPDATE_CONFIG', 'EXPORT_LOGS_CSV'];
+  const passThrough = ['GET_STATUS', 'GET_LOGS', 'TOGGLE_ROBO', 'UPDATE_CONFIG', 'EXPORT_LOGS_CSV', 'MANUAL_BET'];
   if (!passThrough.includes(request?.action)) return false;
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

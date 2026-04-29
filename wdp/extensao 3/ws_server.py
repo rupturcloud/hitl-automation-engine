@@ -26,8 +26,10 @@ from datetime import datetime
 try:
     import websockets
 except ImportError:
-    print("❌ Instale websockets: pip3 install websockets")
-    sys.exit(1)
+    import subprocess
+    print("📦 Instalando websockets...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "websockets"])
+    import websockets
 
 clients = set()
 

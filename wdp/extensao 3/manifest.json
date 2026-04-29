@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Will Dados Pro - Bac Bo",
-  "version": "1.4.1",
-  "description": "Assistente semi-automático com HITL, WebSocket e motor de padrões para Bac Bo Evolution",
+  "version": "1.5.0",
+  "description": "Assistente semi-automático com HITL, WebSocket e SeleniumBase (cliques isTrusted) para Bac Bo Evolution",
   "permissions": [
     "activeTab",
     "storage",
