@@ -87,6 +87,7 @@
   // Não é necessário injetar inline — evita violação de CSP.
   wsState.installed = true;
 
+  // [EXTENSÃO 4 ESPECÍFICO] Função para ler banca da tela como fallback do WebSocket
   function lerBancaDaTela() {
     const candidates = Array.from(document.querySelectorAll(
       '[class*="balance" i], [class*="bankroll" i], [class*="credit" i], ' +
@@ -115,6 +116,7 @@
   let ultimaBancaLida = null;
   let ultimoCheckBanca = 0;
 
+  // [EXTENSÃO 4 ESPECÍFICO] Monitor de banca: checa a cada 2.5s e atualiza se mudou
   function monitorarBancaTela() {
     const agora = Date.now();
     if (agora - ultimoCheckBanca < 2000) return;
@@ -755,6 +757,10 @@
 
   let ultimoHashAnalisado = '';
 
+  // Monitor em tempo real: Chama detectarPadrao() quando histórico muda e atualiza UI
+  // Roda a cada 800ms independentemente do estado do robô (sempre ativo)
+  // Exibe: [Lado] — [Padrão] | Confiança X% | P:Score B:Score
+  // Se acao === 'SKIP': exibe ⏸️ motivo (mesa instável, aguardando)
   function atualizarIndicacoesDeEntrada() {
     const best = getBestHistory();
     const history = best.history || [];
@@ -914,6 +920,7 @@
     new MutationObserver(() => window.setTimeout(cicloPrincipal, 250)).observe(document.body, { childList: true, subtree: true, attributes: true, characterData: true });
     window.setInterval(cicloPrincipal, 1200);
     window.setInterval(atualizarIndicacoesDeEntrada, 800);
+    window.setInterval(monitorarBancaTela, 2500); // [EXTENSÃO 4] Monitor de banca
   }
 
   function getStatus() {
@@ -1064,7 +1071,6 @@
       return;
     }
     iniciarBridgeTop();
-    window.setInterval(monitorarBancaTela, 2500);
     if (Core.estadoRobo.config.showOverlay) {
       criarOverlay();
       atualizarOverlay(isLikelyBacBoPage() ? 'Mesa provável detectada' : 'Aguardando mesa Bac Bo');
