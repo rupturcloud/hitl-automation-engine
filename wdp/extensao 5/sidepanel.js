@@ -178,15 +178,27 @@ async function activeTab() {
 
 function money(v) { return `R$ ${Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
 
-async function send(action, payload = {}) {
+async function send(action, payload = {}, timeoutMs = 5000) {
   const tab = await activeTab();
   if (!tab?.id) return null;
-  return new Promise((resolve) => {
-    chrome.tabs.sendMessage(tab.id, { action, ...payload }, (response) => {
-      if (chrome.runtime.lastError) resolve(null);
-      else resolve(response);
-    });
-  });
+  return Promise.race([
+    new Promise((resolve) => {
+      chrome.tabs.sendMessage(tab.id, { action, ...payload }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.warn(`[SEND] Erro ao enviar "${action}":`, chrome.runtime.lastError.message);
+          resolve(null);
+        } else {
+          resolve(response);
+        }
+      });
+    }),
+    new Promise((resolve) => {
+      setTimeout(() => {
+        console.warn(`[SEND] Timeout aguardando resposta para "${action}" (${timeoutMs}ms)`);
+        resolve({ success: false, error: 'Timeout na comunicação com content script' });
+      }, timeoutMs);
+    })
+  ]);
 }
 
 async function atualizar() {
