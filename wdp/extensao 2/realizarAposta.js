@@ -14,8 +14,6 @@
   
   // --- Sistema Visual do Robô ---
   let robotCursor = null;
-  let lastRobotX = 0;
-  let lastRobotY = 0;
 
   function initRobotVisuals() {
     if (robotCursor || !document.body) return;
@@ -110,8 +108,6 @@
     robotCursor.style.left = x + 'px';
     robotCursor.style.top = y + 'px';
     criarRastro(x, y);
-    lastRobotX = x;
-    lastRobotY = y;
   }
 
   /**
@@ -481,6 +477,7 @@
 
     console.log(`\n[REALIZAR-APOSTA] ═══════════════════════════════════`);
     console.log(`[REALIZAR-APOSTA] Iniciando aposta: ${nomeAcao} R$ ${stake}`);
+    console.log(`[REALIZAR-APOSTA] (com proteção automática de empate)`);
     console.log(`[REALIZAR-APOSTA] ═══════════════════════════════════\n`);
 
     await sleep(jitter(400, 900));
@@ -503,21 +500,31 @@
     }
     console.log(`[REALIZAR-APOSTA] ✓ Área clicada: ${area.motivo}`);
 
-    // Etapa 3: Proteção de empate (opcional)
-    if (options.protecaoEmpate && acao !== 'T' && Number(options.valorProtecao) > 0) {
-      console.log(`[REALIZAR-APOSTA] Etapa 3: Adicionando proteção de empate R$ ${options.valorProtecao}...`);
+    // Etapa 3: PROTEÇÃO AUTOMÁTICA DE EMPATE (OBRIGATÓRIA)
+    // Se não for aposta em empate, adiciona proteção automática de R$ 5
+    if (acao !== 'T') {
+      const valorProtecao = 5; // Sempre R$ 5 de proteção
+      console.log(`[REALIZAR-APOSTA] Etapa 3: Adicionando PROTEÇÃO AUTOMÁTICA de empate R$ ${valorProtecao}...`);
       await sleep(jitter(250, 600));
-      const chipTie = await selecionarChip(options.valorProtecao);
+
+      const chipTie = await selecionarChip(valorProtecao);
       if (chipTie.ok) {
-        await clicarNaArea('T');
-        console.log(`[REALIZAR-APOSTA] ✓ Proteção de empate adicionada`);
+        console.log(`[REALIZAR-APOSTA] Chip de proteção selecionado, clicando no Empate...`);
+        const areaTie = await clicarNaArea('T');
+        if (areaTie.ok) {
+          console.log(`[REALIZAR-APOSTA] ✓ PROTEÇÃO AUTOMÁTICA adicionada: R$ ${valorProtecao} em EMPATE`);
+        } else {
+          console.warn(`[REALIZAR-APOSTA] ⚠ Falha ao clicar no Empate, mas aposta principal foi realizada`);
+        }
       } else {
-        console.warn(`[REALIZAR-APOSTA] ⚠ Falha ao adicionar proteção de empate`);
+        console.warn(`[REALIZAR-APOSTA] ⚠ Falha ao selecionar chip de proteção, mas aposta principal foi realizada`);
       }
+    } else {
+      console.log(`[REALIZAR-APOSTA] Etapa 3: Aposta é em EMPATE, proteção não necessária`);
     }
 
     console.log(`[REALIZAR-APOSTA] ═══════════════════════════════════`);
-    console.log(`[REALIZAR-APOSTA] ✓ APOSTA COMPLETA: ${nomeAcao} R$ ${stake}`);
+    console.log(`[REALIZAR-APOSTA] ✓ APOSTA COMPLETA: ${nomeAcao} R$ ${stake} + PROTEÇÃO`);
     console.log(`[REALIZAR-APOSTA] ═══════════════════════════════════\n`);
     return { ok: true, motivo: `Aposta ${acao} enviada: ${chip.motivo} -> ${area.motivo}` };
   }
