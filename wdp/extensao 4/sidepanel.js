@@ -476,6 +476,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1500);
   });
 
+  // Painel diagnóstico de seletores
+  let diagPanelOpen = false;
+  document.getElementById('btn-diag-toggle')?.addEventListener('click', () => {
+    diagPanelOpen = !diagPanelOpen;
+    const diagPanel = document.getElementById('diag-panel');
+    if (diagPanelOpen) {
+      diagPanel.classList.remove('hidden');
+      document.getElementById('btn-diag-toggle').textContent = 'Esconder Diagnóstico';
+    } else {
+      diagPanel.classList.add('hidden');
+      document.getElementById('btn-diag-toggle').textContent = 'Abrir Diagnóstico';
+    }
+  });
+
+  document.querySelectorAll('[data-diag-val]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const valor = Number(btn.getAttribute('data-diag-val'));
+      const statusDiv = document.getElementById('diag-status');
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      statusDiv.innerHTML = `<span style="color:#f59e0b;font-weight:bold">Testando R$ ${valor}...</span>`;
+
+      // Executa aposta de teste com valor pequeno (apenas teste de seletor)
+      const res = await send('MANUAL_BET', { acao: 'P', stake: valor, gale: 0 });
+
+      if (res?.success) {
+        statusDiv.innerHTML = `<span style="color:#10b981;font-weight:bold">✓ Chip R$ ${valor} selecionado com sucesso!</span>`;
+      } else {
+        statusDiv.innerHTML = `<span style="color:#ef4444;font-weight:bold">✗ Chip R$ ${valor} falhou: problemas com seletor</span>`;
+      }
+
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      setTimeout(() => {
+        statusDiv.innerHTML = 'Clique em um chip para testar se consegue encontrá-lo (aposta de teste em AZUL).';
+      }, 4000);
+    });
+  });
+
   inicializarConfigPainel();
   inicializarManualPanel();
   atualizar();

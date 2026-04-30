@@ -60,6 +60,25 @@
       <div id="auto-exec-status" class="hint text-center" style="margin-top:8px;font-size:11px;color:#666;">Clique para executar a aposta sugerida sem aguardar HITL</div>
     </div>
 
+    <div id="diag-panel" class="manual-panel hidden" style="background:#fef3c7;border-color:#f59e0b;">
+      <div class="section-title" style="color:#f59e0b;">🔧 DIAGNÓSTICO DE SELETORES</div>
+      <div style="font-size:11px;color:#6b7280;margin:8px 0;line-height:1.4;">
+        Teste individual de cada chip para validar se os seletores estão funcionando. Clique no chip para tentar encontrá-lo e clicá-lo.
+      </div>
+      <div class="manual-chips">
+        <button class="m-chip" data-diag-val="5">5</button>
+        <button class="m-chip" data-diag-val="10">10</button>
+        <button class="m-chip" data-diag-val="25">25</button>
+        <button class="m-chip" data-diag-val="125">125</button>
+        <button class="m-chip" data-diag-val="500">500</button>
+        <button class="m-chip" data-diag-val="2500">2500</button>
+        <button class="m-chip" data-diag-val="5000">5000</button>
+        <button class="m-chip" data-diag-val="12000">12000</button>
+      </div>
+      <div id="diag-status" class="hint text-center" style="margin-top:8px;font-size:11px;color:#666;">Clique em um chip para testar se o seletor consegue encontrá-lo.</div>
+      <button id="btn-diag-toggle" class="btn config" style="margin-top:8px;background:#f59e0b;color:#111;">Esconder Diagnóstico</button>
+    </div>
+
     <div id="manual-panel" class="manual-panel hidden">
       <div class="section-title">OPERAÇÃO MANUAL</div>
       <div class="manual-sides">

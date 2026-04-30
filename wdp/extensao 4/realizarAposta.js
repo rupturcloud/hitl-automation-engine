@@ -10,6 +10,7 @@
   function calcularChipProtecao(stake) {
     const percentual10 = stake * 0.10;
     const chipMaisProximo = BAC_BO_CHIPS.find(chip => chip <= percentual10) || 5;
+    console.log(`[PROTEÇÃO] Stake R$ ${stake} → 10% = R$ ${percentual10} → Chip mais próximo: R$ ${chipMaisProximo}`);
     return chipMaisProximo;
   }
 
@@ -280,11 +281,11 @@
     }
 
     console.log(`[REALIZAR-APOSTA] Procurando chip exato de R$ ${valor}...`);
-    const exato = await encontrarComRetry(() => encontrarChip(valor), 6, 500);
+    const exato = await encontrarComRetry(() => encontrarChip(valor), 4, 150);
     if (exato) {
       console.log(`[REALIZAR-APOSTA] ✓ Chip exato R$ ${valor} encontrado, clicando...`);
       await humanClick(exato);
-      await sleep(jitter(250, 550));
+      await sleep(jitter(100, 250));
       return { ok: true, motivo: `Chip R$ ${valor} selecionado`, chips: [valor] };
     }
 
@@ -300,7 +301,7 @@
     const infoAlvos = [];
     for (const chip of composicao) {
       console.log(`[REALIZAR-APOSTA] Procurando chip de R$ ${chip}...`);
-      const el = await encontrarComRetry(() => encontrarChip(chip), 4, 400);
+      const el = await encontrarComRetry(() => encontrarChip(chip), 3, 100);
       if (!el) {
         console.error(`[REALIZAR-APOSTA] ✗ Chip R$ ${chip} não encontrado`);
         return { ok: false, motivo: `Chip R$ ${chip} não encontrado na UI para compor R$ ${valor} após aguardar`, chips: clicados };
@@ -309,7 +310,7 @@
       await humanClick(el);
       clicados.push(chip);
       infoAlvos.push(`<${el.tagName.toLowerCase()} class="${el.className || ''}">`);
-      await sleep(jitter(220, 480));
+      await sleep(jitter(80, 180));
     }
     console.log(`[REALIZAR-APOSTA] ✓ Chips selecionados: [${clicados.join(' + ')}]`);
     return { ok: true, motivo: `Chips [${infoAlvos.join(', ')}]`, chips: clicados };
@@ -479,40 +480,89 @@
     return { ok: true, motivo: `Clique em ${nomeAcao} [${detalhesAlvo}]` };
   }
 
-  // FUNÇÃO PRINCIPAL: Realiza uma aposta completa com proteção automática
+  // ══ FALLBACK SYSTEM: Rastreia falhas e implementa parada automática ══
+  const fallbackState = {
+    falhas: [], // histórico de falhas [{timestamp, etapa, motivo}]
+    tentativas: 0,
+    maxTentativasConsecutivas: 5,
+    ultimaFalha: null,
+    parado: false,
+  };
+
+  function registrarFalha(etapa, motivo) {
+    const entry = {
+      timestamp: new Date().toISOString(),
+      etapa,
+      motivo,
+    };
+    fallbackState.falhas.push(entry);
+    fallbackState.ultimaFalha = entry;
+    fallbackState.tentativas++;
+
+    console.error(
+      `[FALLBACK] ✗ Falha registrada (#${fallbackState.tentativas})\n` +
+      `  Etapa: ${etapa}\n` +
+      `  Motivo: ${motivo}\n` +
+      `  Timestamp: ${entry.timestamp}`
+    );
+
+    // Notificar content.js para parar o robô se muitas falhas
+    if (fallbackState.tentativas >= fallbackState.maxTentativasConsecutivas) {
+      fallbackState.parado = true;
+      console.error(`[FALLBACK] ⛔ PARADA AUTOMÁTICA: ${fallbackState.tentativas} falhas consecutivas`);
+      window.postMessage({ type: 'WDP_PARAR_ROBO', razao: 'Seletores desatualizados - calibre manualmente' }, '*');
+    }
+  }
+
+  function resetarFalhas() {
+    fallbackState.tentativas = 0;
+    fallbackState.parado = false;
+  }
+
+  // FUNÇÃO PRINCIPAL: Realiza uma aposta completa com proteção automática + FALLBACK
   // Fluxo: 1) Seleciona chip do valor 2) Clica na área (P/B/T) 3) Adiciona proteção de R$ 5 no empate (automática)
   // Exemplo: realizarAposta('P', 100) → R$ 100 PLAYER + R$ 5 EMPATE (obrigatório)
   async function realizarAposta(acao, stake, options = {}) {
+    if (fallbackState.parado) {
+      console.error('[REALIZAR-APOSTA] ✗ Robô parado por muitas falhas. Calibre manualmente.');
+      return { ok: false, motivo: 'Robô parado - seletores desatualizados' };
+    }
+
     const nomeAcao = acao === 'P' ? 'PLAYER' : acao === 'B' ? 'BANKER' : 'TIE';
 
     if (!['P', 'B', 'T'].includes(acao)) {
-      console.error('[REALIZAR-APOSTA] Ação inválida:', acao);
+      console.error('[REALIZAR-APOSTA] ✗✗✗ AÇÃO INVÁLIDA:', acao, '| Esperado: P, B ou T');
       return { ok: false, motivo: 'Ação inválida' };
     }
 
     console.log(`\n[REALIZAR-APOSTA] ═══════════════════════════════════`);
-    console.log(`[REALIZAR-APOSTA] Iniciando aposta: ${nomeAcao} R$ ${stake}`);
+    console.log(`[REALIZAR-APOSTA] 🎯 AÇÃO RECEBIDA: "${acao}" (${nomeAcao})`);
+    console.log(`[REALIZAR-APOSTA] 💰 STAKE: R$ ${stake}`);
     console.log(`[REALIZAR-APOSTA] (com proteção automática de empate)`);
     console.log(`[REALIZAR-APOSTA] ═══════════════════════════════════\n`);
 
-    await sleep(jitter(400, 900));
+    await sleep(jitter(150, 350));
 
     // Etapa 1: Selecionar chip
     console.log(`[REALIZAR-APOSTA] Etapa 1: Selecionando chip de R$ ${stake}...`);
     const chip = await selecionarChip(stake);
     if (!chip.ok) {
+      registrarFalha('selecionarChip', chip.motivo);
       console.error(`[REALIZAR-APOSTA] ✗ Falha ao selecionar chip: ${chip.motivo}`);
       return chip;
     }
+    resetarFalhas(); // Reset counter quando sucesso
     console.log(`[REALIZAR-APOSTA] ✓ Chip selecionado: ${chip.motivo}`);
 
     // Etapa 2: Clicar na área
     console.log(`[REALIZAR-APOSTA] Etapa 2: Clicando na área de ${nomeAcao}...`);
     const area = await clicarNaArea(acao);
     if (!area.ok) {
+      registrarFalha('clicarNaArea', area.motivo);
       console.error(`[REALIZAR-APOSTA] ✗ Falha ao clicar: ${area.motivo}`);
       return area;
     }
+    resetarFalhas();
     console.log(`[REALIZAR-APOSTA] ✓ Área clicada: ${area.motivo}`);
 
     // Etapa 3: PROTEÇÃO AUTOMÁTICA DE EMPATE (OBRIGATÓRIA)
@@ -520,7 +570,7 @@
     if (acao !== 'T') {
       const valorProtecao = calcularChipProtecao(stake);
       console.log(`[REALIZAR-APOSTA] Etapa 3: Adicionando PROTEÇÃO AUTOMÁTICA de empate R$ ${valorProtecao} (~10% de R$ ${stake})...`);
-      await sleep(jitter(150, 350));
+      await sleep(jitter(50, 150));
 
       const chipTie = await selecionarChip(valorProtecao);
       if (chipTie.ok) {
@@ -530,6 +580,7 @@
           console.log(`[REALIZAR-APOSTA] ✓ PROTEÇÃO AUTOMÁTICA adicionada: R$ ${valorProtecao} em EMPATE`);
         } else {
           console.warn(`[REALIZAR-APOSTA] ⚠ Falha ao clicar no Empate, mas aposta principal foi realizada`);
+          // Não registra como falha crítica pois a aposta principal passou
         }
       } else {
         console.warn(`[REALIZAR-APOSTA] ⚠ Falha ao selecionar chip de proteção, mas aposta principal foi realizada`);
@@ -612,6 +663,14 @@
       console.log('[WDP KEEP-ALIVE] Parado');
     }
   }
+
+  // ══ EXPOSIÇÃO DE FUNÇÕES PARA content.js ══
+  window.WdpRealizarAposta = {
+    realizarAposta,
+    fallbackState: () => ({ ...fallbackState }),
+    getFalhas: () => fallbackState.falhas,
+    resetarFalhas,
+  };
 
   // Iniciar keep-alive apenas se estamos em um contexto de jogo (Evolution Gaming)
   // COMENTADO: Aguardando testes antes de ativar automaticamente

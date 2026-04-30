@@ -156,7 +156,8 @@
     }
     estadoRobo.config = normalizarConfiguracoes(merged);
     estadoRobo.stakeAtual = estadoRobo.config.stakeBase;
-    adicionarLog('INFO', 'Configurações atualizadas', { shadowMode: estadoRobo.config.shadowMode });
+    console.log(`[CONFIG] ✓ Stake base definido para: R$ ${estadoRobo.stakeAtual} (entrada: R$ ${novaConfig.stakeBase || 'não especificado'})`);
+    adicionarLog('INFO', 'Configurações atualizadas', { shadowMode: estadoRobo.config.shadowMode, stakeBase: estadoRobo.stakeAtual });
   }
 
   async function carregarConfiguracoes() {
