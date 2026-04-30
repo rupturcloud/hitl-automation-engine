@@ -1,0 +1,22 @@
+{
+  "proxy": {
+    "enabled": false,
+    "host": "proxy-us.proxy-cheap.com",
+    "port": 9595,
+    "username": "SEU_USERNAME_AQUI",
+    "password": "SUA_PASSWORD_AQUI",
+    "scheme": "socks5"
+  },
+  "websocket": {
+    "url": "ws://localhost:8765",
+    "maxRetries": 10,
+    "retryDelay": 3000,
+    "maxRetryDelay": 30000
+  },
+  "domains": [
+    "*.betboom.bet.br",
+    "*.betboom.com",
+    "*.evolutiongaming.com",
+    "*.evo-games.com"
+  ]
+}

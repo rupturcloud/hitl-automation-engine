@@ -1,23 +1,58 @@
 // background.js — roteia mensagens, mantém side panel/overlay e WebSocket externo com reconexão.
-console.log('[Will Dados Robô] Background iniciado - Extensão 5 com Proxy Mobile BR');
+console.log('[Will Dados Robô] Background iniciado - Extensão 5');
 
-// ==================== CONFIGURAÇÃO DO PROXY ====================
-const PROXY_CONFIG = {
-  host: "proxy-us.proxy-cheap.com",
+// ==================== CONFIGURAÇÃO SEGURA DO PROXY ====================
+const DEFAULT_PROXY_CONFIG = {
+  enabled: false,
+  host: "",
   port: 9595,
-  username: "pchoFejQSy-mob-br-sid-47537741",
-  password: "PC_31DbRAzEOkEWTbEkK",
+  username: "",
+  password: "",
   scheme: "socks5"
 };
 
-function configurarProxy() {
+const DEFAULT_WS_CONFIG = {
+  url: 'ws://localhost:8765',
+  maxRetries: 10,
+  retryDelay: 3000,
+  maxRetryDelay: 30000
+};
+
+const PROXY_DOMAINS = [
+  "*.betboom.bet.br",
+  "*.betboom.com",
+  "*.evolutiongaming.com",
+  "*.evo-games.com"
+];
+
+async function carregarConfigProxy() {
+  const stored = await chrome.storage.local.get(['willDadosProxyConfig']);
+  return stored.willDadosProxyConfig || DEFAULT_PROXY_CONFIG;
+}
+
+async function configurarProxy() {
+  const config = await carregarConfigProxy();
+
+  if (!config.enabled || !config.host || !config.username || !config.password) {
+    console.log('[PROXY] Proxy desativado ou credenciais incompletas. Usando conexão direta.');
+    chrome.proxy.settings.set({
+      value: { mode: "direct" },
+      scope: 'regular'
+    }, () => {
+      if (chrome.runtime.lastError) {
+        console.warn('[PROXY] Erro ao desativar proxy:', chrome.runtime.lastError.message);
+      }
+    });
+    return;
+  }
+
   const pacScript = `
     function FindProxyForURL(url, host) {
-      if (shExpMatch(host, "*.betboom.bet.br") ||
-          shExpMatch(host, "*.betboom.com") ||
-          shExpMatch(host, "*.evolutiongaming.com") ||
-          shExpMatch(host, "*.evo-games.com")) {
-        return "SOCKS5 ${PROXY_CONFIG.username}:${PROXY_CONFIG.password}@${PROXY_CONFIG.host}:${PROXY_CONFIG.port}";
+      var domains = ${JSON.stringify(PROXY_DOMAINS)};
+      for (var i = 0; i < domains.length; i++) {
+        if (shExpMatch(host, domains[i])) {
+          return "SOCKS5 ${config.username}:${config.password}@${config.host}:${config.port}";
+        }
       }
       return "DIRECT";
     }
@@ -26,20 +61,17 @@ function configurarProxy() {
   chrome.proxy.settings.set({
     value: {
       mode: "pac_script",
-      pacScript: {
-        data: pacScript
-      }
+      pacScript: { data: pacScript }
     },
     scope: 'regular'
   }, () => {
-    console.log('[PROXY] Proxy Mobile BR (Session IP) configurado automaticamente para Betboom/Evolution');
+    console.log('[PROXY] ✓ Proxy configurado para Betboom/Evolution');
     if (chrome.runtime.lastError) {
       console.error('[PROXY] Erro ao configurar proxy:', chrome.runtime.lastError.message);
     }
   });
 }
 
-// Aplica o proxy quando a extensão inicia
 chrome.runtime.onInstalled.addListener(() => {
   configurarProxy();
 });
@@ -50,6 +82,7 @@ chrome.runtime.onStartup.addListener(() => {
 // ============================================================
 
 const DEFAULT_WS_URL = 'ws://localhost:8765';
+const MAX_WS_RETRIES = 10;
 let ws = null;
 let wsReconnectTimer = null;
 let wsReconnectDelay = 3000;
@@ -58,6 +91,7 @@ let wsConnectedAt = null;
 let ultimaMensagemWsAt = null;
 let wsErroConsecutivo = 0;
 let wsJaConectouUmaVez = false;
+let wsMaxRetriesAtingido = false;
 
 function avisarWsParaUis(action, extra = {}) {
   try {
@@ -71,11 +105,23 @@ function estadoWs() {
     connected: ws?.readyState === WebSocket.OPEN,
     readyState: ws?.readyState ?? WebSocket.CLOSED,
     connectedAt: wsConnectedAt,
-    lastMessageAt: ultimaMensagemWsAt
+    lastMessageAt: ultimaMensagemWsAt,
+    erros: wsErroConsecutivo,
+    maxRetries: MAX_WS_RETRIES,
+    parado: wsMaxRetriesAtingido
   };
 }
 
 function agendarReconexaoWs() {
+  if (wsErroConsecutivo >= MAX_WS_RETRIES) {
+    if (!wsMaxRetriesAtingido) {
+      wsMaxRetriesAtingido = true;
+      console.error(`[Will Dados Robô] ✗ WebSocket: máximo de ${MAX_WS_RETRIES} tentativas atingido. Servidor não está respondendo.`);
+      avisarWsParaUis('WS_MAX_RETRIES_REACHED', { ...estadoWs(), message: `Servidor WebSocket indisponível após ${MAX_WS_RETRIES} tentativas. Verifique se está rodando em ${wsUrlAtual}` });
+    }
+    return;
+  }
+
   if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
   wsReconnectTimer = setTimeout(() => {
     wsReconnectTimer = null;
@@ -220,8 +266,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
-  // WebSocket: forçar conexão
+  // WebSocket: forçar conexão (reset de retries)
   if (request?.action === 'CONNECT_WS') {
+    wsErroConsecutivo = 0;
+    wsMaxRetriesAtingido = false;
+    wsReconnectDelay = 3000;
     conectarWebSocketExterno(true).then(() => sendResponse({ success: true, ws: estadoWs() }));
     return true;
   }
