@@ -127,11 +127,16 @@ function startProxyHeartbeat(onStatusChange) {
   console.log('[PROXY] 💓 Heartbeat iniciado (a cada 30s)');
 
   // Primeira verificação imediata
-  healthCheckProxy(PROXY_INTELLIGENCE.lastConfig).then(result => {
-    if (!result.ok) {
-      onStatusChange?.({ status: 'unhealthy', result });
+  (async () => {
+    try {
+      const result = await healthCheckProxy(PROXY_INTELLIGENCE.lastConfig);
+      if (!result.ok) {
+        onStatusChange?.({ status: 'unhealthy', result });
+      }
+    } catch (err) {
+      console.error('[PROXY] Erro na verificação inicial:', err.message);
     }
-  });
+  })();
 
   PROXY_INTELLIGENCE.heartbeatInterval = setInterval(async () => {
     const stored = await chrome.storage.local.get(['willDadosProxyConfig']);

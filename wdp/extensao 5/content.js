@@ -1166,14 +1166,20 @@
         roundId: wsState.roundId
       };
 
-      executarApostaNoMelhorFrame(best, resultadoManual).then(exec => {
-        if (!exec || !exec.ok) {
-          Core.adicionarLog('ERRO', `Falha ao executar aposta manual: ${exec?.motivo || 'erro desconhecido'}`, exec);
+      (async () => {
+        try {
+          const exec = await executarApostaNoMelhorFrame(best, resultadoManual);
+          if (!exec || !exec.ok) {
+            Core.adicionarLog('ERRO', `Falha ao executar aposta manual: ${exec?.motivo || 'erro desconhecido'}`, exec);
+            Core.estadoRobo.ultimaAposta = apostaBackup;
+          } else {
+            Core.adicionarLog('INFO', `Aposta manual executada: ${request.acao} com Stake R$${request.stake}`);
+          }
+        } catch (err) {
+          Core.adicionarLog('ERRO', `Erro ao executar aposta manual: ${err.message}`);
           Core.estadoRobo.ultimaAposta = apostaBackup;
-        } else {
-          Core.adicionarLog('INFO', `Aposta manual executada: ${request.acao} com Stake R$${request.stake}`);
         }
-      });
+      })();
       sendResponse({ success: true });
       return true;
     }
@@ -1233,19 +1239,22 @@
         roundId: wsState.roundId
       };
 
-      executarApostaNoMelhorFrame(best, resultadoSugestao).then(exec => {
-        if (!exec || !exec.ok) {
-          Core.adicionarLog('ERRO', `Falha ao executar sugestão: ${exec?.motivo || 'erro desconhecido'}`, exec);
-          Core.estadoRobo.ultimaAposta = apostaBackup;
-          sendResponse({ success: false, motivo: exec?.motivo || 'Falha na execução' });
-        } else {
-          Core.adicionarLog('INFO', `Sugestão executada: ${sugestao.acao} com Stake R$${resultadoSugestao.stake}`);
-          sendResponse({ success: true, acao: sugestao.acao, stake: resultadoSugestao.stake });
+      (async () => {
+        try {
+          const exec = await executarApostaNoMelhorFrame(best, resultadoSugestao);
+          if (!exec || !exec.ok) {
+            Core.adicionarLog('ERRO', `Falha ao executar sugestão: ${exec?.motivo || 'erro desconhecido'}`, exec);
+            Core.estadoRobo.ultimaAposta = apostaBackup;
+            sendResponse({ success: false, motivo: exec?.motivo || 'Falha na execução' });
+          } else {
+            Core.adicionarLog('INFO', `Sugestão executada: ${sugestao.acao} com Stake R$${resultadoSugestao.stake}`);
+            sendResponse({ success: true, acao: sugestao.acao, stake: resultadoSugestao.stake });
+          }
+        } catch (err) {
+          Core.adicionarLog('ERRO', `Erro ao processar sugestão: ${err.message}`);
+          sendResponse({ success: false, motivo: err.message });
         }
-      }).catch(err => {
-        Core.adicionarLog('ERRO', `Erro ao processar sugestão: ${err.message}`);
-        sendResponse({ success: false, motivo: err.message });
-      });
+      })();
       return true;
     }
     if (request.action === 'EXPORT_LOGS_CSV') { sendResponse({ success: true, csv: Core.exportarLogsCsv() }); return true; }

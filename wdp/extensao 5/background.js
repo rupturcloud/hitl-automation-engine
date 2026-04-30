@@ -416,18 +416,32 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   // WebSocket: forçar conexão (reset de retries)
   if (request?.action === 'CONNECT_WS') {
-    wsErroConsecutivo = 0;
-    wsMaxRetriesAtingido = false;
-    wsReconnectDelay = 3000;
-    conectarWebSocketExterno(true).then(() => sendResponse({ success: true, ws: estadoWs() }));
+    (async () => {
+      try {
+        wsErroConsecutivo = 0;
+        wsMaxRetriesAtingido = false;
+        wsReconnectDelay = 3000;
+        await conectarWebSocketExterno(true);
+        sendResponse({ success: true, ws: estadoWs() });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
     return true;
   }
 
   // Proxy: reconfigurar
   if (request?.action === 'RECONFIG_PROXY') {
-    proxyFailureCount = 0; // Reset contador ao reconfigurar
-    proxyAutoDisabledAt = null;
-    configurarProxy().then(() => sendResponse({ success: true, message: 'Proxy reconfigurado' }));
+    (async () => {
+      try {
+        proxyFailureCount = 0; // Reset contador ao reconfigurar
+        proxyAutoDisabledAt = null;
+        await configurarProxy();
+        sendResponse({ success: true, message: 'Proxy reconfigurado' });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
     return true;
   }
 
