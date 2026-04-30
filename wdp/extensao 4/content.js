@@ -1095,6 +1095,7 @@
       ultimaAcao: Core.estadoRobo.ultimaAcao,
       ultimaApostaStatus: Core.estadoRobo.ultimaAposta?.status || null,
       ultimaApostaAcao: Core.estadoRobo.ultimaAposta?.acao || null,
+      ultimaAnalise: Core.estadoRobo.ultimaAnalise || null,
       semaforo,
       janelaEntrada: calcularJanelaEntrada(),
       isBacBo,
