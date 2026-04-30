@@ -275,6 +275,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
+  // Proxy: reconfigurar
+  if (request?.action === 'RECONFIG_PROXY') {
+    configurarProxy().then(() => sendResponse({ success: true, message: 'Proxy reconfigurado' }));
+    return true;
+  }
+
   // Overlay mode
   if (request?.action === 'ENTER_OVERLAY_MODE') {
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {

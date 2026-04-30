@@ -41,9 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const msgSuccess = document.getElementById('msgSuccess');
 
   // Carregar configurações salvas
-  chrome.storage.local.get(['willDadosConfig'], (result) => {
+  chrome.storage.local.get(['willDadosConfig', 'willDadosProxyConfig'], (result) => {
     const config = { ...DEFAULT_CONFIG, ...(result.willDadosConfig || {}) };
     config.padroesAtivos = { ...DEFAULT_CONFIG.padroesAtivos, ...(config.padroesAtivos || {}) };
+    const proxyConfig = result.willDadosProxyConfig || { enabled: false };
 
     const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
     const setChk = (id, val) => { const el = document.getElementById(id); if (el) el.checked = Boolean(val); };
@@ -63,6 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setChk('padraoPosEmpate', config.padroesAtivos.posEmpate);
     setChk('padraoTrasPraFrente', config.padroesAtivos.trasParaFrente);
     setChk('padraoSurf', config.padroesAtivos.surf);
+
+    // Carregar proxy config
+    setChk('proxyEnabled', proxyConfig.enabled);
+    setVal('proxyHost', proxyConfig.host || '');
+    setVal('proxyPort', proxyConfig.port || 9595);
+    setVal('proxyUsername', proxyConfig.username || '');
+    setVal('proxyPassword', proxyConfig.password || '');
   });
 
   // Salvar configurações
@@ -95,7 +103,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
 
-      chrome.storage.local.set({ willDadosConfig: config }, () => {
+      // Salvar configurações de proxy separadamente
+      const proxyConfig = {
+        enabled: document.getElementById('proxyEnabled').checked,
+        host: document.getElementById('proxyHost').value || '',
+        port: parseInt(document.getElementById('proxyPort').value) || 9595,
+        username: document.getElementById('proxyUsername').value || '',
+        password: document.getElementById('proxyPassword').value || '',
+        scheme: 'socks5'
+      };
+
+      // Validar se proxy está ativado e tem credenciais
+      if (proxyConfig.enabled && (!proxyConfig.host || !proxyConfig.username || !proxyConfig.password)) {
+        alert('⚠️ Proxy ativado mas faltam credenciais (host, usuário ou senha)');
+        return;
+      }
+
+      chrome.storage.local.set({
+        willDadosConfig: config,
+        willDadosProxyConfig: proxyConfig
+      }, () => {
+        // Notificar background.js para reconfigurar proxy
+        chrome.runtime.sendMessage({ action: 'RECONFIG_PROXY' }, () => void chrome.runtime.lastError);
+
         // Notifica o content script para atualizar configurações em tempo real
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           if (tabs[0]) {
