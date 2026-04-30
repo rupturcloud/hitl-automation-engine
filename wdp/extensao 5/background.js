@@ -15,7 +15,10 @@ let proxyFailureCount = 0;
 let proxyAutoDisabledAt = null;
 let proxyLastHealthCheckAt = null;
 let proxyHealthy = null; // null = nunca testou, true = healthy, false = unhealthy
+let proxyFailureHistory = [];
 const PROXY_FAILURE_THRESHOLD = 3; // Desativar após 3 falhas consecutivas
+const PROXY_MAX_FAILURE_HISTORY = 50;
+const PROXY_HEALTH_CHECK_TIMEOUT = 5000;
 
 const DEFAULT_WS_CONFIG = {
   url: 'ws://localhost:8765',
@@ -104,7 +107,7 @@ async function healthCheckProxy(config) {
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const timeoutId = setTimeout(() => controller.abort(), PROXY_HEALTH_CHECK_TIMEOUT);
 
   try {
     const startTime = Date.now();
@@ -116,29 +119,82 @@ async function healthCheckProxy(config) {
     });
 
     clearTimeout(timeoutId);
+    const latency = Date.now() - startTime;
+    proxyLastHealthCheckAt = Date.now();
+    proxyHealthy = true;
+
     return {
       ok: response.ok || response.status === 0,
-      latency: Date.now() - startTime,
+      latency,
       statusCode: response.status
     };
   } catch (error) {
     clearTimeout(timeoutId);
+    proxyHealthy = false;
+
     return {
       ok: false,
       errorType: error.name === 'AbortError' ? 'timeout' : 'connection_failed',
       errorMessage: error.message,
-      latency: 5000
+      latency: PROXY_HEALTH_CHECK_TIMEOUT
     };
   }
+}
+
+function trackProxyFailure(domainAttempted = 'unknown', errorType = 'unknown') {
+  const failure = {
+    timestamp: Date.now(),
+    domainAttempted,
+    errorType
+  };
+
+  proxyFailureHistory.push(failure);
+  if (proxyFailureHistory.length > PROXY_MAX_FAILURE_HISTORY) {
+    proxyFailureHistory.shift();
+  }
+
+  console.log(`[PROXY] Falha registrada: ${domainAttempted} (${errorType})`);
+}
+
+function getProxyFailureAnalysis() {
+  const now = Date.now();
+  const last5min = proxyFailureHistory.filter(
+    f => (now - f.timestamp) < 5 * 60 * 1000
+  );
+  const last1hour = proxyFailureHistory.filter(
+    f => (now - f.timestamp) < 60 * 60 * 1000
+  );
+
+  const errorTypes = {};
+  last1hour.forEach(f => {
+    errorTypes[f.errorType] = (errorTypes[f.errorType] || 0) + 1;
+  });
+
+  return {
+    totalFailures: proxyFailureHistory.length,
+    failuresLast5min: last5min.length,
+    failuresLast1hour: last1hour.length,
+    errorDistribution: errorTypes,
+    recentFailures: last5min.slice(-5).reverse(),
+    isHealthy: last5min.length === 0
+  };
 }
 
 function registrarFalhaProxy(domainAttempted = 'unknown', errorType = 'unknown') {
   proxyFailureCount++;
   proxyHealthy = false;
+  trackProxyFailure(domainAttempted, errorType);
+
   console.warn(`[PROXY] Falha #${proxyFailureCount}/${PROXY_FAILURE_THRESHOLD} (${domainAttempted}:${errorType})`);
 
-  if (proxyFailureCount >= PROXY_FAILURE_THRESHOLD) {
-    console.error('[PROXY] ⚠️ Desativando proxy após múltiplas falhas. Voltando para conexão direta.');
+  const analysis = getProxyFailureAnalysis();
+
+  // Auto-desativa se: muitas falhas totais OU muitas recentes (últimos 5min)
+  const shouldDisable = proxyFailureCount >= PROXY_FAILURE_THRESHOLD ||
+                        analysis.failuresLast5min >= PROXY_FAILURE_THRESHOLD;
+
+  if (shouldDisable) {
+    console.error(`[PROXY] ⚠️ Desativando proxy (${analysis.failuresLast5min} falhas em 5min). Voltando para conexão direta.`);
     proxyAutoDisabledAt = Date.now();
 
     // Desativar proxy
@@ -147,8 +203,9 @@ function registrarFalhaProxy(domainAttempted = 'unknown', errorType = 'unknown')
       scope: 'regular'
     }, () => {
       avisarWsParaUis('PROXY_AUTO_DISABLED', {
-        message: 'Proxy desativado automaticamente após múltiplas falhas',
+        message: `Proxy desativado após múltiplas falhas (${analysis.failuresLast5min} em 5min)`,
         failureCount: proxyFailureCount,
+        failureAnalysis: analysis,
         lastFailureDomain: domainAttempted,
         lastFailureType: errorType,
         timestamp: proxyAutoDisabledAt
@@ -368,16 +425,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
-  // Proxy: obter estado
+  // Proxy: obter estado completo com análise
   if (request?.action === 'GET_PROXY_STATE') {
+    const analysis = getProxyFailureAnalysis();
+    let status = 'unknown';
+    if (proxyHealthy === null) {
+      status = 'never_checked';
+    } else if (proxyHealthy) {
+      status = 'healthy';
+    } else if (analysis.failuresLast5min >= 2) {
+      status = 'unhealthy';
+    } else {
+      status = 'degraded';
+    }
+
     sendResponse({
       success: true,
       proxy: {
+        status,
         failureCount: proxyFailureCount,
         autoDisabledAt: proxyAutoDisabledAt,
         failureThreshold: PROXY_FAILURE_THRESHOLD,
         lastHealthCheckAt: proxyLastHealthCheckAt,
-        isHealthy: proxyHealthy
+        isHealthy: proxyHealthy,
+        failureAnalysis: analysis
       }
     });
     return true;
@@ -391,7 +462,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({
         success: true,
         result,
-        message: result.ok ? '✓ Proxy respondendo' : `✗ Proxy falhou (${result.errorType})`
+        message: result.ok ? `✓ Proxy respondendo (${result.latency}ms)` : `✗ Proxy falhou (${result.errorType})`
       });
     })();
     return true;
