@@ -93,7 +93,13 @@ async function coletarConfigPainel() {
   const maxGales = Math.min(9, Math.max(0, Number(el('cfg-maxGales')?.value || DEFAULT_CONFIG.maxGales)));
   const valorProtecao = Math.min(150, Math.max(0, Number(el('cfg-valorProtecao')?.value || DEFAULT_CONFIG.valorProtecao)));
   const atual = await carregarConfigPainel();
-  const bankrollInicial = Number(el('cfg-bankrollInicial')?.value || DEFAULT_CONFIG.bankrollInicial);
+
+  let bankrollInicial = Number(el('cfg-bankrollInicial')?.value || DEFAULT_CONFIG.bankrollInicial);
+  if (!Number.isFinite(bankrollInicial) || bankrollInicial < 100) {
+    console.warn('[CONFIG] Bankroll inválido detectado:', bankrollInicial, '→ resetando para', DEFAULT_CONFIG.bankrollInicial);
+    bankrollInicial = DEFAULT_CONFIG.bankrollInicial;
+    el('cfg-bankrollInicial').value = bankrollInicial;
+  }
   const bankrollAtual = Number.isFinite(Number(atual.bankrollAtual)) ? Number(atual.bankrollAtual) : bankrollInicial;
   return {
     ...DEFAULT_CONFIG,
