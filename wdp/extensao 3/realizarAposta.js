@@ -467,6 +467,9 @@
     return { ok: true, motivo: `Clique em ${nomeAcao} [${detalhesAlvo}]` };
   }
 
+  // FUNÇÃO PRINCIPAL: Realiza uma aposta completa com proteção automática
+  // Fluxo: 1) Seleciona chip do valor 2) Clica na área (P/B/T) 3) Adiciona proteção de R$ 5 no empate (automática)
+  // Exemplo: realizarAposta('P', 100) → R$ 100 PLAYER + R$ 5 EMPATE (obrigatório)
   async function realizarAposta(acao, stake, options = {}) {
     const nomeAcao = acao === 'P' ? 'PLAYER' : acao === 'B' ? 'BANKER' : 'TIE';
 

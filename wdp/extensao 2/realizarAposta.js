@@ -308,6 +308,11 @@
     return { ok: true, motivo: `Chips [${infoAlvos.join(', ')}]`, chips: clicados };
   }
 
+  // Encontra elementos de aposta com estratégia 3-níveis:
+  // 1. Busca exata por data-bet="player"|"banker"|"tie" (mais confiável)
+  // 2. Heurística com scoring em todos os elementos visíveis (fallback)
+  // 3. Traversal de iframes se os anteriores falharem
+  // Retorna array de candidatos ordenados por score descente
   function candidatosArea(acao) {
     const isP = acao === 'P';
     const nomeBet = isP ? 'player' : acao === 'B' ? 'banker' : 'tie';
@@ -467,6 +472,9 @@
     return { ok: true, motivo: `Clique em ${nomeAcao} [${detalhesAlvo}]` };
   }
 
+  // FUNÇÃO PRINCIPAL: Realiza uma aposta completa com proteção automática
+  // Fluxo: 1) Seleciona chip do valor 2) Clica na área (P/B/T) 3) Adiciona proteção de R$ 5 no empate (automática)
+  // Exemplo: realizarAposta('P', 100) → R$ 100 PLAYER + R$ 5 EMPATE (obrigatório)
   async function realizarAposta(acao, stake, options = {}) {
     const nomeAcao = acao === 'P' ? 'PLAYER' : acao === 'B' ? 'BANKER' : 'TIE';
 

@@ -714,6 +714,10 @@
 
   let ultimoHashAnalisado = '';
 
+  // Monitor em tempo real: Chama detectarPadrao() quando histórico muda e atualiza UI
+  // Roda a cada 800ms independentemente do estado do robô (sempre ativo)
+  // Exibe: [Lado] — [Padrão] | Confiança X% | P:Score B:Score
+  // Se acao === 'SKIP': exibe ⏸️ motivo (mesa instável, aguardando)
   function atualizarIndicacoesDeEntrada() {
     const best = getBestHistory();
     const history = best.history || [];
