@@ -597,6 +597,30 @@
     overlay.querySelector('#wd-alerta').textContent = riscos.join(' • ');
   }
 
+  let ultimoHashAnalisado = '';
+
+  function atualizarIndicacoesDeEntrada() {
+    const best = getBestHistory();
+    const history = best.history || [];
+    const historyHash = history.join('');
+
+    if (historyHash !== ultimoHashAnalisado && history.length >= 3) {
+      ultimoHashAnalisado = historyHash;
+      const resultado = Core.detectarPadrao(history);
+
+      if (overlay && resultado) {
+        const padraoEl = overlay.querySelector('#wd-padrao');
+        if (padraoEl && resultado.acao !== 'SKIP') {
+          const acaoLabel = resultado.acao === 'P' ? 'Azul' : resultado.acao === 'B' ? 'Vermelho' : resultado.acao === 'T' ? 'Empate' : 'Aguardar';
+          const scoreText = `P:${resultado.scoreP || 0} B:${resultado.scoreB || 0}`;
+          padraoEl.innerHTML = `<b>${acaoLabel}</b> — ${resultado.motivo}<br><small>Confiança ${resultado.confianca}% | ${scoreText}</small>`;
+        } else if (padraoEl && resultado.acao === 'SKIP') {
+          padraoEl.textContent = `⏸️ ${resultado.motivo}`;
+        }
+      }
+    }
+  }
+
   function toggleRobo(force) {
     Core.estadoRobo.roboAtivo = typeof force === 'boolean' ? force : !Core.estadoRobo.roboAtivo;
     Core.adicionarLog('INFO', Core.estadoRobo.roboAtivo ? 'Robô ativado' : 'Robô desativado');
@@ -706,6 +730,7 @@
     observerStarted = true;
     new MutationObserver(() => window.setTimeout(cicloPrincipal, 250)).observe(document.body, { childList: true, subtree: true, attributes: true, characterData: true });
     window.setInterval(cicloPrincipal, 1200);
+    window.setInterval(atualizarIndicacoesDeEntrada, 800);
   }
 
   function getStatus() {
