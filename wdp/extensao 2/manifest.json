@@ -61,7 +61,6 @@
         "https://launch.billing-boom.com/*"
       ],
       "js": [
-        "lib/will-dados-robo.js",
         "chipCalibrator.js",
         "sessionMonitor.js",
         "seleniumBridge.js",
