@@ -4,7 +4,14 @@
   'use strict';
 
   // Fichas (chips) padrão da Evolution Gaming no Bac Bo (em ordem decrescente para decomposição gulosa)
-  const BAC_BO_CHIPS = [2500, 500, 125, 25, 10, 5];
+  const BAC_BO_CHIPS = [10000, 5000, 2500, 500, 125, 25, 10, 5];
+
+  // Calcula chip de proteção como ~10% da stake (rounded para chip inteiro)
+  function calcularChipProtecao(stake) {
+    const percentual10 = stake * 0.10;
+    const chipMaisProximo = BAC_BO_CHIPS.find(chip => chip <= percentual10) || 5;
+    return chipMaisProximo;
+  }
   
   /**
    * Pausa a execução de uma thread async.
@@ -509,11 +516,11 @@
     console.log(`[REALIZAR-APOSTA] ✓ Área clicada: ${area.motivo}`);
 
     // Etapa 3: PROTEÇÃO AUTOMÁTICA DE EMPATE (OBRIGATÓRIA)
-    // Se não for aposta em empate, adiciona proteção automática de R$ 5
+    // Se não for aposta em empate, adiciona proteção automática (~10% da stake como chip inteiro)
     if (acao !== 'T') {
-      const valorProtecao = 5; // Sempre R$ 5 de proteção
-      console.log(`[REALIZAR-APOSTA] Etapa 3: Adicionando PROTEÇÃO AUTOMÁTICA de empate R$ ${valorProtecao}...`);
-      await sleep(jitter(250, 600));
+      const valorProtecao = calcularChipProtecao(stake);
+      console.log(`[REALIZAR-APOSTA] Etapa 3: Adicionando PROTEÇÃO AUTOMÁTICA de empate R$ ${valorProtecao} (~10% de R$ ${stake})...`);
+      await sleep(jitter(150, 350));
 
       const chipTie = await selecionarChip(valorProtecao);
       if (chipTie.ok) {

@@ -875,8 +875,8 @@
     }
     observerStarted = true;
     new MutationObserver(() => window.setTimeout(cicloPrincipal, 250)).observe(document.body, { childList: true, subtree: true, attributes: true, characterData: true });
-    window.setInterval(cicloPrincipal, 1200);
-    window.setInterval(atualizarIndicacoesDeEntrada, 800);
+    window.setInterval(cicloPrincipal, 600); // Reduzido de 1200ms para detecção 2x mais rápida
+    window.setInterval(atualizarIndicacoesDeEntrada, 400); // Reduzido de 800ms para sugestões 2x mais rápidas
   }
 
   function getStatus() {
