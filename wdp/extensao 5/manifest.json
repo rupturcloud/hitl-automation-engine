@@ -33,13 +33,27 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "proxyValidator.js"
+        "proxyValidator.js",
+        "proxyIntelligence.js"
       ],
       "matches": [
         "https://*.evolutiongaming.com/*",
         "https://*.evo-games.com/*",
         "https://*.betboom.com/*",
         "https://betboom.bet.br/*"
+      ]
+    },
+    {
+      "resources": [
+        "overlay.html"
+      ],
+      "matches": [
+        "https://*.evolutiongaming.com/*",
+        "https://*.evo-games.com/*",
+        "https://*.betboom.com/*",
+        "https://betboom.bet.br/*",
+        "https://*.billing-boom.com/*",
+        "https://launch.billing-boom.com/*"
       ]
     }
   ],
@@ -101,20 +115,5 @@
   ],
   "side_panel": {
     "default_path": "sidepanel.html"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "overlay.html"
-      ],
-      "matches": [
-        "https://*.evolutiongaming.com/*",
-        "https://*.evo-games.com/*",
-        "https://*.betboom.com/*",
-        "https://betboom.bet.br/*",
-        "https://*.billing-boom.com/*",
-        "https://launch.billing-boom.com/*"
-      ]
-    }
-  ]
+  }
 }

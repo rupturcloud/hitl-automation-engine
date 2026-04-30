@@ -13,6 +13,8 @@ const DEFAULT_PROXY_CONFIG = {
 
 let proxyFailureCount = 0;
 let proxyAutoDisabledAt = null;
+let proxyLastHealthCheckAt = null;
+let proxyHealthy = null; // null = nunca testou, true = healthy, false = unhealthy
 const PROXY_FAILURE_THRESHOLD = 3; // Desativar após 3 falhas consecutivas
 
 const DEFAULT_WS_CONFIG = {
@@ -34,7 +36,7 @@ async function carregarConfigProxy() {
   return stored.willDadosProxyConfig || DEFAULT_PROXY_CONFIG;
 }
 
-async function configurarProxy() {
+async function configurarProxy(skipHealthCheck = false) {
   const config = await carregarConfigProxy();
 
   if (!config.enabled || !config.host || !config.username || !config.password) {
@@ -48,6 +50,24 @@ async function configurarProxy() {
       }
     });
     return;
+  }
+
+  // Health check antes de ativar (a menos que seja skip)
+  if (!skipHealthCheck) {
+    console.log('[PROXY] 🏥 Testando saúde do proxy...');
+    const healthResult = await healthCheckProxy(config);
+
+    if (!healthResult.ok) {
+      console.error(`[PROXY] ✗ Proxy falhou no health check (${healthResult.errorType}). Não ativando.`);
+      avisarWsParaUis('PROXY_HEALTH_CHECK_FAILED', {
+        message: `Proxy não respondeu: ${healthResult.errorType}`,
+        latency: healthResult.latency
+      });
+      return;
+    }
+    console.log(`[PROXY] ✓ Health check passou (latência: ${healthResult.latency}ms)`);
+    proxyLastHealthCheckAt = Date.now();
+    proxyHealthy = true;
   }
 
   const pacScript = `
@@ -78,9 +98,44 @@ async function configurarProxy() {
   });
 }
 
-function registrarFalhaProxy() {
+async function healthCheckProxy(config) {
+  if (!config.enabled || !config.host) {
+    return { ok: true, reason: 'proxy_disabled' };
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const startTime = Date.now();
+    const response = await fetch('https://www.google.com/generate_204', {
+      method: 'HEAD',
+      mode: 'no-cors',
+      signal: controller.signal,
+      cache: 'no-store'
+    });
+
+    clearTimeout(timeoutId);
+    return {
+      ok: response.ok || response.status === 0,
+      latency: Date.now() - startTime,
+      statusCode: response.status
+    };
+  } catch (error) {
+    clearTimeout(timeoutId);
+    return {
+      ok: false,
+      errorType: error.name === 'AbortError' ? 'timeout' : 'connection_failed',
+      errorMessage: error.message,
+      latency: 5000
+    };
+  }
+}
+
+function registrarFalhaProxy(domainAttempted = 'unknown', errorType = 'unknown') {
   proxyFailureCount++;
-  console.warn(`[PROXY] Falha #${proxyFailureCount}/${PROXY_FAILURE_THRESHOLD}`);
+  proxyHealthy = false;
+  console.warn(`[PROXY] Falha #${proxyFailureCount}/${PROXY_FAILURE_THRESHOLD} (${domainAttempted}:${errorType})`);
 
   if (proxyFailureCount >= PROXY_FAILURE_THRESHOLD) {
     console.error('[PROXY] ⚠️ Desativando proxy após múltiplas falhas. Voltando para conexão direta.');
@@ -94,6 +149,8 @@ function registrarFalhaProxy() {
       avisarWsParaUis('PROXY_AUTO_DISABLED', {
         message: 'Proxy desativado automaticamente após múltiplas falhas',
         failureCount: proxyFailureCount,
+        lastFailureDomain: domainAttempted,
+        lastFailureType: errorType,
         timestamp: proxyAutoDisabledAt
       });
     });
@@ -318,9 +375,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       proxy: {
         failureCount: proxyFailureCount,
         autoDisabledAt: proxyAutoDisabledAt,
-        failureThreshold: PROXY_FAILURE_THRESHOLD
+        failureThreshold: PROXY_FAILURE_THRESHOLD,
+        lastHealthCheckAt: proxyLastHealthCheckAt,
+        isHealthy: proxyHealthy
       }
     });
+    return true;
+  }
+
+  // Proxy: forçar health check agora
+  if (request?.action === 'TEST_PROXY_NOW') {
+    (async () => {
+      const config = await carregarConfigProxy();
+      const result = await healthCheckProxy(config);
+      sendResponse({
+        success: true,
+        result,
+        message: result.ok ? '✓ Proxy respondendo' : `✗ Proxy falhou (${result.errorType})`
+      });
+    })();
     return true;
   }
 
