@@ -5,6 +5,7 @@ const DEFAULT_CONFIG = {
   bankrollInicial: 30000,
   bankrollAtual: 30000,
   stakeBase: 150,
+  desabilitarLimiteStake: false,
   metaLucro: 4000,
   stopLoss: 2000,
   maxGales: 2,
@@ -74,7 +75,7 @@ function preencherConfigPainel(config) {
     const input = el(`cfg-${key}`);
     if (input) input.value = config[key];
   });
-  ['shadowMode','autoStart','showOverlay','protecaoEmpate'].forEach((key) => {
+  ['shadowMode','autoStart','showOverlay','protecaoEmpate','desabilitarLimiteStake'].forEach((key) => {
     const input = el(`cfg-${key}`);
     if (input) input.checked = Boolean(config[key]);
   });
@@ -86,7 +87,9 @@ async function coletarConfigPainel() {
   PADROES_CONFIG.forEach(([id]) => {
     padroesAtivos[id] = Boolean(el(`cfg-p-${id}`)?.checked);
   });
-  const stakeBase = Math.min(150, Math.max(5, Number(el('cfg-stakeBase')?.value || DEFAULT_CONFIG.stakeBase)));
+  const desabilitarLimite = Boolean(el('cfg-desabilitarLimiteStake')?.checked);
+  const stakeMax = desabilitarLimite ? 999999 : 150;
+  const stakeBase = Math.min(stakeMax, Math.max(5, Number(el('cfg-stakeBase')?.value || DEFAULT_CONFIG.stakeBase)));
   const maxGales = Math.min(9, Math.max(0, Number(el('cfg-maxGales')?.value || DEFAULT_CONFIG.maxGales)));
   const valorProtecao = Math.min(150, Math.max(0, Number(el('cfg-valorProtecao')?.value || DEFAULT_CONFIG.valorProtecao)));
   const atual = await carregarConfigPainel();
@@ -97,8 +100,9 @@ async function coletarConfigPainel() {
     bankrollInicial,
     bankrollAtual,
     stakeBase,
+    desabilitarLimiteStake,
     stakeMin: 5,
-    stakeMax: 150,
+    stakeMax: desabilitarLimite ? 999999 : 150,
     metaSaldoAlvo: Number(el('cfg-metaSaldoAlvo')?.value || DEFAULT_CONFIG.metaSaldoAlvo),
     stopLossSaldo: Number(el('cfg-stopLossSaldo')?.value || DEFAULT_CONFIG.stopLossSaldo),
     metaLucro: Number(el('cfg-metaLucro')?.value || DEFAULT_CONFIG.metaLucro),
@@ -268,8 +272,56 @@ async function atualizar() {
     }
   }
 
+  // Atualizar Janela de Entrada
+  const entryWindowEl = document.getElementById('entry-window');
+  if (entryWindowEl && status.janelaEntrada) {
+    const janelaAtiva = status.janelaEntrada.aberta || status.janelaEntrada.fase !== 'aguardando';
+    entryWindowEl.classList.toggle('hidden', !janelaAtiva);
+
+    if (janelaAtiva) {
+      document.getElementById('entry-dot').style.background = status.janelaEntrada.cor;
+      document.getElementById('entry-title').textContent = status.janelaEntrada.titulo;
+      document.getElementById('entry-count').textContent =
+        status.janelaEntrada.segundos > 0 ? `${status.janelaEntrada.segundos}s` : '--';
+      document.getElementById('entry-msg').textContent = status.janelaEntrada.mensagem;
+    }
+  }
+
   // Mostrar painel manual
   document.getElementById('manual-panel')?.classList.toggle('hidden', !mostrarOperacao);
+
+  // Atualizar painel automático (Executar Agora)
+  const autoExecPanel = document.getElementById('auto-exec-panel');
+  if (autoExecPanel) {
+    const temSugestao = Boolean(status.ultimaAnalise && status.ultimaAnalise.acao);
+    const autoExecBtn = document.getElementById('btn-auto-exec');
+
+    autoExecPanel.classList.toggle('hidden', !temSugestao || !mostrarOperacao);
+
+    if (temSugestao) {
+      const { acao, motivo, confianca = 0, lucroEstimado = 0 } = status.ultimaAnalise;
+      const acaoLabel = {
+        'P': 'AZUL (Player)',
+        'B': 'VERMELHO (Banker)',
+        'T': 'EMPATE (Tie)'
+      }[acao] || acao;
+
+      const infoDiv = document.getElementById('auto-exec-info');
+      infoDiv.innerHTML = `
+        <div style="font-weight:900;color:#111;margin-bottom:6px;">✓ Padrão Detectado</div>
+        <div style="font-size:12px;line-height:1.4;color:#333;margin-bottom:4px;">
+          <b>Ação:</b> ${acaoLabel}<br>
+          <b>Confiança:</b> ${confianca}%<br>
+          <b>Motivo:</b> ${motivo || 'Padrão confiável detectado'}<br>
+          ${lucroEstimado > 0 ? `<b>Lucro Est.:</b> +${money(lucroEstimado)}<br>` : ''}
+        </div>
+      `;
+
+      autoExecBtn.disabled = false;
+      autoExecBtn.classList.remove('disabled');
+      autoExecBtn.textContent = `EXECUTAR AGORA - ${acaoLabel}`;
+    }
+  }
 }
 
 // LOGICA PAINEL MANUAL
@@ -380,17 +432,50 @@ async function abrirOverlayFlutuante() {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-toggle').addEventListener('click', async () => {
+    console.log(`[PAINEL] Botão Ligar/Desligar clicado`);
     if (document.getElementById('btn-toggle').classList.contains('disabled')) {
       alert('Recarregue a página da mesa Bac Bo para conectar o robô.');
       return;
     }
+    console.log(`[PAINEL] Enviando TOGGLE_ROBO...`);
     const res = await send('TOGGLE_ROBO');
-    if (res?.message) console.log(res.message);
+    console.log(`[PAINEL] Resposta recebida:`, res);
+    if (res?.message) console.log(`[PAINEL] Mensagem:`, res.message);
+    if (!res?.success) console.error(`[PAINEL] ✗ Erro ao toggle: falha de resposta`);
+    else console.log(`[PAINEL] ✓ Toggle bem-sucedido, robô agora:`, res.ativo ? 'ATIVO' : 'INATIVO');
+    console.log(`[PAINEL] Atualizando status...`);
     await atualizar();
+    console.log(`[PAINEL] ✓ Status atualizado`);
   });
   document.getElementById('btn-float')?.addEventListener('click', abrirOverlayFlutuante);
   document.getElementById('btn-options').addEventListener('click', () => document.getElementById('cfg-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   document.getElementById('btn-export').addEventListener('click', exportarCsv);
+
+  document.getElementById('btn-auto-exec')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-auto-exec');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const status = await send('GET_STATUS');
+    if (status?.ultimaAnalise) {
+      const { acao, motivo, confianca } = status.ultimaAnalise;
+      const res = await send('EXECUTAR_SUGESTAO_AGORA', {
+        sugestao: { acao, motivo, confianca }
+      });
+
+      if (res?.success) {
+        const acaoLabel = { 'P': 'AZUL', 'B': 'VERMELHO', 'T': 'EMPATE' }[acao];
+        document.getElementById('auto-exec-status').innerHTML = `<span style="color:#10b981;font-weight:bold">✓ Aposta ${acaoLabel} executada!</span>`;
+      } else {
+        document.getElementById('auto-exec-status').innerHTML = `<span style="color:#ef4444;font-weight:bold">✗ Erro ao executar aposta</span>`;
+      }
+    }
+
+    setTimeout(async () => {
+      await atualizar();
+    }, 1500);
+  });
+
   inicializarConfigPainel();
   inicializarManualPanel();
   atualizar();

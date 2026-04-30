@@ -785,10 +785,18 @@
   }
 
   function toggleRobo(force) {
+    const antes = Core.estadoRobo.roboAtivo;
     Core.estadoRobo.roboAtivo = typeof force === 'boolean' ? force : !Core.estadoRobo.roboAtivo;
-    Core.adicionarLog('INFO', Core.estadoRobo.roboAtivo ? 'Robô ativado' : 'Robô desativado');
-    atualizarOverlay();
-    return Core.estadoRobo.roboAtivo;
+    const depois = Core.estadoRobo.roboAtivo;
+    console.log(`[ROBO] Toggle: ${antes} → ${depois} | IS_TOP_FRAME=${IS_TOP_FRAME}`);
+    try {
+      Core.adicionarLog('INFO', depois ? 'Robô ativado' : 'Robô desativado');
+      atualizarOverlay();
+      console.log(`[ROBO] ✓ Overlay atualizado`);
+    } catch (err) {
+      console.error(`[ROBO] ✗ Erro ao atualizar overlay:`, err.message);
+    }
+    return depois;
   }
 
   function inferirResultadoMaisRecente(history) {
@@ -889,8 +897,68 @@
       atualizarOverlay();
       return;
     }
-    if (hitlState) return;
-    if (Date.now() - lastActionAt < 1400) return;
+    if (hitlState) {
+      console.log(`[CICLO] Bloqueado por HITL state`);
+      return;
+    }
+
+    // ═══ PROTEÇÃO DE BANCA (STOP-LOSS AUTOMÁTICO) ═══
+    const bancaInicial = Core.estadoRobo.config.bankrollInicial || 0;
+    const bancaAtual = Core.estadoRobo.bancaTela || 0;
+
+    if (bancaInicial > 0 && bancaAtual > 0) {
+      const perdaPercentual = ((bancaInicial - bancaAtual) / bancaInicial) * 100;
+      const metaLucro = Core.estadoRobo.config.metaLucro || 0;
+      const stopLoss = Core.estadoRobo.config.stopLoss || 0;
+      const stopLossSaldo = Core.estadoRobo.config.stopLossSaldo || 0;
+
+      // Stop-loss por perda de saldo mínimo
+      if (stopLossSaldo > 0 && bancaAtual <= stopLossSaldo) {
+        console.error(`[PROTEÇÃO] ⛔ PARADA POR SALDO MÍNIMO: R$ ${bancaAtual} <= R$ ${stopLossSaldo}`);
+        Core.estadoRobo.roboAtivo = false;
+        Core.adicionarLog('ERRO', `Stop-loss ativado: saldo mínimo de R$ ${stopLossSaldo} atingido`, {
+          bancaAtual,
+          stopLossSaldo,
+          perdaPercentual: perdaPercentual.toFixed(2),
+        });
+        atualizarOverlay('⛔ Stop-loss ativado: saldo mínimo atingido', { status: 'PARADO' });
+        return;
+      }
+
+      // Stop-loss por perda em % da banca
+      if (stopLoss > 0 && perdaPercentual >= stopLoss) {
+        console.error(`[PROTEÇÃO] ⛔ PARADA POR STOP-LOSS: perdeu ${perdaPercentual.toFixed(1)}% (limite: ${stopLoss}%)`);
+        Core.estadoRobo.roboAtivo = false;
+        Core.adicionarLog('ERRO', `Stop-loss ativado: perdeu ${perdaPercentual.toFixed(2)}% da banca`, {
+          bancaInicial,
+          bancaAtual,
+          perdaPercentual: perdaPercentual.toFixed(2),
+          stopLoss,
+        });
+        atualizarOverlay(`⛔ Stop-loss ativado: perdeu ${perdaPercentual.toFixed(1)}%`, { status: 'PARADO' });
+        return;
+      }
+
+      // Meta de lucro (parar quando atingir)
+      const lucro = bancaAtual - bancaInicial;
+      if (metaLucro > 0 && lucro >= metaLucro) {
+        console.log(`[PROTEÇÃO] ✓ META ATINGIDA: lucro de R$ ${lucro} >= R$ ${metaLucro}`);
+        Core.estadoRobo.roboAtivo = false;
+        Core.adicionarLog('INFO', `Meta de lucro atingida: R$ ${lucro}`, {
+          bancaInicial,
+          bancaAtual,
+          metaLucro,
+          lucro,
+        });
+        atualizarOverlay(`✓ Meta atingida: +R$ ${lucro}`, { status: 'PARADO' });
+        return;
+      }
+    }
+    const elapsed = Date.now() - lastActionAt;
+    if (elapsed < 1400) {
+      console.log(`[CICLO] Aguardando (${elapsed}ms)`);
+      return;
+    }
     limparSnapshotsVelhos();
     const best = getBestHistory();
     const history = best.history || [];
@@ -971,6 +1039,7 @@
     Core.adicionarLog(exec.ok ? 'APOSTA' : 'ERRO', exec.motivo, { resultado, best });
     atualizarOverlay(exec.ok ? 'Aposta enviada' : `Falha: ${exec.motivo}`, resultado);
     publicarStatusWsExterno(exec.ok ? 'APOSTA_ENVIADA' : 'ERRO_APOSTA', resultado, best);
+    console.log(`[CICLO] ✓ Ciclo completado com sucesso`);
   }
 
   function iniciarObserver() {
@@ -1042,7 +1111,13 @@
     if (!IS_TOP_FRAME) return false;
     if (request.action === 'GET_STATUS') { sendResponse(getStatus()); return true; }
     if (request.action === 'GET_LOGS') { sendResponse(Core.estadoRobo.logs); return true; }
-    if (request.action === 'TOGGLE_ROBO') { const ativo = toggleRobo(); sendResponse({ success: true, ativo, message: ativo ? 'Robô ativado' : 'Robô desativado' }); return true; }
+    if (request.action === 'TOGGLE_ROBO') {
+      console.log(`[TOGGLE] Botão clicado, estado anterior: ${Core.estadoRobo.roboAtivo}`);
+      const ativo = toggleRobo();
+      console.log(`[TOGGLE] ✓ Robô agora: ${ativo ? 'ATIVO' : 'INATIVO'}`);
+      sendResponse({ success: true, ativo, message: ativo ? 'Robô ativado' : 'Robô desativado' });
+      return true;
+    }
     if (request.action === 'UPDATE_CONFIG') {
       Core.atualizarConfiguracoes(request.config || {});
       Core.salvarConfiguracoes();
@@ -1114,6 +1189,51 @@
     if (request.action === 'WS_DISCONNECTED') {
       Core.adicionarLog('WS', 'WebSocket externo desconectado');
       sendResponse({ success: true });
+      return true;
+    }
+    if (request.action === 'EXECUTAR_SUGESTAO_AGORA') {
+      if (!Core.estadoRobo.ultimaAnalise) {
+        sendResponse({ success: false, motivo: 'Nenhuma sugestão disponível' });
+        return true;
+      }
+      const sugestao = Core.estadoRobo.ultimaAnalise;
+      const best = getBestHistory();
+      const resultadoSugestao = {
+        acao: sugestao.acao,
+        motivo: 'Execução direta de sugestão (Híbrido)',
+        confianca: sugestao.confianca || 0,
+        scoreP: sugestao.scoreP || 0,
+        scoreB: sugestao.scoreB || 0,
+        galeCount: 0,
+        stake: Core.estadoRobo.config.stakeBase
+      };
+      const apostaBackup = Core.estadoRobo.ultimaAposta;
+
+      Core.estadoRobo.ultimaAposta = {
+        id: `hybrid-${Date.now()}`,
+        acao: sugestao.acao,
+        stake: resultadoSugestao.stake,
+        gale: 0,
+        motivo: 'Execução Sugestão Híbrida',
+        timestamp: Date.now(),
+        status: 'PENDENTE',
+        historyHash: best.history?.join(''),
+        roundId: wsState.roundId
+      };
+
+      executarApostaNoMelhorFrame(best, resultadoSugestao).then(exec => {
+        if (!exec || !exec.ok) {
+          Core.adicionarLog('ERRO', `Falha ao executar sugestão: ${exec?.motivo || 'erro desconhecido'}`, exec);
+          Core.estadoRobo.ultimaAposta = apostaBackup;
+          sendResponse({ success: false, motivo: exec?.motivo || 'Falha na execução' });
+        } else {
+          Core.adicionarLog('INFO', `Sugestão executada: ${sugestao.acao} com Stake R$${resultadoSugestao.stake}`);
+          sendResponse({ success: true, acao: sugestao.acao, stake: resultadoSugestao.stake });
+        }
+      }).catch(err => {
+        Core.adicionarLog('ERRO', `Erro ao processar sugestão: ${err.message}`);
+        sendResponse({ success: false, motivo: err.message });
+      });
       return true;
     }
     if (request.action === 'EXPORT_LOGS_CSV') { sendResponse({ success: true, csv: Core.exportarLogsCsv() }); return true; }
