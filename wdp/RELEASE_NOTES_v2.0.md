@@ -61,8 +61,21 @@ Liberação de **Fase 2 - Modo Híbrido** + **Diagnóstico de Seletores**. Objet
 
 | Commit | Descrição |
 |--------|-----------|
+| [LATEST] | Validar acao como P/B/T antes de executar (SKIP é inválido) ⚠️ CRÍTICO |
 | b2134570 | Validar bankroll mínimo >= 100 |
 | 4292a5d8 | Incluir ultimaAnalise no getStatus() |
+
+### ⚠️ Correção Crítica: Rejeição de SKIP no Painel Automático
+
+**Problema**: Painel automático mostrava "Ação: SKIP" com botão "EXECUTAR AGORA - SKIP", causando erro "Ação inválida" ao clicar.
+
+**Causa**: Validação incompleta em `sidepanel.js` — verificava se `acao` existia, mas não se era válida (P, B, T).
+
+**Solução**:
+- `sidepanel.js`: Agora valida `['P', 'B', 'T'].includes(acao)` antes de mostrar painel
+- `content.js`: Handler `EXECUTAR_SUGESTAO_AGORA` rejeita SKIP antes de executar
+
+**Impacto**: Painel não mostra sugestões não-executáveis. Se houver SKIP, painel fica oculto até próxima análise válida.
 
 ---
 
