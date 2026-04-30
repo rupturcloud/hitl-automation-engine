@@ -89,8 +89,8 @@ async function coletarConfigPainel() {
   PADROES_CONFIG.forEach(([id]) => {
     padroesAtivos[id] = Boolean(el(`cfg-p-${id}`)?.checked);
   });
-  const desabilitarLimite = Boolean(el('cfg-desabilitarLimiteStake')?.checked);
-  const stakeMax = desabilitarLimite ? 999999 : 150;
+  const desabilitarLimiteStake = Boolean(el('cfg-desabilitarLimiteStake')?.checked);
+  const stakeMax = desabilitarLimiteStake ? 999999 : 150;
   const stakeBase = Math.min(stakeMax, Math.max(5, Number(el('cfg-stakeBase')?.value || DEFAULT_CONFIG.stakeBase)));
   const maxGales = Math.min(9, Math.max(0, Number(el('cfg-maxGales')?.value || DEFAULT_CONFIG.maxGales)));
   const valorProtecao = Math.min(150, Math.max(0, Number(el('cfg-valorProtecao')?.value || DEFAULT_CONFIG.valorProtecao)));
