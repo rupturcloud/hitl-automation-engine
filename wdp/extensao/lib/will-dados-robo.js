@@ -43,6 +43,8 @@
     valorProtecaoMax: 150,
     shadowMode: true,
     autoStart: false,
+    hitlCountdownSegundos: 8,
+    wsUrl: 'ws://localhost:8765',
     showOverlay: false,
     minConfianca: 58,
     limiteStakePercentualBankroll: 10,
@@ -110,6 +112,8 @@
     normalized.valorProtecao = clampNumber(normalized.valorProtecao, 0, normalized.valorProtecaoMax, DEFAULT_CONFIG.valorProtecao);
     normalized.limiteStakePercentualBankroll = clampNumber(normalized.limiteStakePercentualBankroll, 1, 100, DEFAULT_CONFIG.limiteStakePercentualBankroll);
     normalized.minConfianca = Math.round(clampNumber(normalized.minConfianca, 0, 100, DEFAULT_CONFIG.minConfianca));
+    normalized.hitlCountdownSegundos = Math.round(clampNumber(normalized.hitlCountdownSegundos, 3, 30, DEFAULT_CONFIG.hitlCountdownSegundos));
+    normalized.wsUrl = String(normalized.wsUrl || DEFAULT_CONFIG.wsUrl);
     normalized.bankrollInicial = Math.max(0, Number(normalized.bankrollInicial) || DEFAULT_CONFIG.bankrollInicial);
     normalized.bankrollAtual = Math.max(0, Number(normalized.bankrollAtual ?? normalized.bankrollInicial) || normalized.bankrollInicial);
     normalized.metaLucro = Math.max(0, Number(normalized.metaLucro) || 0);
