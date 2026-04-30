@@ -1121,7 +1121,8 @@
     if (request.action === 'TOGGLE_ROBO') {
       console.log(`[TOGGLE] Botão clicado, estado anterior: ${Core.estadoRobo.roboAtivo}`);
       const ativo = toggleRobo();
-      console.log(`[TOGGLE] ✓ Robô agora: ${ativo ? 'ATIVO' : 'INATIVO'}`);
+      Core.salvarConfiguracoes();
+      console.log(`[TOGGLE] ✓ Robô agora: ${ativo ? 'ATIVO' : 'INATIVO'} (persistido no storage)`);
       sendResponse({ success: true, ativo, message: ativo ? 'Robô ativado' : 'Robô desativado' });
       return true;
     }
@@ -1258,6 +1259,7 @@
       return;
     }
     await Core.carregarConfiguracoes();
+    await Core.carregarEstadoPersistido();
     iniciarWebSocketListener();
     if (!IS_TOP_FRAME) {
       instalarCommandListenerNoFrame();

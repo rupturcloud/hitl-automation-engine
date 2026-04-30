@@ -172,7 +172,24 @@
 
   function salvarConfiguracoes() {
     if (!globalThis.chrome?.storage?.local) return;
-    chrome.storage.local.set({ willDadosConfig: estadoRobo.config });
+    chrome.storage.local.set({
+      willDadosConfig: estadoRobo.config,
+      willDadosRoboAtivo: estadoRobo.roboAtivo
+    });
+  }
+
+  async function carregarEstadoPersistido() {
+    if (!globalThis.chrome?.storage?.local) return;
+    const stored = await new Promise(resolve => {
+      chrome.storage.local.get(['willDadosRoboAtivo', 'willDadosConfig'], resolve);
+    });
+    if (stored.willDadosRoboAtivo === true) {
+      estadoRobo.roboAtivo = true;
+      console.log('[STARTUP] Robô estava ligado, restaurando estado...');
+    }
+    if (stored.willDadosConfig) {
+      Object.assign(estadoRobo.config, stored.willDadosConfig);
+    }
   }
 
   function endsWithPattern(seq, pattern) {
@@ -514,6 +531,7 @@
     adicionarLog,
     atualizarConfiguracoes,
     carregarConfiguracoes,
+    carregarEstadoPersistido,
     salvarConfiguracoes,
     detectarPadrao,
     deveApostar,
