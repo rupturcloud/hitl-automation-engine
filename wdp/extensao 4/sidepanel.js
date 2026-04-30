@@ -506,7 +506,17 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(`[PAINEL] Resposta recebida:`, res);
     if (res?.message) console.log(`[PAINEL] Mensagem:`, res.message);
     if (!res?.success) console.error(`[PAINEL] ✗ Erro ao toggle: falha de resposta`);
-    else console.log(`[PAINEL] ✓ Toggle bem-sucedido, robô agora:`, res.ativo ? 'ATIVO' : 'INATIVO');
+    else {
+      console.log(`[PAINEL] ✓ Toggle bem-sucedido, robô agora:`, res.ativo ? 'ATIVO' : 'INATIVO');
+      console.log(`[PAINEL] Recarregando página da mesa em 500ms...`);
+      setTimeout(async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab?.id) {
+          chrome.tabs.reload(tab.id);
+          console.log(`[PAINEL] ✓ Página recarregada (tabId: ${tab.id})`);
+        }
+      }, 500);
+    }
     console.log(`[PAINEL] Atualizando status...`);
     await atualizar();
     console.log(`[PAINEL] ✓ Status atualizado`);
