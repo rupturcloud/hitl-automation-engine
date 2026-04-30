@@ -11,6 +11,7 @@
 
   const IS_TOP_FRAME = window.top === window;
   const FRAME_ID = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const SUGESTOES_APENAS = true; // Extensão 4: apenas recomendações, sem cliques automáticos
   const SNAPSHOT_TYPE = '__WILL_DADOS_FRAME_SNAPSHOT__';
   const COMMAND_TYPE = '__WILL_DADOS_FRAME_COMMAND__';
   const COMMAND_RESULT_TYPE = '__WILL_DADOS_FRAME_COMMAND_RESULT__';
@@ -898,9 +899,10 @@
       Core.estadoRobo.ultimaAposta.roundId = wsState.roundId || null;
       Core.estadoRobo.ultimoResultadoProcessadoHash = historyHash;
     }
-    if (Core.estadoRobo.config.shadowMode) {
-      atualizarOverlay('Shadow mode: entrada simulada', resultado);
-      publicarStatusWsExterno('ENTRADA_SIMULADA', resultado, best);
+    if (Core.estadoRobo.config.shadowMode || SUGESTOES_APENAS) {
+      const msg = SUGESTOES_APENAS ? 'Sugestão de entrada' : 'Shadow mode: entrada simulada';
+      atualizarOverlay(msg, resultado);
+      publicarStatusWsExterno(SUGESTOES_APENAS ? 'SUGESTAO_EXIBIDA' : 'ENTRADA_SIMULADA', resultado, best);
       return;
     }
     const exec = await executarApostaNoMelhorFrame(best, resultado);
