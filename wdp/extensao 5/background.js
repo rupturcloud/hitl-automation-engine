@@ -11,6 +11,10 @@ const DEFAULT_PROXY_CONFIG = {
   scheme: "socks5"
 };
 
+let proxyFailureCount = 0;
+let proxyAutoDisabledAt = null;
+const PROXY_FAILURE_THRESHOLD = 3; // Desativar após 3 falhas consecutivas
+
 const DEFAULT_WS_CONFIG = {
   url: 'ws://localhost:8765',
   maxRetries: 10,
@@ -66,10 +70,34 @@ async function configurarProxy() {
     scope: 'regular'
   }, () => {
     console.log('[PROXY] ✓ Proxy configurado para Betboom/Evolution');
+    proxyFailureCount = 0; // Reset contador ao configurar com sucesso
     if (chrome.runtime.lastError) {
       console.error('[PROXY] Erro ao configurar proxy:', chrome.runtime.lastError.message);
+      registrarFalhaProxy();
     }
   });
+}
+
+function registrarFalhaProxy() {
+  proxyFailureCount++;
+  console.warn(`[PROXY] Falha #${proxyFailureCount}/${PROXY_FAILURE_THRESHOLD}`);
+
+  if (proxyFailureCount >= PROXY_FAILURE_THRESHOLD) {
+    console.error('[PROXY] ⚠️ Desativando proxy após múltiplas falhas. Voltando para conexão direta.');
+    proxyAutoDisabledAt = Date.now();
+
+    // Desativar proxy
+    chrome.proxy.settings.set({
+      value: { mode: "direct" },
+      scope: 'regular'
+    }, () => {
+      avisarWsParaUis('PROXY_AUTO_DISABLED', {
+        message: 'Proxy desativado automaticamente após múltiplas falhas',
+        failureCount: proxyFailureCount,
+        timestamp: proxyAutoDisabledAt
+      });
+    });
+  }
 }
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -277,7 +305,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   // Proxy: reconfigurar
   if (request?.action === 'RECONFIG_PROXY') {
+    proxyFailureCount = 0; // Reset contador ao reconfigurar
+    proxyAutoDisabledAt = null;
     configurarProxy().then(() => sendResponse({ success: true, message: 'Proxy reconfigurado' }));
+    return true;
+  }
+
+  // Proxy: obter estado
+  if (request?.action === 'GET_PROXY_STATE') {
+    sendResponse({
+      success: true,
+      proxy: {
+        failureCount: proxyFailureCount,
+        autoDisabledAt: proxyAutoDisabledAt,
+        failureThreshold: PROXY_FAILURE_THRESHOLD
+      }
+    });
     return true;
   }
 

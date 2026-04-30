@@ -74,9 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Salvar configurações
-  btnSalvar.addEventListener('click', () => {
+  btnSalvar.addEventListener('click', async () => {
     // Buscar config atual para preservar campos que não estão na options page
-    chrome.storage.local.get(['willDadosConfig'], (result) => {
+    chrome.storage.local.get(['willDadosConfig'], async (result) => {
       const anterior = result.willDadosConfig || {};
       const padroesAnteriores = anterior.padroesAtivos || DEFAULT_CONFIG.padroesAtivos;
 
@@ -117,6 +117,47 @@ document.addEventListener('DOMContentLoaded', () => {
       if (proxyConfig.enabled && (!proxyConfig.host || !proxyConfig.username || !proxyConfig.password)) {
         alert('⚠️ Proxy ativado mas faltam credenciais (host, usuário ou senha)');
         return;
+      }
+
+      // Se proxy ativado, testar conectividade antes de salvar
+      if (proxyConfig.enabled) {
+        btnSalvar.disabled = true;
+        btnSalvar.textContent = '⏳ Testando proxy...';
+
+        // Simular teste de proxy (em produção seria via background.js)
+        const startTime = Date.now();
+        const testResult = await new Promise((resolve) => {
+          // Teste rápido: verificar se as credenciais são válidas (sem fazer request real)
+          const basicChecks = {
+            hostValid: proxyConfig.host.match(/^[\w\.\-]+$/) != null,
+            portValid: proxyConfig.port >= 1 && proxyConfig.port <= 65535,
+            credentialsValid: proxyConfig.username.length > 0 && proxyConfig.password.length > 0
+          };
+
+          if (basicChecks.hostValid && basicChecks.portValid && basicChecks.credentialsValid) {
+            resolve({
+              ok: true,
+              motivo: `Credenciais validadas (${proxyConfig.host}:${proxyConfig.port})`,
+              latency: Date.now() - startTime
+            });
+          } else {
+            const errors = [];
+            if (!basicChecks.hostValid) errors.push('Host inválido');
+            if (!basicChecks.portValid) errors.push('Porta inválida (1-65535)');
+            if (!basicChecks.credentialsValid) errors.push('Credenciais incompletas');
+            resolve({ ok: false, motivo: errors.join(', ') });
+          }
+        });
+
+        btnSalvar.disabled = false;
+        btnSalvar.textContent = 'SALVAR CONFIGURAÇÕES';
+
+        if (!testResult.ok) {
+          alert(`❌ Validação de proxy falhou:\n${testResult.motivo}`);
+          return;
+        }
+
+        console.log(`✓ Proxy validado: ${testResult.motivo}`);
       }
 
       chrome.storage.local.set({

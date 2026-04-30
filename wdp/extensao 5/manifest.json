@@ -30,6 +30,19 @@
   "background": {
     "service_worker": "background.js"
   },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "proxyValidator.js"
+      ],
+      "matches": [
+        "https://*.evolutiongaming.com/*",
+        "https://*.evo-games.com/*",
+        "https://*.betboom.com/*",
+        "https://betboom.bet.br/*"
+      ]
+    }
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "Will Dados Robô"
