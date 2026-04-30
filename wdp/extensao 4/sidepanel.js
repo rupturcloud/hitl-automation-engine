@@ -287,10 +287,15 @@ async function atualizar() {
     if (janelaAtiva) {
       document.getElementById('entry-dot').style.background = status.janelaEntrada.cor;
       document.getElementById('entry-title').textContent = status.janelaEntrada.titulo;
-      document.getElementById('entry-count').textContent =
-        status.janelaEntrada.segundos > 0 ? `${status.janelaEntrada.segundos}s` : '--';
       document.getElementById('entry-msg').textContent = status.janelaEntrada.mensagem;
+
+      // Iniciar countdown local suave (atualiza a cada 100ms)
+      iniciarEntryCountdown(status.janelaEntrada);
+    } else {
+      resetEntryCountdown();
     }
+  } else {
+    resetEntryCountdown();
   }
 
   // Mostrar painel manual
@@ -328,6 +333,57 @@ async function atualizar() {
       autoExecBtn.textContent = `EXECUTAR AGORA - ${acaoLabel}`;
     }
   }
+}
+
+// LÓGICA JANELA DE ENTRADA (Countdown local)
+let entryCountdownState = {
+  ativo: false,
+  id: null,
+  segundo0: 0,
+  timerLocal: null,
+  ultimoValor: 0,
+  ultimoId: null
+};
+
+function resetEntryCountdown() {
+  if (entryCountdownState.timerLocal) {
+    clearInterval(entryCountdownState.timerLocal);
+    entryCountdownState.timerLocal = null;
+  }
+  entryCountdownState.ativo = false;
+  entryCountdownState.id = null;
+}
+
+function iniciarEntryCountdown(janelaEntrada) {
+  // Se é uma nova rodada (mudou o ID), reseta
+  if (entryCountdownState.ultimoId !== janelaEntrada.id) {
+    resetEntryCountdown();
+    entryCountdownState.ultimoId = janelaEntrada.id;
+  }
+
+  if (entryCountdownState.ativo) return; // Já está rodando
+
+  entryCountdownState.ativo = true;
+  entryCountdownState.id = janelaEntrada.id;
+  entryCountdownState.segundo0 = Date.now();
+  entryCountdownState.ultimoValor = janelaEntrada.segundos || 0;
+
+  // Atualizar a cada 100ms para suavidade
+  resetEntryCountdown();
+  entryCountdownState.timerLocal = setInterval(() => {
+    const ms = Date.now() - entryCountdownState.segundo0;
+    const segundosDecorridos = Math.floor(ms / 1000);
+    const novoValor = Math.max(0, entryCountdownState.ultimoValor - segundosDecorridos);
+
+    const display = document.getElementById('entry-count');
+    if (display) {
+      display.textContent = novoValor > 0 ? `${novoValor}s` : '--';
+    }
+
+    if (novoValor === 0) {
+      resetEntryCountdown();
+    }
+  }, 100);
 }
 
 // LOGICA PAINEL MANUAL
@@ -527,4 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
   intervalId = setInterval(atualizar, 1200);
 });
 
-window.addEventListener('unload', () => { if (intervalId) clearInterval(intervalId); });
+window.addEventListener('unload', () => {
+  if (intervalId) clearInterval(intervalId);
+  resetEntryCountdown();
+});

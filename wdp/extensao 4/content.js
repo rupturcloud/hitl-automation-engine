@@ -830,9 +830,13 @@
         ? Math.max(0, Math.ceil((15000 - idadeWs) / 1000))
         : null;
 
+    // ID único para cada rodada (baseado em roundId do WS, com fallback para hash de timing)
+    const rodadaId = wsState.roundId || `round_${Math.floor(wsState.lastMessageAt / 1000)}`;
+
     if (aberto || segundos != null) {
       const fim = Number.isFinite(segundos) && segundos <= 5;
       return {
+        id: rodadaId,
         aberta: true,
         fase: fim ? 'finalizando' : 'aberta',
         segundos,
@@ -846,6 +850,7 @@
 
     if (fechado) {
       return {
+        id: rodadaId,
         aberta: false,
         fase: 'fechada',
         segundos: null,
@@ -856,6 +861,7 @@
     }
 
     return {
+      id: 'idle',
       aberta: false,
       fase: 'aguardando',
       segundos: null,
