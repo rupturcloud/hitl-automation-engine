@@ -6,6 +6,8 @@ const DEFAULT_CONFIG = {
   bankrollAtual: 30000,
   stakeBase: 150,
   desabilitarLimiteStake: false,
+  metaSaldoAlvo: 34000,
+  stopLossSaldo: 30000,
   metaLucro: 4000,
   stopLoss: 2000,
   maxGales: 2,
@@ -580,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
   inicializarConfigPainel();
   inicializarManualPanel();
   atualizar();
-  intervalId = setInterval(atualizar, 1200);
+  intervalId = setInterval(atualizar, 800); // Sincronizado com content.js
 });
 
 window.addEventListener('unload', () => {
