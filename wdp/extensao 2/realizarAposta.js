@@ -271,77 +271,128 @@
 
   async function selecionarChip(stake) {
     const valor = Math.round(Number(stake));
-    if (!Number.isFinite(valor) || valor < 5) return { ok: false, motivo: `Valor mínimo de chip é R$ 5` };
+    if (!Number.isFinite(valor) || valor < 5) {
+      console.error(`[REALIZAR-APOSTA] ✗ Valor inválido: R$ ${valor} (mínimo R$ 5)`);
+      return { ok: false, motivo: `Valor mínimo de chip é R$ 5` };
+    }
 
+    console.log(`[REALIZAR-APOSTA] Procurando chip exato de R$ ${valor}...`);
     const exato = await encontrarComRetry(() => encontrarChip(valor), 6, 500);
     if (exato) {
+      console.log(`[REALIZAR-APOSTA] ✓ Chip exato R$ ${valor} encontrado, clicando...`);
       await humanClick(exato);
       await sleep(jitter(250, 550));
       return { ok: true, motivo: `Chip R$ ${valor} selecionado`, chips: [valor] };
     }
 
+    console.log(`[REALIZAR-APOSTA] Chip exato não encontrado, tentando compor R$ ${valor}...`);
     const composicao = decomporStake(valor);
-    if (!composicao.length) return { ok: false, motivo: `Não foi possível compor R$ ${valor} com chips Bac Bo` };
+    if (!composicao.length) {
+      console.error(`[REALIZAR-APOSTA] ✗ Não foi possível compor R$ ${valor} com chips disponíveis`);
+      return { ok: false, motivo: `Não foi possível compor R$ ${valor} com chips Bac Bo` };
+    }
 
+    console.log(`[REALIZAR-APOSTA] Composição: [${composicao.join(' + ')}]`);
     const clicados = [];
     const infoAlvos = [];
     for (const chip of composicao) {
+      console.log(`[REALIZAR-APOSTA] Procurando chip de R$ ${chip}...`);
       const el = await encontrarComRetry(() => encontrarChip(chip), 4, 400);
-      if (!el) return { ok: false, motivo: `Chip R$ ${chip} não encontrado na UI para compor R$ ${valor} após aguardar`, chips: clicados };
+      if (!el) {
+        console.error(`[REALIZAR-APOSTA] ✗ Chip R$ ${chip} não encontrado`);
+        return { ok: false, motivo: `Chip R$ ${chip} não encontrado na UI para compor R$ ${valor} após aguardar`, chips: clicados };
+      }
+      console.log(`[REALIZAR-APOSTA] ✓ Chip R$ ${chip} encontrado, clicando...`);
       await humanClick(el);
       clicados.push(chip);
       infoAlvos.push(`<${el.tagName.toLowerCase()} class="${el.className || ''}">`);
       await sleep(jitter(220, 480));
     }
+    console.log(`[REALIZAR-APOSTA] ✓ Chips selecionados: [${clicados.join(' + ')}]`);
     return { ok: true, motivo: `Chips [${infoAlvos.join(', ')}]`, chips: clicados };
   }
 
   function candidatosArea(acao) {
     const isP = acao === 'P';
+    const nomeBet = isP ? 'player' : acao === 'B' ? 'banker' : 'tie';
     const terms = isP
       ? ['player', 'jogador', 'azul', 'blue']
       : acao === 'B'
         ? ['banker', 'banca', 'vermelho', 'red']
         : ['tie', 'empate', 'amarelo', 'yellow', 'gold'];
 
-    const selectors = [
-      `[data-bet="${isP ? 'player' : acao === 'B' ? 'banker' : 'tie'}"]`,
-      `[data-role*="${isP ? 'player' : acao === 'B' ? 'banker' : 'tie'}" i]`,
-      `[class*="${isP ? 'player' : acao === 'B' ? 'banker' : 'tie'}" i]`,
-      'button',
-      '[role="button"]',
-      'div',
-      'path',
-      'g'
-    ];
-
     const all = [];
-    for (const selector of selectors) {
+    const docs = [document];
+
+    // Procurar em iframes também
+    try {
+      document.querySelectorAll('iframe').forEach((iframe) => {
+        try {
+          if (iframe.contentDocument) docs.push(iframe.contentDocument);
+        } catch (_) {}
+      });
+    } catch (_) {}
+
+    // Estratégia 1: Procurar por data-bet exato
+    for (const doc of docs) {
       try {
-        document.querySelectorAll(selector).forEach((el) => {
+        doc.querySelectorAll(`[data-bet="${nomeBet}"]`).forEach((el) => {
           if (!all.includes(el) && isVisible(el)) all.push(el);
         });
       } catch (_) {}
     }
 
-    return all
+    // Se encontrou com data-bet, retorna já
+    if (all.length > 0) {
+      console.log(`[REALIZAR-APOSTA] Encontrou ${all.length} elementos com data-bet="${nomeBet}"`);
+      return all.map((el) => ({ el, score: 1000, strategy: 'data-bet' }));
+    }
+
+    // Estratégia 2: Procurar por padrões de classe e conteúdo
+    const allCandidatos = [];
+    for (const doc of docs) {
+      try {
+        doc.querySelectorAll('button, [role="button"], div[onclick], [class*="bet" i], [class*="area" i]').forEach((el) => {
+          if (!allCandidatos.includes(el) && isVisible(el)) allCandidatos.push(el);
+        });
+      } catch (_) {}
+    }
+
+    return allCandidatos
       .map((el) => {
         const className = (el.className && typeof el.className === 'string' ? el.className : el.getAttribute('class') || '');
         const id = el.id || '';
         const aria = el.getAttribute('aria-label') || '';
         const dataBet = el.getAttribute('data-bet') || '';
-        const haystack = `${textOf(el)} ${className} ${id} ${aria} ${dataBet}`.toLowerCase();
-        
-        // Punição severa para coisas de histórico
+        const title = el.getAttribute('title') || '';
+        const dataTestId = el.getAttribute('data-testid') || '';
+        const fullText = `${textOf(el)} ${className} ${id} ${aria} ${title} ${dataBet} ${dataTestId}`.toLowerCase();
+
         let score = 0;
-        if (/history|road|score|trend|statistic|bead|nav|panel|chip|overlay/i.test(haystack)) score -= 1000;
-        if (/spot|bet|area|zone|click/i.test(haystack)) score += 500;
-        if (dataBet === (isP ? 'player' : acao === 'B' ? 'banker' : 'tie')) score += 1000;
-        
-        return { el, haystack, score };
+
+        // Bonus por data-bet específico
+        if (dataBet === nomeBet) score += 1000;
+
+        // Bonus por contém termo exato com word boundary
+        for (const term of terms) {
+          const regex = new RegExp(`\\b${term}\\b`, 'i');
+          if (regex.test(fullText)) score += 300;
+        }
+
+        // Bonus por estar em classe com "bet", "area", "spot", "zone"
+        if (/bet|area|spot|zone|button/i.test(className)) score += 150;
+
+        // Penalidade por ser histórico/painel
+        if (/history|road|score|trend|statistic|bead|nav|panel|chip|overlay|board/i.test(fullText)) score -= 1000;
+
+        // Penalidade por ser muito grande (provável container)
+        const rect = el.getBoundingClientRect();
+        if (rect.width * rect.height > window.innerWidth * window.innerHeight * 0.3) score -= 300;
+
+        return { el, score, strategy: 'heuristic' };
       })
-      .filter((item) => item.score > -500 && terms.some((term) => item.haystack.includes(term)))
-      .map((item) => item);
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score);
   }
 
   /**
@@ -352,59 +403,122 @@
    * @returns {Promise<Object>} Retorna o status do clique.
    */
   async function clicarNaArea(acao) {
+    const nomeAcao = acao === 'P' ? 'PLAYER' : acao === 'B' ? 'BANKER' : 'TIE';
+    console.log(`[REALIZAR-APOSTA] Procurando área de ${nomeAcao}...`);
+
     let areasObj = [];
-    let tentativas = 6; // Tenta achar a área por até 3 segundos (6 * 500ms)
-    
+    let tentativas = 8; // Tenta achar a área por até 4 segundos (8 * 500ms)
+    let tentativaAtual = 0;
+
     while (tentativas > 0 && !areasObj.length) {
+      tentativaAtual++;
       areasObj = candidatosArea(acao);
       if (!areasObj.length) {
         tentativas--;
-        if (tentativas > 0) await sleep(500); // Aguarda renderização da mesa
+        if (tentativas > 0) {
+          console.log(`[REALIZAR-APOSTA] Tentativa ${tentativaAtual}: não encontrou área de ${nomeAcao}, aguardando...`);
+          await sleep(500);
+        }
       }
     }
 
-    if (!areasObj.length) return { ok: false, motivo: `Área ${acao} não encontrada na UI após aguardar` };
+    if (!areasObj.length) {
+      console.error(`[REALIZAR-APOSTA] ✗ Área ${nomeAcao} não encontrada após ${tentativaAtual} tentativas`);
+      return { ok: false, motivo: `Área ${nomeAcao} não encontrada na UI após aguardar` };
+    }
 
-    // Preferir elementos com maior score de "bet spot", depois por tamanho razoável (nem muito pequeno, nem tela inteira)
-    areasObj.sort((a, b) => {
-      if (a.score !== b.score) return b.score - a.score;
-      const ra = a.el.getBoundingClientRect();
-      const rb = b.el.getBoundingClientRect();
-      const areaA = ra.width * ra.height;
-      const areaB = rb.width * rb.height;
-      const maxArea = (window.innerWidth * window.innerHeight) * 0.4;
-      
-      const aValido = areaA > 100 && areaA < maxArea;
-      const bValido = areaB > 100 && areaB < maxArea;
-      
-      if (aValido && !bValido) return -1;
-      if (!aValido && bValido) return 1;
-      return areaB - areaA;
-    });
+    console.log(`[REALIZAR-APOSTA] ✓ Encontrou ${areasObj.length} candidatos para ${nomeAcao}`);
 
-    const alvo = areasObj[0].el;
+    // Ordenar por score
+    areasObj.sort((a, b) => b.score - a.score);
+
+    let alvo = null;
+    let motivoFalha = null;
+
+    // Tentar clicar no melhor candidato
+    for (let i = 0; i < Math.min(areasObj.length, 3); i++) {
+      const candidato = areasObj[i];
+      const el = candidato.el;
+
+      if (!isVisible(el)) {
+        motivoFalha = `Candidato ${i + 1} não visível`;
+        continue;
+      }
+
+      const rect = el.getBoundingClientRect();
+      const tamanhoOk = rect.width > 10 && rect.height > 10;
+      if (!tamanhoOk) {
+        motivoFalha = `Candidato ${i + 1} muito pequeno (${rect.width}x${rect.height})`;
+        continue;
+      }
+
+      alvo = el;
+      break;
+    }
+
+    if (!alvo) {
+      console.error(`[REALIZAR-APOSTA] ✗ Nenhum candidato válido: ${motivoFalha}`);
+      return { ok: false, motivo: `Nenhum candidato válido para ${nomeAcao}: ${motivoFalha}` };
+    }
+
+    // Executar clique
+    console.log(`[REALIZAR-APOSTA] Clicando em ${nomeAcao}...`);
     await humanClick(alvo);
-    await sleep(jitter(300, 700)); // Simula delay do usuário ao remover o dedo/mouse
+    await sleep(jitter(300, 700));
+
     const detalhesAlvo = `<${alvo.tagName.toLowerCase()} class="${alvo.className || ''}" id="${alvo.id || ''}">`;
-    return { ok: true, motivo: `Clique em ${acao} [${detalhesAlvo}]` };
+    console.log(`[REALIZAR-APOSTA] ✓ Clique em ${nomeAcao} executado [${detalhesAlvo}]`);
+    return { ok: true, motivo: `Clique em ${nomeAcao} [${detalhesAlvo}]` };
   }
 
   async function realizarAposta(acao, stake, options = {}) {
-    if (!['P', 'B', 'T'].includes(acao)) return { ok: false, motivo: 'Ação inválida' };
+    const nomeAcao = acao === 'P' ? 'PLAYER' : acao === 'B' ? 'BANKER' : 'TIE';
 
-    await sleep(jitter(400, 900));
-    const chip = await selecionarChip(stake);
-    if (!chip.ok) return chip;
-
-    const area = await clicarNaArea(acao);
-    if (!area.ok) return area;
-
-    if (options.protecaoEmpate && acao !== 'T' && Number(options.valorProtecao) > 0) {
-      await sleep(jitter(250, 600));
-      const chipTie = await selecionarChip(options.valorProtecao);
-      if (chipTie.ok) await clicarNaArea('T');
+    if (!['P', 'B', 'T'].includes(acao)) {
+      console.error('[REALIZAR-APOSTA] Ação inválida:', acao);
+      return { ok: false, motivo: 'Ação inválida' };
     }
 
+    console.log(`\n[REALIZAR-APOSTA] ═══════════════════════════════════`);
+    console.log(`[REALIZAR-APOSTA] Iniciando aposta: ${nomeAcao} R$ ${stake}`);
+    console.log(`[REALIZAR-APOSTA] ═══════════════════════════════════\n`);
+
+    await sleep(jitter(400, 900));
+
+    // Etapa 1: Selecionar chip
+    console.log(`[REALIZAR-APOSTA] Etapa 1: Selecionando chip de R$ ${stake}...`);
+    const chip = await selecionarChip(stake);
+    if (!chip.ok) {
+      console.error(`[REALIZAR-APOSTA] ✗ Falha ao selecionar chip: ${chip.motivo}`);
+      return chip;
+    }
+    console.log(`[REALIZAR-APOSTA] ✓ Chip selecionado: ${chip.motivo}`);
+
+    // Etapa 2: Clicar na área
+    console.log(`[REALIZAR-APOSTA] Etapa 2: Clicando na área de ${nomeAcao}...`);
+    const area = await clicarNaArea(acao);
+    if (!area.ok) {
+      console.error(`[REALIZAR-APOSTA] ✗ Falha ao clicar: ${area.motivo}`);
+      return area;
+    }
+    console.log(`[REALIZAR-APOSTA] ✓ Área clicada: ${area.motivo}`);
+
+    // Etapa 3: Proteção de empate (opcional)
+    if (options.protecaoEmpate && acao !== 'T' && Number(options.valorProtecao) > 0) {
+      console.log(`[REALIZAR-APOSTA] Etapa 3: Adicionando proteção de empate R$ ${options.valorProtecao}...`);
+      await sleep(jitter(250, 600));
+      const chipTie = await selecionarChip(options.valorProtecao);
+      if (chipTie.ok) {
+        await clicarNaArea('T');
+        console.log(`[REALIZAR-APOSTA] ✓ Proteção de empate adicionada`);
+      } else {
+        console.warn(`[REALIZAR-APOSTA] ⚠ Falha ao adicionar proteção de empate`);
+      }
+    }
+
+    console.log(`[REALIZAR-APOSTA] ═══════════════════════════════════`);
+    console.log(`[REALIZAR-APOSTA] ✓ APOSTA COMPLETA: ${nomeAcao} R$ ${stake}`);
+    console.log(`[REALIZAR-APOSTA] ═══════════════════════════════════\n`);
     return { ok: true, motivo: `Aposta ${acao} enviada: ${chip.motivo} -> ${area.motivo}` };
   }
 
