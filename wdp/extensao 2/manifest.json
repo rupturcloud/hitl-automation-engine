@@ -68,8 +68,7 @@
         "realizarAposta.js"
       ],
       "run_at": "document_end",
-      "all_frames": true,
-      "world": "MAIN"
+      "all_frames": true
     },
     {
       "matches": [
