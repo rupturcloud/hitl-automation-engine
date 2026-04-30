@@ -73,7 +73,8 @@
         "https://launch.billing-boom.com/*"
       ],
       "js": [
-        "ws-bridge.js"
+        "ws-bridge.js",
+        "keepAliveClicker.js"
       ],
       "run_at": "document_start",
       "all_frames": true,
