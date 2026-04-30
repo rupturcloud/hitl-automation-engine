@@ -1198,6 +1198,10 @@
         return true;
       }
       const sugestao = Core.estadoRobo.ultimaAnalise;
+      if (!['P', 'B', 'T'].includes(sugestao.acao)) {
+        sendResponse({ success: false, motivo: `Ação inválida: ${sugestao.acao}` });
+        return true;
+      }
       const best = getBestHistory();
       const resultadoSugestao = {
         acao: sugestao.acao,

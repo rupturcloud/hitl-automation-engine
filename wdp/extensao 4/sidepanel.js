@@ -299,7 +299,7 @@ async function atualizar() {
   // Atualizar painel automático (Executar Agora)
   const autoExecPanel = document.getElementById('auto-exec-panel');
   if (autoExecPanel) {
-    const temSugestao = Boolean(status.ultimaAnalise && status.ultimaAnalise.acao);
+    const temSugestao = Boolean(status.ultimaAnalise && status.ultimaAnalise.acao && ['P', 'B', 'T'].includes(status.ultimaAnalise.acao));
     const autoExecBtn = document.getElementById('btn-auto-exec');
 
     autoExecPanel.classList.toggle('hidden', !temSugestao || !mostrarOperacao);
