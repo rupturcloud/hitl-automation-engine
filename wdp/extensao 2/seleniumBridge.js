@@ -1,7 +1,8 @@
 // seleniumBridge.js — Bridge entre extensão e selenium_driver.py
 // Delega cliques de aposta para Python via WebSocket (isTrusted: true via CDP)
-// AGUARDANDO TESTE: Este arquivo está pronto mas desativado
-// Para ativar, integre em manifest.json e habilite em realizarAposta.js
+// STATUS: Desativado no manifest.json (linha 66 removida)
+// MOTIVO: Sistema usa dispatchEvent (seguro e confiável), Selenium é overkill
+// Se precisar ativar, adicione seleniumBridge.js de volta no manifest e configure servidor local
 
 (function () {
   'use strict';
