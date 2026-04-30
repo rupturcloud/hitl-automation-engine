@@ -449,7 +449,7 @@
   function enviarComandoParaFrame(frameId, payload, timeoutMs = 15000) {
     const snap = frameSnapshots.get(frameId);
     if (!snap?.sourceWindow) return Promise.resolve({ ok: false, motivo: 'Frame alvo não encontrado na bridge' });
-    const commandId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const commandId = `${FRAME_ID}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     return new Promise((resolve) => {
       const timer = setTimeout(() => {
         pendingCommands.delete(commandId);

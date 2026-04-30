@@ -49,16 +49,22 @@ const PADROES_CONFIG = [
 function el(id) { return document.getElementById(id); }
 
 async function carregarConfigPainel() {
-  const result = await chrome.storage.local.get(['willDadosConfig']);
-  const stored = result.willDadosConfig || {};
-  return {
-    ...DEFAULT_CONFIG,
-    ...stored,
-    padroesAtivos: {
-      ...DEFAULT_CONFIG.padroesAtivos,
-      ...(stored.padroesAtivos || {})
-    }
-  };
+  try {
+    const result = await chrome.storage.local.get(['willDadosConfig']);
+    if (!result) throw new Error('Storage retornou null/undefined');
+    const stored = result.willDadosConfig || {};
+    return {
+      ...DEFAULT_CONFIG,
+      ...stored,
+      padroesAtivos: {
+        ...DEFAULT_CONFIG.padroesAtivos,
+        ...(stored.padroesAtivos || {})
+      }
+    };
+  } catch (err) {
+    console.error('[STORAGE] Falha ao carregar config:', err.message);
+    return DEFAULT_CONFIG;
+  }
 }
 
 function renderPadroesConfig(config) {
@@ -129,23 +135,33 @@ async function coletarConfigPainel() {
 }
 
 async function salvarConfigPainel() {
-  const config = await coletarConfigPainel();
-  await chrome.storage.local.set({ willDadosConfig: config });
-  if (config.showOverlay) {
-    await abrirOverlayFlutuante();
-    return;
+  try {
+    const config = await coletarConfigPainel();
+    await chrome.storage.local.set({ willDadosConfig: config });
+    if (config.showOverlay) {
+      await abrirOverlayFlutuante();
+      return;
+    }
+    await send('UPDATE_CONFIG', { config });
+    await atualizar();
+    alert('Configurações salvas.');
+  } catch (err) {
+    console.error('[STORAGE] Falha ao salvar config:', err.message);
+    alert('Erro ao salvar configurações. Tente novamente.');
   }
-  await send('UPDATE_CONFIG', { config });
-  await atualizar();
-  alert('Configurações salvas.');
 }
 
 async function restaurarConfigPainel() {
-  await chrome.storage.local.set({ willDadosConfig: DEFAULT_CONFIG });
-  preencherConfigPainel(DEFAULT_CONFIG);
-  await send('UPDATE_CONFIG', { config: DEFAULT_CONFIG });
-  await atualizar();
-  alert('Configurações restauradas para o padrão.');
+  try {
+    await chrome.storage.local.set({ willDadosConfig: DEFAULT_CONFIG });
+    preencherConfigPainel(DEFAULT_CONFIG);
+    await send('UPDATE_CONFIG', { config: DEFAULT_CONFIG });
+    await atualizar();
+    alert('Configurações restauradas para o padrão.');
+  } catch (err) {
+    console.error('[STORAGE] Falha ao restaurar config:', err.message);
+    alert('Erro ao restaurar configurações. Tente novamente.');
+  }
 }
 
 async function inicializarConfigPainel() {

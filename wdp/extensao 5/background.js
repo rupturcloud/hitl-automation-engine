@@ -35,8 +35,14 @@ const PROXY_DOMAINS = [
 ];
 
 async function carregarConfigProxy() {
-  const stored = await chrome.storage.local.get(['willDadosProxyConfig']);
-  return stored.willDadosProxyConfig || DEFAULT_PROXY_CONFIG;
+  try {
+    const stored = await chrome.storage.local.get(['willDadosProxyConfig']);
+    if (!stored) throw new Error('Storage retornou null/undefined');
+    return stored.willDadosProxyConfig || DEFAULT_PROXY_CONFIG;
+  } catch (err) {
+    console.error('[PROXY] Falha ao carregar config de proxy:', err.message);
+    return DEFAULT_PROXY_CONFIG;
+  }
 }
 
 async function configurarProxy(skipHealthCheck = false) {
