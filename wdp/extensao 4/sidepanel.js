@@ -106,7 +106,7 @@ async function coletarConfigPainel() {
     bankrollInicial,
     bankrollAtual,
     stakeBase,
-    desabilitarLimiteStake,
+    desabilitarLimiteStake: desabilitarLimite,
     stakeMin: 5,
     stakeMax: desabilitarLimite ? 999999 : 150,
     metaSaldoAlvo: Number(el('cfg-metaSaldoAlvo')?.value || DEFAULT_CONFIG.metaSaldoAlvo),

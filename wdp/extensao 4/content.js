@@ -108,7 +108,7 @@
       if (matches && matches[1]) {
         const valorStr = matches[1].replace(/\./g, '').replace(',', '.');
         const valor = parseFloat(valorStr);
-        if (valor > 0 && valor < 1000000) return valor;
+        if (valor >= 100 && valor < 1000000) return valor;
       }
     }
     return null;
