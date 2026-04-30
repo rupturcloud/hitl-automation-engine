@@ -4,7 +4,7 @@
   'use strict';
 
   // Fichas (chips) padrão da Evolution Gaming no Bac Bo (em ordem decrescente para decomposição gulosa)
-  const BAC_BO_CHIPS = [10000, 5000, 2500, 500, 125, 25, 10, 5];
+  const BAC_BO_CHIPS = [12000, 10000, 5000, 2500, 500, 125, 25, 10, 5];
 
   // Calcula chip de proteção como ~10% da stake (rounded para chip inteiro)
   function calcularChipProtecao(stake) {
