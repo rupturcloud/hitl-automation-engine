@@ -96,8 +96,13 @@
               });
             }
           } catch (_) {}
-          return Reflect.apply(target, thisArg, sendArgs);
-        },
+          try {
+            return Reflect.apply(target, thisArg, sendArgs);
+          } catch (e) {
+            // Engole o erro se o jogo tentar enviar em um socket fechado/conectando.
+            // Evita que o erro apareça no console com a stack trace apontando para a extensão.
+            return;
+          }
       });
 
       // Monitora fechamento para diagnóstico
