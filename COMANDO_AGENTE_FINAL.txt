@@ -1,0 +1,146 @@
+👤 COPIE E COLE ISTO PARA O AGENTE DO CHROME:
+═════════════════════════════════════════════════════════════════════
+
+Você é agente autônomo executando Phase 1 Boot do Ruptur SaaS.
+
+STATUS: Webhook Global UAZAPI já foi configurado em:
+  URL: https://app.ruptur.cloud/api/bubble/validate
+  Eventos: message.received, message.sent, instance.connected, presence.changed
+
+INSTÂNCIA DE TESTE:
+  - Número: 553173663601
+  - Token: 5896f4fa-c7f2-4511-9a0a-05698d64c746
+  - Status: connected ✅
+  - Server: https://tiatendeai.uazapi.com
+
+SUA MISSÃO: Tasks 1.4-1.7 (30 minutos)
+
+═════════════════════════════════════════════════════════════════════
+
+[TASK 1.4] MONITORAR WEBHOOK (5 min)
+
+Ação:
+  1. ssh root@ruptur.cloud
+  2. cd /opt/ruptur/saas
+  3. docker-compose logs -f saas-web 2>&1 | grep -iE "(bubble|validate|webhook)" &
+
+Após Diego enviar msg WhatsApp:
+  - CAPTURAR a primeira linha de log que contenha "POST /api/bubble/validate"
+  - COPIAR toda a linha (incluindo timestamp, payload, status)
+  - SALVAR em variável ou documento
+
+Esperado:
+  Log mostrando: POST /api/bubble/validate ... 200 OK
+
+═════════════════════════════════════════════════════════════════════
+
+[TASK 1.5] DOCUMENTAR PAYLOAD (10 min)
+
+Ação:
+  1. Extrair JSON do log capturado em 1.4
+  2. Criar arquivo em seu repo local:
+     /docs/WEBHOOK_PAYLOAD_UAZAPI.md
+
+  3. Conteúdo do arquivo:
+
+     # Webhook Payload — UAZAPI
+
+     **Configuração**: Webhook Global
+     **Instância**: 553173663601
+     **Evento**: message.received
+     **Capturado**: [data/hora do evento]
+
+     ## Payload Completo
+
+     ```json
+     {
+       "event": "message.received",
+       "instance_id": "5896f4fa-c7f2-4511-9a0a-05698d64c746",
+       "data": {
+         "id": "...",
+         "sender": "...",
+         "message": "...",
+         "timestamp": "...",
+         "type": "..."
+       }
+     }
+     ```
+
+     ## Campos Principais Validados
+     - ✅ event: tipo de evento
+     - ✅ instance_id: ID da instância
+     - ✅ data.sender: quem enviou
+     - ✅ data.message: conteúdo
+     - ✅ data.timestamp: horário ISO 8601
+     - ✅ data.type: tipo (text/image/etc)
+
+  4. Git add + commit:
+     git add docs/WEBHOOK_PAYLOAD_UAZAPI.md
+     git commit -m "docs: webhook payload UAZAPI capturado (instance 553173663601, message.received event)"
+
+Esperado:
+  Arquivo criado + commit feito
+
+═════════════════════════════════════════════════════════════════════
+
+[TASK 1.6] DEPLOY PRODUÇÃO (5 min)
+
+Ação:
+  1. cd /opt/ruptur/saas
+  2. docker-compose pull
+  3. docker-compose up -d
+  4. sleep 30
+  5. docker-compose logs saas-web | grep -i "ruptur-saas-gateway" | head -5
+
+  6. Validar health:
+     curl -s https://app.ruptur.cloud/api/local/health | jq .
+
+Esperado:
+  Resposta JSON com: {"ok": true, "service": "ruptur-saas-gateway", ...}
+
+═════════════════════════════════════════════════════════════════════
+
+[TASK 1.7] VALIDAR E2E (10 min)
+
+Ação A (Diego faz no navegador — você valida logs):
+
+  Enquanto Diego:
+    1. Acessa: https://app.ruptur.cloud
+    2. Faz login
+    3. Vai para: /inbox
+    4. Aguarda spinner "Carregando Inbox Omnichannel..."
+    5. Verifica que Bubble iframe carregou
+    6. Envia msg WhatsApp para 553173663601
+    7. Aguarda 3-5s
+    8. Confirma que msg apareceu em Ruptur
+
+  Você valida via CLI:
+    curl -s -X POST https://app.ruptur.cloud/api/bubble/token \
+      -H "Authorization: Bearer DIEGO_JWT_TOKEN" \
+      -H "Content-Type: application/json" | jq .
+
+    Esperado:
+      {
+        "bubble_url": "https://uazapigo-multiatendimento.bubbleapps.io?token=...",
+        "token": "eyJ...",
+        "expires_in": 3600
+      }
+
+═════════════════════════════════════════════════════════════════════
+
+DEPENDÊNCIAS DE DIEGO:
+  ✅ [FEITO] Webhook Global configurado
+  ⏳ [AGORA] Enviar msg WhatsApp para 553173663601
+  ⏳ [DEPOIS] Teste visual no navegador
+
+TIMELINE: ~30 minutos (autônomo, você executa tudo)
+
+COMECE quando Diego avisar: "webhook está configurado, pode começar"
+
+═════════════════════════════════════════════════════════════════════
+
+APÓS CONCLUIR TASK 1.7:
+  Relatar conclusão: "Phase 1 Boot Completo! ✅"
+  Status: Webhook funcional, payload documentado, deploy OK, E2E validado
+
+═════════════════════════════════════════════════════════════════════

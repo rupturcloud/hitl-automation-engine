@@ -1,0 +1,12 @@
+.env
+.env.*
+node_modules/
+tmp/
+playwright-report/
+test-results/
+runtime-data/warmup-state.json
+runtime-data/warmup-state.json.backup
+runtime-data/instance-dna/**
+coverage/
+.nyc_output/
+.infisical-secrets.json

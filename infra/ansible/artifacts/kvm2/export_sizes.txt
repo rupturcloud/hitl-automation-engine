@@ -1,0 +1,10 @@
+616M	/var/lib/docker/volumes/kvm2_ruptur_db_data/_data
+32M	/var/lib/docker/volumes/kvm2_baileys_data/_data
+56K	/var/lib/docker/volumes/kvm2_traefik_letsencrypt/_data
+12K	/var/lib/docker/volumes/kvm2_warmup_runtime_data/_data
+4.0K	/var/lib/docker/volumes/kvm2_whisper_models/_data
+179M	/var/lib/docker/volumes/n8n_n8n_data/_data
+44M	/var/lib/docker/volumes/langfuse_langfuse_postgres_data/_data
+2.0G	/var/lib/docker/volumes/langfuse_langfuse_clickhouse_data/_data
+224K	/var/lib/docker/volumes/langfuse_langfuse_minio_data/_data
+236K	/root/J.A.R.V.I.S./data

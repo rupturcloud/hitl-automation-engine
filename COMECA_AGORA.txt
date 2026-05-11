@@ -1,0 +1,84 @@
+════════════════════════════════════════════════════════════════════════════════
+🚀 COMECE AGORA - TUDO PRONTO
+════════════════════════════════════════════════════════════════════════════════
+
+PASSO 1: ABRA ARQUIVO
+─────────────────────────────────────────────────────────────────────────────
+Arquivo: /Users/diego/dev/ruptur-cloud/ruptur-main/saas/CONTATOS_AGENCIAS_SEMANA1.csv
+
+Copie os 64 nomes + WhatsApp (coluna 3)
+
+════════════════════════════════════════════════════════════════════════════════
+
+PASSO 2: COPIE MENSAGEM
+─────────────────────────────────────────────────────────────────────────────
+
+Oi [NOME]! 👋
+
+Rápida pergunta (sem papo de vendedor):
+
+Você sabe quanto sua agência está deixando de ganhar
+com overhead de tarefas repetidas?
+
+Tipo responder cliente, agendar call, enviar proposta...
+
+Estimativa: 30 clientes × 12h/mês = 360h = R$108k/mês invisível
+
+Seus concorrentes já automatizaram. Você quer saber quanto estão ganhando a mais?
+
+(Sem compromisso, 5 minutos)
+
+════════════════════════════════════════════════════════════════════════════════
+
+PASSO 3: ENVIE AGORA
+─────────────────────────────────────────────────────────────────────────────
+Via WhatsApp para 50+ agências
+
+Tempo: 20-30 minutos
+
+Meta: 50 mensagens enviadas hoje às 20h
+
+════════════════════════════════════════════════════════════════════════════════
+
+AMANHÃ (QUARTA):
+─────────────────────────────────────────────────────────────────────────────
+09h: Acordar
+10h: Contar respostas
+10h30: Mandar mensagem 2 (diagnóstico brutal)
+20h: Dormir
+
+════════════════════════════════════════════════════════════════════════════════
+
+QUINTA:
+─────────────────────────────────────────────────────────────────────────────
+14h-15h30: Fazer 5-8 calls de 10 minutos
+15h30+: Fechar vendas (R$297/cliente)
+
+════════════════════════════════════════════════════════════════════════════════
+
+ARQUIVOS COMPLEMENTARES:
+─────────────────────────────────────────────────────────────────────────────
+📄 EXECUTAR_AGORA.md          ← Plano detalhado 7 dias
+📄 CONTATOS_AGENCIAS_SEMANA1.csv ← 64 agências (semana 1)
+📄 CONTATOS_AGENCIAS_SEMANA2.csv ← 150 agências (semana 2)
+📁 scripts/                   ← Tech setup automático
+
+════════════════════════════════════════════════════════════════════════════════
+
+SE PRECISAR:
+─────────────────────────────────────────────────────────────────────────────
+Variar mensagem? → /tmp/mensagens-variacao.txt
+Rastrear progresso? → /tmp/tracker-vendas.txt
+Roteiro call? → EXECUTAR_AGORA.md
+
+════════════════════════════════════════════════════════════════════════════════
+
+AGORA VAI:
+
+1. Abre arquivo CSV
+2. Copia nome + WhatsApp de 10 agências (teste)
+3. Envia mensagem (acima)
+4. Se resposta boa? Envia para 50 total
+5. Volta amanhã
+
+════════════════════════════════════════════════════════════════════════════════

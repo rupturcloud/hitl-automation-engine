@@ -1,0 +1,8 @@
+[   20153ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://axrwlboyowoskdxeogba.supabase.co/auth/v1/token?grant_type=password:0
+[   22935ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://axrwlboyowoskdxeogba.supabase.co/auth/v1/token?grant_type=password:0
+[   34402ms] [ERROR] Failed to load resource: the server responded with a status of 406 () @ https://axrwlboyowoskdxeogba.supabase.co/rest/v1/users?select=tenant_id%2Crole%2Ctenants%28*%29&id=eq.051e4d83-34e2-4738-9156-67d791b6ba01:0
+[   34403ms] [WARNING] [Auth] Usuário sem tenant vinculado: Cannot coerce the result to a single JSON object @ https://app.ruptur.cloud/assets/index-fiJ9sj6k.js:31
+[   35740ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://app.ruptur.cloud/api/admin/platform/check:0
+[   92652ms] [ERROR] Failed to load resource: the server responded with a status of 406 () @ https://axrwlboyowoskdxeogba.supabase.co/rest/v1/users?select=tenant_id%2Crole%2Ctenants%28*%29&id=eq.0e55b74c-dc85-4d3d-8af2-c9fb41cebb3c:0
+[   92652ms] [WARNING] [Auth] Usuário sem tenant vinculado: Cannot coerce the result to a single JSON object @ https://app.ruptur.cloud/assets/index-fiJ9sj6k.js:31
+[   92903ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://app.ruptur.cloud/api/admin/platform/check:0

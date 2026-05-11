@@ -1,0 +1,51 @@
+-- jarvis_jarvis.1.rq8h2ga7ns0wr16gb6xxzcclo
+bind  /root/J.A.R.V.I.S./.agents/skills -> /app/.agents/skills
+bind  /root/J.A.R.V.I.S./.env -> /app/.env
+bind  /root/J.A.R.V.I.S./data -> /app/data
+
+-- langfuse-langfuse-web-1
+
+-- langfuse-langfuse-worker-1
+
+-- langfuse-clickhouse-1
+volume langfuse_langfuse_clickhouse_data /var/lib/docker/volumes/langfuse_langfuse_clickhouse_data/_data -> /var/lib/clickhouse
+volume langfuse_langfuse_clickhouse_logs /var/lib/docker/volumes/langfuse_langfuse_clickhouse_logs/_data -> /var/log/clickhouse-server
+
+-- langfuse-postgres-1
+volume langfuse_langfuse_postgres_data /var/lib/docker/volumes/langfuse_langfuse_postgres_data/_data -> /var/lib/postgresql/data
+
+-- langfuse-minio-1
+volume langfuse_langfuse_minio_data /var/lib/docker/volumes/langfuse_langfuse_minio_data/_data -> /data
+
+-- langfuse-redis-1
+volume langfuse_langfuse_redis_data /var/lib/docker/volumes/langfuse_langfuse_redis_data/_data -> /data
+
+-- redis-redis-1
+volume redis_redis_data /var/lib/docker/volumes/redis_redis_data/_data -> /data
+
+-- n8n-n8n-1
+volume n8n_n8n_data /var/lib/docker/volumes/n8n_n8n_data/_data -> /home/node/.n8n
+
+-- kvm2-warmup-1
+volume kvm2_warmup_runtime_data /var/lib/docker/volumes/kvm2_warmup_runtime_data/_data -> /app/runtime-data
+
+-- kvm2-ruptur-web-1
+
+-- kvm2-whisper-1
+volume kvm2_whisper_models /var/lib/docker/volumes/kvm2_whisper_models/_data -> /root/.cache
+
+-- kvm2-baileys-1
+volume kvm2_baileys_data /var/lib/docker/volumes/kvm2_baileys_data/_data -> /data
+
+-- kvm2-ruptur-backend-1
+
+-- kvm2-ruptur-db-1
+volume kvm2_ruptur_db_data /var/lib/docker/volumes/kvm2_ruptur_db_data/_data -> /var/lib/postgresql/data
+bind  /opt/ruptur/current/backend/db/schema.sql -> /docker-entrypoint-initdb.d/001_schema.sql
+
+-- kvm2-traefik-1
+bind  /opt/ruptur/current/deploy/kvm2/traefik_dynamic.yml -> /etc/traefik/dynamic.yml
+volume kvm2_traefik_letsencrypt /var/lib/docker/volumes/kvm2_traefik_letsencrypt/_data -> /letsencrypt
+
+-- proxy_socket-proxy.1.tu7yxklstw2nl4k9tm5a6usla
+bind  /var/run/docker.sock -> /var/run/docker.sock

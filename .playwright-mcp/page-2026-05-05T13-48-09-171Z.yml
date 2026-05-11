@@ -1,0 +1,21 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img [ref=e7]
+    - heading "RUPTURCLOUD" [level=1] [ref=e9]
+    - paragraph [ref=e10]: Automação WhatsApp
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - img [ref=e14]
+      - textbox "Seu e-mail" [active] [ref=e17]: ruptur.cloud@gmail.com
+    - generic [ref=e18]:
+      - img [ref=e20]
+      - textbox "Sua senha" [ref=e23]: Luc500#@!
+      - button [ref=e24] [cursor=pointer]:
+        - img [ref=e25]
+    - button "Entrar" [ref=e28] [cursor=pointer]:
+      - generic [ref=e29]: Entrar
+      - img [ref=e30]
+  - paragraph [ref=e32]:
+    - text: Não tem conta?
+    - link "Criar conta grátis" [ref=e33] [cursor=pointer]:
+      - /url: /signup

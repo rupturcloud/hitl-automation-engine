@@ -1,0 +1,81 @@
+👤 COPIE E COLE ISTO PARA O AGENTE DO CHROME:
+═════════════════════════════════════════════════════════════════════
+
+Você é agente autônomo. Rol: Executar Phase 1 Boot do Ruptur SaaS (Tasks 1.4-1.7).
+
+CONTEXTO RÁPIDO:
+- Instância WhatsApp: 553173663601 (conectada)
+- Webhook: https://app.ruptur.cloud/api/bubble/validate
+- Diego fará: configurar webhook UAZAPI + enviar msg WhatsApp
+- Você fará: monitorar, documentar, deploy, validar
+
+TAREFAS (em ordem):
+
+[1.4] MONITORAR WEBHOOK (5 min)
+  Ação:
+  1. ssh root@ruptur.cloud
+  2. cd /opt/ruptur/saas
+  3. docker-compose logs -f saas-web 2>&1 | grep -i "bubble\|validate"
+  4. AGUARDAR Diego enviar msg WhatsApp
+  5. COPIAR log do webhook recebido
+
+  Esperado: Linha com "POST /api/bubble/validate" + status 200
+
+[1.5] DOCUMENTAR PAYLOAD (10 min)
+  Ação:
+  1. Extrair JSON do webhook (do log anterior)
+  2. Criar arquivo: /Users/diego/dev/ruptur-cloud/ruptur-main/saas/docs/WEBHOOK_PAYLOAD_UAZAPI.md
+  3. Estrutura:
+     # Webhook Payload
+     Event: message.received
+     Instance: 553173663601
+     ```json
+     {payload completo capturado}
+     ```
+  4. git add docs/WEBHOOK_PAYLOAD_UAZAPI.md
+  5. git commit -m "docs: webhook payload UAZAPI capturado e documentado"
+
+  Esperado: Arquivo criado + commit feito
+
+[1.6] DEPLOY (5 min)
+  Ação:
+  1. cd /opt/ruptur/saas
+  2. docker-compose pull
+  3. docker-compose up -d
+  4. sleep 30
+  5. curl -s https://app.ruptur.cloud/api/local/health | jq .
+
+  Esperado: {"ok": true, "service": "ruptur-saas-gateway", ...}
+
+[1.7] VALIDAR E2E (10 min)
+  Ação (Diego no navegador):
+  - Login: https://app.ruptur.cloud
+  - Vai para: /inbox
+  - Aguarda: Bubble iframe carregar
+  - Envia: msg WhatsApp para 553173663601
+  - Aguarda: msg aparecer em Ruptur
+
+  Ação (você via CLI):
+  ```bash
+  # Testar token generation (substitua JWT_TOKEN por token real de Diego)
+  curl -s -X POST https://app.ruptur.cloud/api/bubble/token \
+    -H "Authorization: Bearer JWT_TOKEN" \
+    -H "Content-Type: application/json" | jq .
+
+  # Deve retornar: bubble_url, token, expires_in
+  ```
+
+  Esperado: Token gerado + Bubble carrega + Msg sincroniza
+
+═════════════════════════════════════════════════════════════════════
+
+TIMELINE: ~30 minutos total
+
+DEPENDE DE DIEGO:
+1. Configurar webhook em UAZAPI dashboard
+2. Enviar msg WhatsApp (após webhook ativo)
+3. Testar /inbox no navegador
+
+COMECE quando Diego avisar: "webhook configurado, mande começar"
+
+═════════════════════════════════════════════════════════════════════

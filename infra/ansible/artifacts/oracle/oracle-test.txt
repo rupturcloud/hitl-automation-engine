@@ -1,0 +1,17 @@
+== HOST ==
+instance-20260310-0953
+
+== DISK ==
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        45G  7.5G   38G  17% /
+/dev/sda1        45G  7.5G   38G  17% /
+
+== DOCKER VOLUMES ==
+host1_letsencrypt
+
+== CONTAINER MOUNTS ==
+-- host1-ruptur-backend-1
+
+-- host1-traefik-1
+volume host1_letsencrypt /var/lib/docker/volumes/host1_letsencrypt/_data -> /letsencrypt
+bind  /var/run/docker.sock -> /var/run/docker.sock

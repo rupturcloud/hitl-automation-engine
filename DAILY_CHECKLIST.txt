@@ -1,0 +1,222 @@
+═══════════════════════════════════════════════════════════════════════════════
+CHECKLIST DIÁRIO - Semana 1
+═══════════════════════════════════════════════════════════════════════════════
+
+SEGUNDA (PRÉ-EXECUÇÃO)
+───────────────────────────────────────────────────────────────────────────────
+Preparation Day
+
+□ Ler COMECA_AGORA.txt (5 min)
+□ Ler EXECUTAR_AGORA.md (10 min)
+□ Abrir CONTATOS_AGENCIAS_SEMANA1.csv (2 min)
+□ Copiar 10 primeiros nomes + WhatsApp (5 min)
+□ Revisar script de mensagem (2 min)
+□ Testar enviar 10 mensagens (10 min)
+□ Abrir dashboard-metricas.html no navegador (1 min)
+□ Dormir cedo
+
+STATUS: 09:00 PM - TUDO PRONTO? SIM □ NÃO □
+
+═══════════════════════════════════════════════════════════════════════════════
+
+TERÇA (DIA 1 - ENVIO)
+───────────────────────────────────────────────────────────────────────────────
+🎯 META: Enviar 50 mensagens
+
+08:00 AM - MANHÃ
+□ Acordar com energia
+□ Verificar WhatsApp (5 respostas do teste de segunda? Sim □ Não □)
+□ Se resultado bom: expandir para 50. Se fraco: revisar copy
+
+14:00 PM - TARDE
+□ Copiar próximos 40 nomes do CSV
+□ Preparar 50 mensagens (batch)
+□ Enviar 50 mensagens (20 min se usar template)
+
+20:00 PM - NOITE
+□ Dashboard: Registrar 50 mensagens enviadas
+□ Responder qualquer resposta que chegou (não espera demanda)
+□ Dormir
+
+CHECKLIST:
+□ 50 mensagens enviadas
+□ Dashboard atualizado
+□ Respostas rastreadas
+
+═══════════════════════════════════════════════════════════════════════════════
+
+QUARTA (DIA 2 - DIAGNÓSTICO)
+───────────────────────────────────────────────────────────────────────────────
+🎯 META: Enviar 2ª mensagem para quem respondeu
+
+09:00 AM - MANHÃ
+□ Acordar e revisar respostas (15 min)
+□ Contar: Positivas, negativas, dúvidas
+□ Rodar analisador: node /tmp/analisar-respostas.js (5 min)
+□ Se taxa resposta < 5%: Mudar copy para VARIANTE B
+□ Se taxa resposta ≥ 10%: Continue com plano
+
+10:00 AM - AÇÃO
+□ Copiar lista de "sim" de ontem
+□ Copiar mensagem 2 (diagnóstico brutal)
+□ Enviar para todos que responderam positivo
+□ Enviar para 50 novos contatos (follow-up)
+
+20:00 PM - NOITE
+□ Dashboard: Registrar respostas do dia
+□ Não responda ainda para perguntas (deixa acumular)
+□ Dormir
+
+CHECKLIST:
+□ Respostas analisadas
+□ Msg 2 enviadas para quem respondeu
+□ 50 novos contatos contatados
+□ Dashboard atualizado
+
+═══════════════════════════════════════════════════════════════════════════════
+
+QUINTA (DIA 3 - CALLS + CLOSE)
+───────────────────────────────────────────────────────────────────────────────
+🎯 META: Fazer calls, fechar 2-4 clientes
+
+09:00 AM - MANHÃ
+□ Acordar 1h mais cedo (importante!)
+□ Revisar todos os "sim" que responderam
+□ Contar: quantas pessoas quer falar? Meta: 4-6
+□ Enviar: "Bora conversar sobre isso? 14h para você?"
+
+11:00 AM - PREPARAÇÃO
+□ Abrir EXECUTAR_AGORA.md (roteiro de call)
+□ Revisar roteiro de 10 min (memorizar)
+□ Preparar: Calendly link ou Stripe link prontos
+□ Testar: Zoom/WhatsApp funcionando
+
+14:00 PM - CALLS
+□ CALL 1: [Nome] (10 min)
+□ CALL 2: [Nome] (10 min)
+□ CALL 3: [Nome] (10 min)
+□ CALL 4: [Nome] (10 min)
+□ [Se houver 5-6] CALL 5 e 6
+
+15:00 PM - CLOSE
+□ Processar Stripe para quem disse SIM
+□ Enviar email de confirmação
+□ Paralelamente: enviar 50 novas mensagens
+
+20:00 PM - NOITE
+□ Dashboard: Registrar clientes fechados + receita
+□ Responder emails de confirmação
+□ Celebrar os clientes 🎉
+□ Dormir cedo (foi dia pesado)
+
+CHECKLIST:
+□ 4-8 calls realizadas
+□ 2-4 clientes fechados
+□ Stripe processado
+□ Email enviados
+□ Dashboard atualizado
+□ Receita: R$ [_____]
+
+═══════════════════════════════════════════════════════════════════════════════
+
+SEXTA (DIA 4 - EXPANSÃO)
+───────────────────────────────────────────────────────────────────────────────
+🎯 META: Continuar fluxo, 2-3 clientes extras
+
+09:00 AM - MANHÃ
+□ Revisar respostas novas (100 contatos novos desta semana)
+□ Aplicar lições de quinta: call funciona? SIM □ NÃO □
+□ Se SIM: repeat pattern
+□ Se NÃO: mudar roteiro (revisitar EXECUTAR_AGORA.md)
+
+11:00 AM - AÇÃO
+□ Agendar 4-6 novas calls (próximos 3 dias)
+□ Enviar 50 novas mensagens (expandindo base)
+
+14:00 PM - CALLS (se agendadas)
+□ Fazer calls de quem agendou (2-3 esperado)
+□ Fechar 1-2 novos clientes
+
+20:00 PM - NOITE
+□ Dashboard: Registrar dia
+□ Email: Update para você mesmo (log de progresso)
+□ Planejar fim de semana
+
+CHECKLIST:
+□ Novos calls agendadas
+□ 50 msgs novas enviadas
+□ 2-3 clientes novos
+□ Dashboard atualizado
+
+═══════════════════════════════════════════════════════════════════════════════
+
+SÁBADO-DOMINGO (DIA 5-7 - CONSOLIDAÇÃO)
+───────────────────────────────────────────────────────────────────────────────
+🎯 META: 2-4 clientes extras, preparar semana 2
+
+SÁBADO
+□ Responder 50+ mensagens (Follow-up dos contatos iniciais)
+□ Agendar calls para semana que vem
+□ Fazer 2-3 calls e fechar 1-2 clientes
+□ Dashboard: Atualizar
+
+DOMINGO
+□ Responder mais mensagens
+□ Fazer 2-3 calls extras
+□ Fechar 1-2 clientes
+□ ANÁLISE FINAL SEMANA 1:
+  □ Total mensagens enviadas: ___
+  □ Total respostas: ___ (%)
+  □ Total demos agendadas: ___
+  □ Total clientes: ___
+  □ Receita total: R$ ___
+
+RESULTADO ESPERADO SEMANA 1:
+│ Mensagens | 150-200 │
+│ Respostas | 20-40 (15-20%) │
+│ Demos | 10-15 │
+│ Clientes | 3-8 │
+│ Receita | R$ 891-2.400 │
+
+═══════════════════════════════════════════════════════════════════════════════
+
+PRÓXIMA SEMANA (SE VALIDOU):
+───────────────────────────────────────────────────────────────────────────────
+
+Se clientes ≥ 3 e receita ≥ R$ 891:
+✅ VALIDAÇÃO COMPLETA
+
+Scale:
+□ Aumentar para 100+ msgs/dia
+□ Contrata 1 SDR (freelancer)
+□ Coloca R$200/dia em ads
+□ Prepara segunda semana de 300 contatos
+
+Se clientes < 3 ou receita < R$ 891:
+⚠️ PRECISA AJUSTAR
+
+Ação:
+□ Fazer 3 calls com contatos que disseram não
+□ Entender por quê não funcionou
+□ Mudar copy + roteiro
+□ Repetir testes semana 2
+
+═══════════════════════════════════════════════════════════════════════════════
+
+TEMPLATES RÁPIDOS:
+───────────────────────────────────────────────────────────────────────────────
+
+Responder para "Sim" (agendar call):
+"Ótimo! Semana que vem? [Calendly link]"
+
+Responder para "Talvez" (enviar diagnóstico):
+"Entendo! Deixa eu te mostrar números reais..." [MSG 2]
+
+Responder para "Não" (colher insights):
+"Sem problema! Rápida pergunta: por quê não tá nos planos?"
+
+Responder para "Quanto custa?":
+"R$297/mês. Mas primeiro preciso entender se faz sentido pra você.
+Quer conversar? [Calendly]"
+
+═══════════════════════════════════════════════════════════════════════════════
