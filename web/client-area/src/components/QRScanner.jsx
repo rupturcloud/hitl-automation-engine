@@ -50,7 +50,7 @@ export default function QRScanner({ onScanned, onClose, title = 'Escanear QR Cod
         scanner.clear();
         setTimeout(() => onScanned(decodedText), 500);
       },
-      (_error) => {
+      () => {
         // Ignorar erros de "não detectado" - é normal
       }
     );

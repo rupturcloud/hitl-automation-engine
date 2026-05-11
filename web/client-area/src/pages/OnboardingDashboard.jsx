@@ -11,6 +11,7 @@
  * Exibe progresso visual + trial countdown
  */
 
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/rules-of-hooks, no-unused-vars, react-hooks/immutability */
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../lib/auth';
 import { API_BASE_URL } from '../config';

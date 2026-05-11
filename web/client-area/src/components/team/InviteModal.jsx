@@ -4,7 +4,7 @@
  * Validação de email e seleção de role
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function InviteModal({ onClose, onSubmit }) {
   const [email, setEmail] = useState('');

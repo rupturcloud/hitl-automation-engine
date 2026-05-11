@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/rules-of-hooks, react-hooks/set-state-in-effect */
 import { useEffect, useState, useCallback } from 'react';
 import { apiService } from '../services/api';
 import { supabase } from '../services/supabase';

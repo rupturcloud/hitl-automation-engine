@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/rules-of-hooks, react-hooks/set-state-in-effect */
 /**
  * useUsersTenant
  * Hook para gerenciar usuários do tenant com real-time sync

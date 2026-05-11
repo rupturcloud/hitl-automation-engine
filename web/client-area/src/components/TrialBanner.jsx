@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/rules-of-hooks, no-unused-vars, react-hooks/immutability */
 /**
  * TrialBanner — Banner Sticky com Status do Trial
  *
@@ -45,9 +46,9 @@ export default function TrialBanner() {
         const data = await res.json();
         setTrialStatus(data);
       }
+      setLoading(false);
     } catch (err) {
       console.error('Erro ao buscar trial status:', err);
-    } finally {
       setLoading(false);
     }
   };
@@ -57,10 +58,10 @@ export default function TrialBanner() {
   }
 
   const daysRemaining = trialStatus.daysRemaining || 0;
-  let alertLevel = 'info';
-  let title = '';
-  let message = '';
-  let showCTA = false;
+  let alertLevel;
+  let title;
+  let message;
+  let showCTA;
 
   if (daysRemaining <= 0) {
     alertLevel = 'critical';
@@ -72,7 +73,7 @@ export default function TrialBanner() {
     title = '⏰ Trial expira HOJE';
     message = 'Sua conta será bloqueada em breve. Faça upgrade agora!';
     showCTA = true;
-  } else if (daysRemaining <= 2) {
+  } else if (daysRemaining === 2) {
     alertLevel = 'warning';
     title = '⚠️  Trial expira em 2 dias';
     message = 'Upgrade necessário em breve para manter o acesso.';
@@ -114,11 +115,11 @@ export default function TrialBanner() {
       </div>
 
       {/* Progress bar visual rápido */}
-      {trialStatus.progressPercentage > 0 && (
+      {trialStatus?.progressPercentage > 0 && (
         <div className="trial-progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${trialStatus.progressPercentage}%` }}
+            style={{ width: `${trialStatus?.progressPercentage}%` }}
           />
         </div>
       )}

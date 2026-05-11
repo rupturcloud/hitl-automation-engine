@@ -3,7 +3,7 @@
  * Lista de convites pendentes com ações (cancel)
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function PendingInvites({ invites, onCancel }) {
   const [hoveredId, setHoveredId] = useState(null);

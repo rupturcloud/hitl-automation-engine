@@ -3,8 +3,6 @@
  * Timeline de auditoria (quem fez o quê e quando)
  */
 
-import React from 'react';
-
 export default function AuditLog({ logs }) {
   const getActionIcon = (action) => {
     const icons = {

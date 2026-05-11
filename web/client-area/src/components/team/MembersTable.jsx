@@ -3,7 +3,7 @@
  * Tabela de membros com ações (remove, change role)
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function MembersTable({ members, canManage, onRemove, onChangeRole }) {
   const [hoveredRow, setHoveredRow] = useState(null);

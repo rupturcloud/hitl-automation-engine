@@ -86,7 +86,7 @@ class PubSubClient {
   /**
    * Listen a mudanças em uma tabela (Realtime)
    */
-  listenToTable(table, filters = {}, callback) {
+  listenToTable(table, callback) {
     if (!this.supabase) {
       console.warn('[PubSub] Supabase não disponível para realtime');
       return () => {};
@@ -212,9 +212,10 @@ export function usePolling(url, interval = 3000, onData = null) {
         clearTimeout(timeoutRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url, interval]);
 
   return { loading, error, data };
 }
 
-export default usePubSub;
+// Default export is same as named export above

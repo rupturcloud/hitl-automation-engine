@@ -175,13 +175,33 @@ GET /api/local/warmup/state
 
 ## 🧪 Desenvolvimento Local
 
-### Ambiente Local
+### Configurar Ambiente
 
 ```bash
-# Iniciar ambiente local
-make deploy-local
+# 1. Copiar template de variáveis de ambiente
+cp .env.example .env.local
 
-# Acessar aplicação
+# 2. Editar .env.local com suas credenciais
+# STRIPE_SECRET_KEY, SUPABASE_URL, UAZAPI_TOKEN, etc.
+# Ver ENV_SETUP.md para lista completa
+
+# 3. Verificar arquivo está protegido (já em .gitignore)
+grep ".env.local" .gitignore
+```
+
+### Rodar Aplicação
+
+```bash
+# Iniciar API em desenvolvimento
+npm run saas:dev
+# Acessa: http://localhost:3001
+
+# Ou rodar warmup-core
+npm start
+# Acessa: http://localhost:4173
+
+# Rodar aplicação local completa
+make deploy-local
 open http://localhost:4173
 ```
 
@@ -196,13 +216,19 @@ make test-apis
 
 # Testes E2E
 npm run test:e2e
+
+# Testes com interface visual
+npm run test:e2e:ui
 ```
 
-### Build
+### Build & Validação
 
 ```bash
 # Build para produção
 npm run build
+
+# Validações de código e testes
+npm run quality
 
 # Build Docker
 make build
@@ -210,26 +236,45 @@ make build
 
 ## 🔧 Configuração
 
-### Variáveis de Ambiente Obrigatórias
+### Variáveis de Ambiente
+
+**Setup Rápido:**
+1. Copie `.env.example` para `.env.local`
+2. Preencha com suas credenciais
+3. Arquivo está automaticamente em `.gitignore`
+
+Ver **[ENV_SETUP.md](ENV_SETUP.md)** para guia completo de configuração.
+
+### Variáveis Obrigatórias
 
 ```bash
-# GCP
-GCP_PROJECT_ID=ruptur-jarvis-v1-68358
-GCP_ZONE=southamerica-west1-a
+# Stripe Payment Processing
+STRIPE_SECRET_KEY=sk_test_...          # Chave secreta
+STRIPE_PUBLISHABLE_KEY=pk_test_...     # Chave pública
+STRIPE_WEBHOOK_SECRET=whsec_...        # Secret webhook
 
-# UAZAPI
+# Supabase (Database & Auth)
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_ANON_KEY=xxxxx
+SUPABASE_SERVICE_ROLE_KEY=xxxxx
+
+# UAZAPI (WhatsApp Integration)
 UAZAPI_TOKEN=seu_token_aqui
 WARMUP_ADMIN_TOKEN=seu_token_aqui
 
-# Bubble
+# GCP (Cloud Infrastructure)
+GCP_PROJECT_ID=ruptur-jarvis-v1-68358
+GCP_ZONE=southamerica-west1-a
+
+# Bubble.io (Optional)
 BUBBLE_API_KEY=sua_chave_aqui
 
-# Supabase
-VITE_SUPABASE_URL=sua_url_aqui
-VITE_SUPABASE_PUBLISHABLE_KEY=sua_key_aqui
+# Server
+PORT_API=3001
+NODE_ENV=development
 ```
 
-Veja [.env.example](.env.example) para todas as variáveis disponíveis.
+Ver [.env.example](.env.example) e [ENV_SETUP.md](ENV_SETUP.md) para documentação completa.
 
 ## 📊 Monitoramento
 
@@ -420,28 +465,56 @@ Este projeto está licenciado sob a Licença MIT - veja [LICENSE](LICENSE) para 
 
 ## 🚀 Quick Start
 
+### Desenvolvimento (Recomendado para comece)
+
 ```bash
-# 1. Clone e configure
+# 1. Clone e prepare
 git clone https://github.com/ruptur-cloud/saas.git
 cd saas
-cp .env.example .env
 
-# 2. Deploy produção
+# 2. Configure variáveis de ambiente
+cp .env.example .env.local
+# Edite .env.local com suas credenciais
+
+# 3. Instale dependências
+npm install
+
+# 4. Rode em desenvolvimento
+npm run saas:dev
+# Acessa: http://localhost:3001
+
+# 5. Em outro terminal, rode Supabase local
+npm run supabase:start
+```
+
+### Produção
+
+```bash
+# 1. Deploy rápido
 make deploy-prod
+
+# 2. Verifique status
+make status
 
 # 3. Acesse a aplicação
 open https://app.ruptur.cloud
-
-# 4. Verifique status
-make status
 ```
 
-🎉 **Pronto!** Sua instância SaaS está rodando em produção.
+### Validação
+
+```bash
+# Testes e qualidade
+npm run quality
+
+# Testes com cobertura
+npm run test:coverage
+
+# Testes E2E
+npm run test:e2e
+```
 
 ---
 
 **Ruptur SaaS** - Automação WhatsApp em escala 🚀
-<<<<<<< HEAD
-=======
-# 🚀 Deploy Automático Test - Fri May  1 10:06:12 -03 2026
->>>>>>> codex/getnet-prod-fix
+
+Atualizado: Maio 2026 | Status: ✅ Ativo | Env: .env.local

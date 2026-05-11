@@ -4,7 +4,7 @@
  * Layout: left sidebar (nav) + main (tabs: Members, Invites, Audit)
  */
 
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { TenantContext } from '../context/TenantContext';
 import { useUsersTenant } from '../hooks/useUsersTenant';

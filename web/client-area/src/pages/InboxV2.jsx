@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader, AlertCircle, RefreshCw, MessageSquare, Settings, Search, Phone, Clock, X } from 'lucide-react';
+import { Loader, AlertCircle, RefreshCw, MessageSquare, Settings, Search, Phone, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
 import MessageComposer from '../components/MessageComposer';
@@ -19,7 +19,7 @@ import { usePubSub } from '../hooks/usePubSub';
  */
 
 const InboxV2 = () => {
-  const { session, isAuthenticated, loading: authLoading, tenantId } = useAuth();
+  const { isAuthenticated, loading: authLoading, tenantId } = useAuth();
   const pubSub = usePubSub();
 
   const [chats, setChats] = useState([]);
@@ -27,7 +27,7 @@ const InboxV2 = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [chatsLoading, setChatsLoading] = useState(false);
+  const [chatsLoading] = useState(false);
 
   // Carregar chats ao montar
   useEffect(() => {

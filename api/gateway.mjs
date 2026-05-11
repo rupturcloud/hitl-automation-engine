@@ -562,20 +562,36 @@ async function listAdminClients(search = '') {
 
 /**
  * Servir arquivo estático do dist-client
+ * FIX: Diferenciar entre arquivo estático que NÃO EXISTE vs rota SPA
  */
 async function serveStatic(res, pathname, req) {
   let filePath = path.join(DIST_DIR, pathname);
 
-  try {
-    const s = await stat(filePath);
-    if (s.isDirectory()) {
-      filePath = path.join(filePath, 'index.html');
+  // Se o arquivo existe, servir normalmente
+  if (existsSync(filePath)) {
+    try {
+      const s = await stat(filePath);
+      if (s.isDirectory()) {
+        filePath = path.join(filePath, 'index.html');
+      }
+    } catch {
+      // Diretório mas sem index.html → 404
+      return json(res, 404, { error: 'Not found' }, req);
     }
-  } catch {
-    // SPA fallback: qualquer rota não-estática → index.html
-    filePath = path.join(DIST_DIR, 'index.html');
+  } else {
+    // Se arquivo NÃO existe:
+    // - Se é rota estática (contém . = extensão), retornar 404
+    // - Se é rota SPA (sem extensão), servir index.html
+    if (pathname.includes('.')) {
+      // Arquivo estático com extensão que não existe
+      return json(res, 404, { error: 'Not found' }, req);
+    } else {
+      // Rota SPA → servir index.html
+      filePath = path.join(DIST_DIR, 'index.html');
+    }
   }
 
+  // Double-check: arquivo final deve existir
   if (!existsSync(filePath)) {
     return json(res, 404, { error: 'Not found' }, req);
   }

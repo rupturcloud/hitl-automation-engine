@@ -3,7 +3,7 @@
  * Modal de confirmação reutilizável para ações críticas
  */
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 export default function ConfirmDialog({
   title,
