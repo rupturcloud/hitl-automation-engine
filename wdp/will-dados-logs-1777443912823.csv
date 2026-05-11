@@ -1,6 +1,0 @@
-iso,timestamp,tipo,mensagem,bankroll,lucro,gale
-"2026-04-29T06:24:36.526Z","03:24:36","STOP","Stop Loss por saldo atingido: R$ 29850",29850,-150,1
-"2026-04-29T06:24:36.526Z","03:24:36","PERDA","Perdeu R$ 150 — Gale 1",30000,0,1
-"2026-04-29T06:24:34.288Z","03:24:34","SIMULACAO","Simulação em Vermelho / Banker — R$ 150",30000,0,0
-"2026-04-29T06:24:34.052Z","03:24:34","INFO","Robô ativado",30000,0,0
-"2026-04-29T06:24:24.683Z","03:24:24","INFO","Content script iniciado com bridge completa",30000,0,0

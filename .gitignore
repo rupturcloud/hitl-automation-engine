@@ -1,93 +1,43 @@
-# Dependencies
-node_modules/
-**/node_modules/
-
-# Build and Output
-build/
-dist/
-.next/
-.serverless/
-out/
-coverage/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv/
-venv/
-ENV/
-env/
-
-# OS/IDE
+# OS
 .DS_Store
-Thumbs.db
-.vscode/
+.DS_Store?
+*.swp
+*.swo
+*~
 .idea/
+
+# Node
+node_modules/
+npm-debug.log
+package-lock.json
+
+# IDE
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.idea/
+*.iml
+
+# Testing
+test-results/
+coverage/
+.nyc_output/
+
+# Build artifacts
+dist/
+build/
+*.zip
+
+# Configuration
+config.local.json
+.env.local
+.env.*.local
 
 # Logs
 *.log
-daemon.log
+logs/
 
-# Env
-.env*
-!.env.example
-
-# Others
-*.zip
-*.tar.gz
-*.pdf
-*.mp4
-*.png
-*.jpg
-*.jpeg
-*.svg
-*.gif
-*.ico
-
-# IA & Agents
-.agents/
-.claude/
-.gemini/
-.playwright-mcp/
-.cursor/
-**/.agents/
-**/.claude/
-**/.gemini/
-
-# Project Specific
-tiatendeai/
-scratch/
-contexts/
-knowledge/
-**/*.doc
-**/*.docx
-**/*.xls
-**/*.xlsx
-**/*.ppt
-**/*.pptx
-**/*.rtf
-**/*.txt
-*_output/
-robo_*/
-visual_output/
-test_real_output/
-test_screenshots_smoke/
-teste_honesto_output/
-websocket_output/
-robot_will_output/
-bot_telemetry_output/
-ciclo*_output/
-click_cores_output/
-debug_output/
-dojo_output/
-mouse_visual_output/
-public-bacbo/
-public-bacbo-chips/
-public/
-selector_map/
-downloaded_files/
-.playwright-mcp/
-
-# Perfis locais do Chrome/SeleniumBase (cookies e sessões; não versionar)
-wdp/.wdp_chrome_profiles/
+# Temp files
+tmp/
+temp/
+*.tmp

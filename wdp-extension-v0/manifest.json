@@ -1,0 +1,76 @@
+{
+  "manifest_version": 3,
+  "name": "HITL Automation Engine - Precision Control",
+  "version": "1.0.0",
+  "description": "Enterprise-grade Human-in-the-Loop automation framework with high-precision decision-making, pattern recognition, and error mitigation through controlled automation.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabs",
+    "sidePanel",
+    "webRequest",
+    "proxy"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "wss://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "overlay.html"
+      ],
+      "matches": [
+        "https://*/*"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "HITL Automation Control"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*"
+      ],
+      "js": [
+        "ws-bridge.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://*/*"
+      ],
+      "js": [
+        "chipCalibrator.js",
+        "sessionMonitor.js",
+        "realizarAposta.js"
+      ],
+      "run_at": "document_end",
+      "all_frames": true
+    },
+    {
+      "matches": [
+        "https://*/*"
+      ],
+      "js": [
+        "lib/will-dados-robo.js",
+        "content.js"
+      ],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
+}
