@@ -97,4 +97,4 @@ http:
     saas-web:
       loadBalancer:
         servers:
-          - url: http://saas-web:3001
+          - url: http://saas-web:4173
