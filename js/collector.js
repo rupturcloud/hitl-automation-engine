@@ -582,7 +582,10 @@ const Collector = (() => {
 
       // Callback para notificar outros módulos
       if (onNovoResultadoCallback) {
+        console.log(`[COLLECTOR-WIRE] novo round disparou onNovoResultado: 1 (single-confirm | total=${historico.length})`);
         onNovoResultadoCallback([novoResultado], historico);
+      } else {
+        console.log(`[COLLECTOR-WIRE] novo round confirmado mas callback ausente (single-confirm | total=${historico.length})`);
       }
 
       return novoResultado;
@@ -694,10 +697,16 @@ const Collector = (() => {
 
       if (adicionados > 0 && onNovoResultadoCallback) {
         const ultimos = historico.slice(-adicionados);
+        console.log(`[COLLECTOR-WIRE] novo round disparou onNovoResultado: ${adicionados} (bulk | total=${historico.length})`);
         onNovoResultadoCallback(ultimos, historico);
+      } else if (adicionados > 0) {
+        console.log(`[COLLECTOR-WIRE] ${adicionados} novos rounds mas callback ausente (bulk | total=${historico.length})`);
+      } else {
+        console.log(`[COLLECTOR-WIRE] sincronizarRoad sem novos itens (callback NÃO disparado) — recebidos=${allResults.length}, total=${historico.length}`);
       }
 
       console.log(`[CollectorRoad] sincronizarRoad: ${allResults.length} recebidos, ${adicionados} adicionados, total=${historico.length}`);
+      return adicionados;
     },
 
     /**

@@ -595,6 +595,7 @@
     // Sincronizar apenas itens NOVOS — não reenvia o que já foi processado.
     // Isso evita que item[N-1] do road anterior chegue sem gameId no próximo road
     // e gere uma entrada duplicada com signature "auto:" diferente da "gid:" já armazenada.
+    let adicionadosBulk = 0;
     if (typeof Collector !== 'undefined' && Collector.sincronizarRoad) {
       const lastSynced = parserState.lastSyncedRoadLength || 0;
       const roadNormalizado = history.map((item, i) => ({
@@ -611,7 +612,8 @@
 
       const novosItens = roadNormalizado.slice(lastSynced);
       if (novosItens.length > 0) {
-        Collector.sincronizarRoad(novosItens);
+        const ret = Collector.sincronizarRoad(novosItens);
+        adicionadosBulk = typeof ret === 'number' ? ret : novosItens.length;
         parserState.lastSyncedRoadLength = history.length;
       }
     }
@@ -627,11 +629,54 @@
       timestamp: Date.now()
     };
 
+    // Garantia defensiva (BUG-FIX R1-IMPL-B): se sincronizarRoad não adicionou nada
+    // (dedup interno bloqueou ou bulk caiu fora) MAS a signature do road parser
+    // mudou — este é um novo round confirmado. Forçamos o caminho single-confirm,
+    // que tem seu próprio dedup por gameId/signature em Collector (não duplica) e
+    // dispara o callback onNovoResultado, garantindo que o pipeline decisor rode
+    // a cada novo round.
+    if (adicionadosBulk === 0 && typeof Collector !== 'undefined' && Collector.adicionarResultadoConfirmado) {
+      console.log('[COLLECTOR-WIRE] fallback single-confirm: bulk não adicionou itens, forçando adicionarResultadoConfirmado');
+      Collector.adicionarResultadoConfirmado(resultado);
+    }
+
     parserState.lastResultado = resultado;
     parserState.pendingResolvedGameId = null;
     CONFIG.ultimoResultadoConfirmado = resultado;
 
     console.log(`[BetBoom Auto] [resultado] confirmado: ${resultado.vencedor} ${resultado.playerScore}x${resultado.bankerScore} | road total=${history.length}`);
+
+    // Wire-up HistoryStore: cada confirmacao gera 1 addRound, independente
+    // do estado interno do Collector (assinaturasConfirmadas, lastSyncedRoadLength etc).
+    // Preserva API existente — apenas conecta o que estava desconectado.
+    try {
+      if (typeof HistoryStore !== 'undefined' && HistoryStore.addRound) {
+        const _hsRoundId = resultado.gameId || resultado.roundId || null;
+        const _hsVencedor = resultado.vencedor || null;
+        const _hsCorMap = { 'azul': 'blue', 'vermelho': 'red', 'empate': 'green' };
+        const _hsColor = _hsCorMap[resultado.cor] || null;
+        const _hsSignature = _hsRoundId
+          ? `gid:${_hsRoundId}:${_hsVencedor}`
+          : (resultado.signature || `auto:${_hsVencedor}:${resultado.playerScore}:${resultado.bankerScore}:${Math.floor((resultado.timestamp || Date.now()) / 1000)}`);
+        const _hsRes = HistoryStore.addRound({
+          roundId:     _hsRoundId,
+          result:      (_hsVencedor || '').toLowerCase() || null,
+          color:       _hsColor,
+          timestamp:   Number(resultado.timestamp) || Date.now(),
+          source:      'websocket',
+          confidence:  1.0,
+          signature:   _hsSignature,
+          playerScore: resultado.playerScore,
+          bankerScore: resultado.bankerScore,
+          raw:         resultado
+        });
+        if (_hsRes && _hsRes.added) {
+          console.log(`[HistoryStore-WIRE] addRound novo round confirmado: ${_hsRoundId || _hsSignature}`);
+        }
+      }
+    } catch (hsErr) {
+      Logger.warn('HistoryStore.addRound (wire-up) falhou:', hsErr?.message || hsErr);
+    }
 
     if (overlayInicializado && typeof Overlay !== 'undefined') {
       Overlay.atualizarUltimoResultado(resultado);
@@ -877,28 +922,70 @@
     }, 'relay clique manual do subframe');
   }
 
-  // Seletores candidatos para cada alvo de aposta
+  // Seletores candidatos para cada alvo de aposta.
+  // Ordem: mais específico → mais genérico. Seletores NOVOS foram ADICIONADOS
+  // (legacy preservado) para suportar variações observadas no DOM atual da Evolution:
+  // data-role/data-element/data-bet-type, aria-label PT/EN, classes parciais.
   const CLICK_CANDIDATES = {
     player: [
+      // Legacy (mantidos por compatibilidade)
       '[data-betia-id="bet-player"]',
       '[data-automation-id="betting-grid-item-player"]',
       '[data-role="player-bet-spot"]',
       '[class*="betspot--player"]',
-      '[class*="wc-bet-spot--player"]'
+      '[class*="wc-bet-spot--player"]',
+      // Novos: data-* variantes
+      '[data-role="bet-spot-player"]',
+      '[data-role*="player"][data-role*="spot"]',
+      '[data-element="player"]',
+      '[data-bet-type="player"]',
+      // Aria-label (PT/EN)
+      '[aria-label*="Player" i]',
+      '[aria-label*="Jogador" i]',
+      '[aria-label*="Azul" i]',
+      // Classes parciais (web components / CSS modules)
+      '[class*="BetSpot"][class*="player" i]',
+      '[class*="player"][class*="bet"]',
+      '[class*="spot"][class*="player" i]',
+      'button[class*="Player"]',
+      '[role="button"][aria-label*="Player" i]'
     ],
     banker: [
       '[data-betia-id="bet-banker"]',
       '[data-automation-id="betting-grid-item-banker"]',
       '[data-role="banker-bet-spot"]',
       '[class*="betspot--banker"]',
-      '[class*="wc-bet-spot--banker"]'
+      '[class*="wc-bet-spot--banker"]',
+      '[data-role="bet-spot-banker"]',
+      '[data-role*="banker"][data-role*="spot"]',
+      '[data-element="banker"]',
+      '[data-bet-type="banker"]',
+      '[aria-label*="Banker" i]',
+      '[aria-label*="Banca" i]',
+      '[aria-label*="Vermelho" i]',
+      '[class*="BetSpot"][class*="banker" i]',
+      '[class*="banker"][class*="bet"]',
+      '[class*="spot"][class*="banker" i]',
+      'button[class*="Banker"]',
+      '[role="button"][aria-label*="Banker" i]'
     ],
     tie: [
       '[data-betia-id="bet-tie"]',
       '[data-automation-id="betting-grid-item-tie"]',
       '[data-role="tie-bet-spot"]',
       '[class*="betspot--tie"]',
-      '[class*="wc-bet-spot--tie"]'
+      '[class*="wc-bet-spot--tie"]',
+      '[data-role="bet-spot-tie"]',
+      '[data-role*="tie"][data-role*="spot"]',
+      '[data-element="tie"]',
+      '[data-bet-type="tie"]',
+      '[aria-label*="Tie" i]',
+      '[aria-label*="Empate" i]',
+      '[class*="BetSpot"][class*="tie" i]',
+      '[class*="tie"][class*="bet"]',
+      '[class*="spot"][class*="tie" i]',
+      'button[class*="Tie"]',
+      '[role="button"][aria-label*="Tie" i]'
     ],
     chip: [
       '[data-betia-id^="chip-"]',
@@ -918,20 +1005,60 @@
       'div[data-chip-value]'
     ],
     confirm: [
+      // Legacy
       '[data-betia-id="bet-confirm"]',
       '[data-automation-id="bet-button-confirm"]',
       '[class*="button--confirm"]',
       '[class*="wc-confirm-button"]',
       '[data-role="confirm-button"]',
       'button.confirm-bet-button',
-      '.confirm-button button'
+      '.confirm-button button',
+      // Novos
+      '[data-role*="confirm"]',
+      '[aria-label*="Confirm" i]',
+      '[aria-label*="Confirmar" i]',
+      '[class*="confirm" i][class*="button" i]',
+      'button[class*="confirm" i]'
     ]
   };
+
+  // Heurística para escolher o melhor candidato entre múltiplos matches do mesmo seletor.
+  // - Prefere elementos com área visível razoável (>= 1500px², típico de spot de aposta)
+  // - Prefere elementos clicáveis (button, role=button, ou onclick/tabindex)
+  // - Desconsidera elementos zerados ou ocultos
+  function pickBestCandidate(nodeList) {
+    let melhor = null;
+    let melhorScore = -1;
+    for (const el of nodeList) {
+      try {
+        const rect = el.getBoundingClientRect();
+        if (rect.width < 1 || rect.height < 1) continue;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity || '1') < 0.05) continue;
+        const area = rect.width * rect.height;
+        const isClickable = (
+          el.tagName === 'BUTTON' ||
+          el.getAttribute('role') === 'button' ||
+          el.hasAttribute('onclick') ||
+          el.tabIndex >= 0
+        );
+        const score = area + (isClickable ? 5000 : 0);
+        if (score > melhorScore) {
+          melhorScore = score;
+          melhor = el;
+        }
+      } catch (_) { }
+    }
+    return melhor;
+  }
 
   function encontrarElemento(lista) {
     for (const sel of lista) {
       try {
-        const el = document.querySelector(sel);
+        const nodes = document.querySelectorAll(sel);
+        if (!nodes.length) continue;
+        // Se for seletor amplo (>1 match), escolher o melhor candidato; senão usar o único.
+        const el = nodes.length === 1 ? nodes[0] : pickBestCandidate(nodes);
         if (el && el.getBoundingClientRect().width > 0) return { el, sel };
       } catch (_) { }
     }

@@ -336,6 +336,7 @@ const DecisionEngine = (() => {
     },
 
     async decidir(coresRecentes) {
+      console.log(`[DECISOR-TRIGGER] decidir() invocado para rodada ${CONFIG.roundIdAtual || '—'}`);
       console.log(`[DECISOR-DEBUG] decidir() chamado | isAtivo=${state.isAtivo} | isPausado=${state.isPausado} | motivoParada=${state.motivoParada} | banca=R$${state.bancaAtual} | cores=${coresRecentes?.length || 0}`);
       if (!state.isAtivo || state.isPausado) {
         console.log(`[DECISOR-DEBUG] ABORT: sistema inativo/pausado (isAtivo=${state.isAtivo}, isPausado=${state.isPausado})`);

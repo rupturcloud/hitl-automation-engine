@@ -18,25 +18,60 @@ const ChipDetector = (() => {
   let chipCache = {};
   let lastRoundId = null;
 
-  // Seletores em ordem de prioridade (Betia + Evolution Gaming)
+  // Seletores em ordem de prioridade (Betia + Evolution Gaming + novos heurísticos)
+  // IMPORTANTE: prioridade baixa = mais específico (preferido). Não remover seletores legacy.
   const CHIP_SELECTORS = [
-    // Betia custom
+    // ===== ESPECÍFICOS (Betia / Evolution Gaming legacy) =====
     (valor) => `[data-betia-id="chip-${valor}"]`,
-    // Evolution Gaming
     (valor) => `[data-automation-id="chip-${valor}"]`,
-    // Data attributes
+    // ===== Data attributes genéricos =====
     (valor) => `[data-chip-value="${valor}"]`,
     (valor) => `[data-value="${valor}"]`,
     (valor) => `[data-amount="${valor}"]`,
-    // Aria labels com número
+    (valor) => `[data-denomination="${valor}"]`,
+    (valor) => `[data-role="chip-${valor}"]`,
+    (valor) => `[data-role="chip"][data-value="${valor}"]`,
+    // ===== Aria-label exato e variantes (R$5, $5, "5") =====
+    (valor) => `[aria-label="${valor}"]`,
+    (valor) => `[aria-label*="$${valor}"]`,
+    (valor) => `[aria-label*="R$${valor}"]`,
+    (valor) => `[aria-label*="R$ ${valor}"]`,
     (valor) => `[aria-label*="${valor}"]`,
-    // Buttons com value
+    // ===== Buttons com value HTML =====
     (valor) => `button[value="${valor}"]`,
-    // Generic (sem valor específico)
+    // ===== Generic (sem valor específico) — varredura ampla, filtrada por regex de texto =====
     () => `[data-role="chip"]`,
+    () => `[data-role*="chip"]`,
     () => `[class*="chip" i]`,
     () => `button[class*="chip" i]`,
+    () => `[class*="Chip"]`,
+    () => `[class*="Denomination"]`,
+    () => `[class*="denomination"]`,
+    () => `[class*="token"]`,
+    () => `[class*="betting-chip"]`,
+    () => `[class*="wc-chip"]`,
+    () => `[aria-label*="chip" i]`,
+    () => `[role="button"][class*="chip" i]`,
   ];
+
+  /**
+   * Normaliza texto de ficha para um número.
+   * Suporta variações como "R$5", "R$ 2.5K", "2.5K", "6K", "10K", "1M".
+   * Retorna número ou NaN.
+   */
+  function parseChipText(rawText) {
+    if (!rawText) return NaN;
+    const t = String(rawText).trim().toLowerCase();
+    // Captura formas tipo "2.5k", "6k", "10k", "1m" (com possíveis prefixos R$/$/espaços).
+    const m = t.match(/(?:r?\$\s*)?([0-9]+(?:[.,][0-9]+)?)\s*([km])?/i);
+    if (!m) return NaN;
+    let n = parseFloat(m[1].replace(',', '.'));
+    if (!Number.isFinite(n)) return NaN;
+    const unit = m[2] ? m[2].toLowerCase() : '';
+    if (unit === 'k') n *= 1000;
+    else if (unit === 'm') n *= 1000000;
+    return n;
+  }
 
   /**
    * Valida se um elemento é visível
@@ -61,42 +96,40 @@ const ChipDetector = (() => {
   }
 
   /**
-   * Encontra ficha por valor com regex flexível
+   * Encontra ficha por valor com regex flexível.
+   * Diferencia seletores que aceitam (valor) vs. seletores genéricos (sem argumento).
    */
   function encontrarFichaPorValor(valor) {
     const normalized = String(Math.round(Number(valor)));
+    const valorNumerico = Number(valor);
 
     // Coletar todos os candidatos visíveis
     const candidatos = [];
 
-    for (const selectorFn of CHIP_SELECTORS.slice(0, 7)) {
-      const sel = selectorFn(normalized);
+    CHIP_SELECTORS.forEach((selectorFn, idx) => {
+      // Detecta se a função espera argumento (length > 0)
+      const esperaValor = selectorFn.length > 0;
+      let sel;
       try {
-        document.querySelectorAll(sel).forEach((el) => {
-          if (isVisible(el) && !candidatos.includes(el)) {
-            candidatos.push({ el, sel, priority: CHIP_SELECTORS.indexOf(selectorFn) });
-          }
-        });
-      } catch (_) {}
-    }
-
-    // Seletores genéricos (sem valor)
-    for (const selectorFn of CHIP_SELECTORS.slice(7)) {
-      const sel = selectorFn();
+        sel = esperaValor ? selectorFn(normalized) : selectorFn();
+      } catch (_) { return; }
       try {
         document.querySelectorAll(sel).forEach((el) => {
           if (isVisible(el) && !candidatos.find(c => c.el === el)) {
-            candidatos.push({ el, sel, priority: 100 });
+            candidatos.push({ el, sel, priority: esperaValor ? idx : 100 + idx, esperaValor });
           }
         });
       } catch (_) {}
-    }
+    });
 
-    // Filtrar por matching de número (regex flexível)
+    // 1) Filtrar candidatos por matching de número (regex flexível) sobre texto+aria.
     const numberRegex = new RegExp(`(?:^|[^0-9])0*${normalized}(?:[^0-9]|$)`);
     const matches = candidatos.filter((c) => {
       const text = extractValue(c.el);
-      return numberRegex.test(text);
+      if (numberRegex.test(text)) return true;
+      // 2) Tentar parsear texto interno como "2.5K" / "6K" / "R$ 25" e comparar com valor.
+      const parsed = parseChipText(c.el.textContent || c.el.getAttribute('aria-label') || '');
+      return Number.isFinite(parsed) && Math.abs(parsed - valorNumerico) < 0.5;
     });
 
     if (matches.length > 0) {
@@ -107,6 +140,69 @@ const ChipDetector = (() => {
     }
 
     return null;
+  }
+
+  /**
+   * Coleta TODAS as fichas-candidato no DOM e tenta inferir o valor numérico de cada uma.
+   * Retorna lista ordenada por valor ascendente. Usada por encontrarMelhorFichaParaStake.
+   */
+  function coletarFichasComValor() {
+    const seletoresVarredura = [
+      '[data-role="chip"]',
+      '[data-role*="chip"]',
+      '[class*="chip" i]',
+      '[class*="Chip"]',
+      '[class*="Denomination" i]',
+      '[class*="token"]',
+      '[data-chip-value]',
+      '[data-value]',
+      '[data-amount]',
+      '[data-denomination]',
+      '[data-betia-id^="chip-"]',
+      '[data-automation-id^="chip-"]',
+      'button[aria-label]',
+      '[role="button"][aria-label]',
+    ];
+    const vistos = new Set();
+    const out = [];
+    seletoresVarredura.forEach((sel) => {
+      try {
+        document.querySelectorAll(sel).forEach((el) => {
+          if (vistos.has(el) || !isVisible(el)) return;
+          vistos.add(el);
+          // 1) tentar atributos diretos
+          const direto = el.getAttribute('data-value') || el.getAttribute('data-chip-value') || el.getAttribute('data-amount') || el.getAttribute('data-denomination');
+          let n = direto ? parseFloat(direto) : NaN;
+          // 2) tentar parse de texto/aria-label
+          if (!Number.isFinite(n)) {
+            n = parseChipText(el.textContent || '');
+          }
+          if (!Number.isFinite(n)) {
+            n = parseChipText(el.getAttribute('aria-label') || '');
+          }
+          if (Number.isFinite(n) && n > 0) {
+            out.push({ el, sel, valor: n });
+          }
+        });
+      } catch (_) {}
+    });
+    out.sort((a, b) => a.valor - b.valor);
+    return out;
+  }
+
+  /**
+   * Dado um stake desejado, escolhe a melhor ficha:
+   * - prefere a de menor valor >= stake
+   * - se nenhuma >= stake, retorna a maior disponível
+   * - se DOM não tem ficha legível, retorna null
+   */
+  function encontrarMelhorFichaParaStake(stake) {
+    const minStake = Math.max(Number(stake) || 1, 1);
+    const fichas = coletarFichasComValor();
+    if (!fichas.length) return null;
+    const maiorOuIgual = fichas.find((c) => c.valor >= minStake);
+    const escolhida = maiorOuIgual || fichas[fichas.length - 1];
+    return { el: escolhida.el, sel: `[best-fit:${escolhida.valor}>=${minStake} via ${escolhida.sel}]`, valor: String(Math.round(escolhida.valor)) };
   }
 
   /**
@@ -166,12 +262,23 @@ const ChipDetector = (() => {
       }
     }
 
-    // Última tentativa: fallback visual
+    // Penúltima tentativa: best-fit (menor ficha >= stake; regra do usuário: SEMPRE clicar algo)
+    const bestFit = encontrarMelhorFichaParaStake(valor);
+    if (bestFit) {
+      const duration = Date.now() - startTime;
+      console.log(`${PREFIX} ⚠️ Best-fit acionado após ${maxRetries} tentativas: ficha R$${bestFit.valor} para stake ${valor} via ${bestFit.sel} (${duration}ms)`);
+      if (typeof TelemetryCollector !== 'undefined') {
+        TelemetryCollector.recordDetectionLatency(valor, duration, true);
+      }
+      return bestFit;
+    }
+
+    // Última tentativa: fallback visual heurístico
     const fallback = encontrarFichaFallback();
     const duration = Date.now() - startTime;
 
     if (fallback) {
-      console.log(`${PREFIX} ⚠️ Usando fallback visual após ${maxRetries} tentativas (${duration}ms)`);
+      console.log(`${PREFIX} ⚠️ Usando fallback visual após ${maxRetries} tentativas + best-fit (${duration}ms)`);
 
       // Registrar telemetria com fallback
       if (typeof TelemetryCollector !== 'undefined') {
@@ -181,7 +288,9 @@ const ChipDetector = (() => {
       return fallback;
     }
 
-    console.warn(`${PREFIX} ❌ Ficha não encontrada após ${maxRetries} tentativas + fallback (${duration}ms)`);
+    console.warn(`${PREFIX} ❌ Ficha não encontrada após ${maxRetries} tentativas + best-fit + fallback (${duration}ms)`);
+    // Diagnóstico verboso automático (ajuda o operador a iterar com seletor real)
+    try { dumpDomCandidates(valor); } catch (_) {}
 
     // Registrar falha de detecção
     if (typeof TelemetryCollector !== 'undefined') {
@@ -189,6 +298,40 @@ const ChipDetector = (() => {
     }
 
     return null;
+  }
+
+  /**
+   * Diagnóstico verboso: lista até 20 botões/role=button do DOM com atributos
+   * relevantes (data-*, aria-*, classes, texto). Esse log permite ao operador
+   * descobrir os seletores reais que a Evolution está usando AGORA.
+   */
+  function dumpDomCandidates(valorAlvo) {
+    const elements = Array.from(document.querySelectorAll(
+      'button, [role="button"], [data-role*="chip"], [class*="chip" i], [class*="Chip"], [aria-label]'
+    ));
+    const filtrados = elements.filter(isVisible).slice(0, 20);
+    console.group(`${PREFIX} 🧪 DOM Dump (até 20 elementos clicáveis visíveis) — alvo=${valorAlvo}`);
+    filtrados.forEach((el, i) => {
+      const attrs = {};
+      for (const a of el.attributes) {
+        if (
+          a.name.startsWith('data-') ||
+          a.name.startsWith('aria-') ||
+          a.name === 'class' ||
+          a.name === 'role' ||
+          a.name === 'value' ||
+          a.name === 'id'
+        ) {
+          attrs[a.name] = String(a.value).slice(0, 80);
+        }
+      }
+      const rect = el.getBoundingClientRect();
+      console.log(`#${i} <${el.tagName.toLowerCase()}> "${(el.textContent || '').trim().slice(0, 30)}" [${Math.round(rect.width)}x${Math.round(rect.height)}]`, attrs);
+    });
+    // Também tentar listar fichas inferidas com valor
+    const fichas = coletarFichasComValor();
+    console.log(`${PREFIX} 🪙 Fichas inferidas (${fichas.length}):`, fichas.map(c => ({ valor: c.valor, sel: c.sel, texto: (c.el.textContent || '').trim().slice(0, 20) })));
+    console.groupEnd();
   }
 
   /**
@@ -223,6 +366,23 @@ const ChipDetector = (() => {
      */
     encontrarFallback() {
       return encontrarFichaFallback();
+    },
+
+    /**
+     * Best-fit explícito (escolhe menor ficha >= stake, ou maior disponível).
+     * NUNCA bloqueia: garante que sempre tem algo para clicar se houver fichas
+     * detectáveis no DOM. Regra firme do usuário.
+     */
+    encontrarMelhorFichaParaStake(stake) {
+      return encontrarMelhorFichaParaStake(stake);
+    },
+
+    /**
+     * Dump verboso do DOM (até 20 elementos clicáveis com atributos relevantes).
+     * Use no console: ChipDetector.dumpDom() para iterar com seletor real.
+     */
+    dumpDom(valorAlvo = '?') {
+      return dumpDomCandidates(valorAlvo);
     },
 
     /**
@@ -275,6 +435,9 @@ const ChipDetector = (() => {
       console.log('Fichas genéricas:', resultado.fichasGenéricas);
       console.log('Fallback:', resultado.fallback);
       console.groupEnd();
+
+      // Sempre acompanhar o dump verboso de DOM — ajuda o operador a iterar
+      try { dumpDomCandidates('diagnostico'); } catch (_) {}
 
       return resultado;
     }
