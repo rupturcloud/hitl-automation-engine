@@ -114,7 +114,12 @@ const ChipDetector = (() => {
         sel = esperaValor ? selectorFn(normalized) : selectorFn();
       } catch (_) { return; }
       try {
-        document.querySelectorAll(sel).forEach((el) => {
+        // DOM normal + Shadow DOM
+        const elements = [
+          ...document.querySelectorAll(sel),
+          ...querySelectorAllDeep(sel)
+        ];
+        elements.forEach((el) => {
           if (isVisible(el) && !candidatos.find(c => c.el === el)) {
             candidatos.push({ el, sel, priority: esperaValor ? idx : 100 + idx, esperaValor });
           }
@@ -143,6 +148,44 @@ const ChipDetector = (() => {
   }
 
   /**
+   * Varredura recursiva por Shadow DOM. Coleta elementos clicáveis dentro de
+   * shadowRoots aninhados (Evolution Gaming usa Web Components).
+   */
+  function querySelectorAllDeep(selector, root = document) {
+    const results = [];
+    const stack = [root];
+    while (stack.length) {
+      const node = stack.pop();
+      try {
+        if (node.querySelectorAll) {
+          node.querySelectorAll(selector).forEach((el) => results.push(el));
+        }
+      } catch (_) {}
+      // descer em shadowRoots
+      const all = node.querySelectorAll ? node.querySelectorAll('*') : [];
+      for (const el of all) {
+        if (el.shadowRoot) stack.push(el.shadowRoot);
+      }
+    }
+    return results;
+  }
+
+  /**
+   * Detecta se a UI é renderizada via Canvas (sem DOM clicável).
+   * Retorna {isCanvas, canvasCount, clickableCount}.
+   */
+  function detectarCanvas() {
+    const canvases = document.querySelectorAll('canvas');
+    const clickables = document.querySelectorAll('button, [role="button"], [onclick]');
+    const isCanvas = canvases.length > 0 && clickables.length < 5;
+    return {
+      isCanvas,
+      canvasCount: canvases.length,
+      clickableCount: clickables.length
+    };
+  }
+
+  /**
    * Coleta TODAS as fichas-candidato no DOM e tenta inferir o valor numérico de cada uma.
    * Retorna lista ordenada por valor ascendente. Usada por encontrarMelhorFichaParaStake.
    */
@@ -167,7 +210,12 @@ const ChipDetector = (() => {
     const out = [];
     seletoresVarredura.forEach((sel) => {
       try {
-        document.querySelectorAll(sel).forEach((el) => {
+        // Varre DOM normal + Shadow DOM (Web Components da Evolution)
+        const elements = [
+          ...document.querySelectorAll(sel),
+          ...querySelectorAllDeep(sel)
+        ];
+        elements.forEach((el) => {
           if (vistos.has(el) || !isVisible(el)) return;
           vistos.add(el);
           // 1) tentar atributos diretos
@@ -383,6 +431,65 @@ const ChipDetector = (() => {
      */
     dumpDom(valorAlvo = '?') {
       return dumpDomCandidates(valorAlvo);
+    },
+
+    /**
+     * Detecta se a UI é canvas-only (impossível clicar via DOM).
+     */
+    detectarCanvas() {
+      return detectarCanvas();
+    },
+
+    /**
+     * Helper único: roda toda a triagem e copia relatório pro clipboard.
+     * No console do iframe Evolution: ChipDetector.help()
+     */
+    async help() {
+      const canvas = detectarCanvas();
+      const fichas = coletarFichasComValor();
+      const buttons = Array.from(document.querySelectorAll('button, [role="button"], [data-role*="chip"], [class*="chip" i], [aria-label]'))
+        .filter(isVisible)
+        .slice(0, 30)
+        .map((el) => {
+          const attrs = {};
+          for (const a of el.attributes) {
+            if (a.name.startsWith('data-') || a.name.startsWith('aria-') || a.name === 'class' || a.name === 'role' || a.name === 'value' || a.name === 'id') {
+              attrs[a.name] = String(a.value).slice(0, 100);
+            }
+          }
+          const rect = el.getBoundingClientRect();
+          return {
+            tag: el.tagName.toLowerCase(),
+            text: (el.textContent || '').trim().slice(0, 50),
+            size: `${Math.round(rect.width)}x${Math.round(rect.height)}`,
+            attrs
+          };
+        });
+
+      const relatorio = {
+        timestamp: new Date().toISOString(),
+        url: window.location.href,
+        canvas,
+        fichasInferidas: fichas.map(f => ({ valor: f.valor, sel: f.sel, texto: (f.el.textContent || '').trim().slice(0, 30) })),
+        elementosClicaveis: buttons
+      };
+
+      console.group('[ChipDetector] 🆘 HELP — Diagnóstico completo');
+      if (canvas.isCanvas) {
+        console.warn('⚠️ UI parece ser CANVAS-only. DOM não tem elementos clicáveis suficientes. Click via DOM provavelmente IMPOSSÍVEL — só com coordenadas pixel.');
+      }
+      console.log('Canvas:', canvas);
+      console.log('Fichas inferidas:', relatorio.fichasInferidas);
+      console.log('Elementos clicáveis (top 30):', relatorio.elementosClicaveis);
+      console.groupEnd();
+
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(relatorio, null, 2));
+        console.log('[ChipDetector] 📋 Relatório copiado para clipboard. Cole na conversa.');
+      } catch (_) {
+        console.log('[ChipDetector] (clipboard bloqueado — copie manualmente do log)');
+      }
+      return relatorio;
     },
 
     /**
