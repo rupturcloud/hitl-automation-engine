@@ -692,24 +692,24 @@ const PatternEngine = (() => {
   // Cada padrão busca por sequência exata em últimas 4 casas (ou alinhadas à direita)
   // =====================================================
   const WMSG_PATTERNS = [
-    { id: "WMSG-001", seq: ['azul','azul','azul','vermelho'], enter: 'vermelho', desc: "3 azuis e 1 vermelho. Entrar contra a quebra: FORA." },
-    { id: "WMSG-002", seq: ['vermelho','vermelho','vermelho','azul'], enter: 'azul', desc: "3 vermelhos e 1 azul. Entrar contra a quebra: CASA." },
-    { id: "WMSG-003", seq: ['azul','vermelho','azul','vermelho'], enter: 'azul', desc: "Zigue-zague terminando em V. Segue o ciclo: CASA." },
-    { id: "WMSG-004", seq: ['vermelho','azul','vermelho','azul'], enter: 'vermelho', desc: "Zigue-zague terminando em A. Segue o ciclo: FORA." },
-    { id: "WMSG-005", seq: ['azul','azul','vermelho','vermelho'], enter: 'azul', desc: "Espelho: 2 azuis e 2 vermelhos. Vira: CASA." },
-    { id: "WMSG-006", seq: ['vermelho','vermelho','azul','azul'], enter: 'vermelho', desc: "Espelho: 2 vermelhos e 2 azuis. Vira: FORA." },
-    { id: "WMSG-007", seq: ['azul','azul','vermelho','azul'], enter: 'vermelho', desc: "AABA — quebra com vermelho no meio. Entrar FORA." },
-    { id: "WMSG-008", seq: ['vermelho','vermelho','azul','vermelho'], enter: 'azul', desc: "VVAV — quebra com azul no meio. Entrar CASA." },
-    { id: "WMSG-009", seq: ['azul','vermelho','vermelho','azul'], enter: 'vermelho', desc: "AVVA — sanduiche, retorno: FORA." },
-    { id: "WMSG-010", seq: ['vermelho','azul','azul','vermelho'], enter: 'azul', desc: "VAAV — sanduiche, retorno: CASA." },
-    { id: "WMSG-011", seq: ['azul','vermelho','vermelho','vermelho'], enter: 'azul', desc: "Apos 3 V seguidos, contra-corrente: CASA." },
-    { id: "WMSG-012", seq: ['vermelho','azul','azul','azul'], enter: 'vermelho', desc: "Apos 3 A seguidos, contra-corrente: FORA." },
-    { id: "WMSG-013", seq: ['empate','azul','azul','azul'], enter: 'vermelho', desc: "Empate inicial + 3 azuis. Apos empate, virar: FORA." },
-    { id: "WMSG-014", seq: ['empate','vermelho','vermelho','vermelho'], enter: 'azul', desc: "Empate inicial + 3 vermelhos. Apos empate, virar: CASA." },
-    { id: "WMSG-015", seq: ['azul','empate','azul','azul'], enter: 'vermelho', desc: "Empate no meio entre azuis. Quebra: FORA." },
-    { id: "WMSG-016", seq: ['vermelho','empate','vermelho','vermelho'], enter: 'azul', desc: "Empate no meio entre vermelhos. Quebra: CASA." },
-    { id: "WMSG-017", seq: ['azul','azul','empate','azul'], enter: 'vermelho', desc: "Tres azuis com empate no penultimo. Quebra: FORA." },
-    { id: "WMSG-018", seq: ['vermelho','vermelho','empate','vermelho'], enter: 'azul', desc: "Tres vermelhos com empate no penultimo. Quebra: CASA." }
+    { id: "WMSG-001", type: 'streak',   seq: ['azul','azul','azul','vermelho'], enter: 'vermelho', desc: "3 azuis e 1 vermelho. Entrar contra a quebra: FORA." },
+    { id: "WMSG-002", type: 'streak',   seq: ['vermelho','vermelho','vermelho','azul'], enter: 'azul', desc: "3 vermelhos e 1 azul. Entrar contra a quebra: CASA." },
+    { id: "WMSG-003", type: 'zigzag',   seq: ['azul','vermelho','azul','vermelho'], enter: 'azul', desc: "Zigue-zague terminando em V. Segue o ciclo: CASA." },
+    { id: "WMSG-004", type: 'zigzag',   seq: ['vermelho','azul','vermelho','azul'], enter: 'vermelho', desc: "Zigue-zague terminando em A. Segue o ciclo: FORA." },
+    { id: "WMSG-005", type: 'mirror',   seq: ['azul','azul','vermelho','vermelho'], enter: 'azul', desc: "Espelho: 2 azuis e 2 vermelhos. Vira: CASA." },
+    { id: "WMSG-006", type: 'mirror',   seq: ['vermelho','vermelho','azul','azul'], enter: 'vermelho', desc: "Espelho: 2 vermelhos e 2 azuis. Vira: FORA." },
+    { id: "WMSG-007", type: 'break',    seq: ['azul','azul','vermelho','azul'], enter: 'vermelho', desc: "AABA — quebra com vermelho no meio. Entrar FORA." },
+    { id: "WMSG-008", type: 'break',    seq: ['vermelho','vermelho','azul','vermelho'], enter: 'azul', desc: "VVAV — quebra com azul no meio. Entrar CASA." },
+    { id: "WMSG-009", type: 'sandwich', seq: ['azul','vermelho','vermelho','azul'], enter: 'vermelho', desc: "AVVA — sanduiche, retorno: FORA." },
+    { id: "WMSG-010", type: 'sandwich', seq: ['vermelho','azul','azul','vermelho'], enter: 'azul', desc: "VAAV — sanduiche, retorno: CASA." },
+    { id: "WMSG-011", type: 'streak',   seq: ['azul','vermelho','vermelho','vermelho'], enter: 'azul', desc: "Apos 3 V seguidos, contra-corrente: CASA." },
+    { id: "WMSG-012", type: 'streak',   seq: ['vermelho','azul','azul','azul'], enter: 'vermelho', desc: "Apos 3 A seguidos, contra-corrente: FORA." },
+    { id: "WMSG-013", type: 'tie',      seq: ['empate','azul','azul','azul'], enter: 'vermelho', desc: "Empate inicial + 3 azuis. Apos empate, virar: FORA." },
+    { id: "WMSG-014", type: 'tie',      seq: ['empate','vermelho','vermelho','vermelho'], enter: 'azul', desc: "Empate inicial + 3 vermelhos. Apos empate, virar: CASA." },
+    { id: "WMSG-015", type: 'tie',      seq: ['azul','empate','azul','azul'], enter: 'vermelho', desc: "Empate no meio entre azuis. Quebra: FORA." },
+    { id: "WMSG-016", type: 'tie',      seq: ['vermelho','empate','vermelho','vermelho'], enter: 'azul', desc: "Empate no meio entre vermelhos. Quebra: CASA." },
+    { id: "WMSG-017", type: 'tie',      seq: ['azul','azul','empate','azul'], enter: 'vermelho', desc: "Tres azuis com empate no penultimo. Quebra: FORA." },
+    { id: "WMSG-018", type: 'tie',      seq: ['vermelho','vermelho','empate','vermelho'], enter: 'azul', desc: "Tres vermelhos com empate no penultimo. Quebra: CASA." }
   ];
 
   // =====================================================
@@ -718,26 +718,26 @@ const PatternEngine = (() => {
   // =====================================================
   const WILL_EXTRA_PATTERNS = [
     // Streaks longos (5)
-    { id: "WILL-001", seq: ['azul','azul','azul','azul','vermelho'], enter: 'vermelho', desc: "4 Azuis e 1 Vermelho. Continua a quebra: FORA." },
-    { id: "WILL-002", seq: ['vermelho','vermelho','vermelho','vermelho','azul'], enter: 'azul', desc: "4 Vermelhos e 1 Azul. Continua a quebra: CASA." },
+    { id: "WILL-001", type: 'streak',   seq: ['azul','azul','azul','azul','vermelho'], enter: 'vermelho', desc: "4 Azuis e 1 Vermelho. Continua a quebra: FORA." },
+    { id: "WILL-002", type: 'streak',   seq: ['vermelho','vermelho','vermelho','vermelho','azul'], enter: 'azul', desc: "4 Vermelhos e 1 Azul. Continua a quebra: CASA." },
     // Streaks ultra-longos (7)
-    { id: "WILL-003", seq: ['azul','azul','azul','azul','azul','azul','azul'], enter: 'vermelho', desc: "7 Azuis consecutivos. Reversao forte: FORA." },
-    { id: "WILL-004", seq: ['vermelho','vermelho','vermelho','vermelho','vermelho','vermelho','vermelho'], enter: 'azul', desc: "7 Vermelhos consecutivos. Reversao forte: CASA." },
+    { id: "WILL-003", type: 'streak',   seq: ['azul','azul','azul','azul','azul','azul','azul'], enter: 'vermelho', desc: "7 Azuis consecutivos. Reversao forte: FORA." },
+    { id: "WILL-004", type: 'streak',   seq: ['vermelho','vermelho','vermelho','vermelho','vermelho','vermelho','vermelho'], enter: 'azul', desc: "7 Vermelhos consecutivos. Reversao forte: CASA." },
     // Padrões complexos (7)
-    { id: "WILL-005", seq: ['azul','azul','vermelho','vermelho','azul','vermelho','vermelho'], enter: 'azul', desc: "AAVVAVV — sequencia complexa. Vira: CASA." },
-    { id: "WILL-006", seq: ['vermelho','vermelho','azul','azul','vermelho','azul','azul'], enter: 'vermelho', desc: "VVAAVAA — sequencia complexa. Vira: FORA." },
+    { id: "WILL-005", type: 'complex',  seq: ['azul','azul','vermelho','vermelho','azul','vermelho','vermelho'], enter: 'azul', desc: "AAVVAVV — sequencia complexa. Vira: CASA." },
+    { id: "WILL-006", type: 'complex',  seq: ['vermelho','vermelho','azul','azul','vermelho','azul','azul'], enter: 'vermelho', desc: "VVAAVAA — sequencia complexa. Vira: FORA." },
     // Zigue-zague longo (5)
-    { id: "WILL-007", seq: ['azul','vermelho','azul','vermelho','azul'], enter: 'azul', desc: "Zigue-Zague AVAVA. Segue ciclo: CASA." },
-    { id: "WILL-008", seq: ['vermelho','azul','vermelho','azul','vermelho'], enter: 'vermelho', desc: "Zigue-Zague VAVAV. Segue ciclo: FORA." },
+    { id: "WILL-007", type: 'zigzag',   seq: ['azul','vermelho','azul','vermelho','azul'], enter: 'azul', desc: "Zigue-Zague AVAVA. Segue ciclo: CASA." },
+    { id: "WILL-008", type: 'zigzag',   seq: ['vermelho','azul','vermelho','azul','vermelho'], enter: 'vermelho', desc: "Zigue-Zague VAVAV. Segue ciclo: FORA." },
     // Pos empate duplo (3)
-    { id: "WILL-009", seq: ['empate','empate','azul'], enter: 'vermelho', desc: "Dois empates seguidos de Azul. Vira: FORA." },
-    { id: "WILL-010", seq: ['empate','empate','vermelho'], enter: 'azul', desc: "Dois empates seguidos de Vermelho. Vira: CASA." },
+    { id: "WILL-009", type: 'tie',      seq: ['empate','empate','azul'], enter: 'vermelho', desc: "Dois empates seguidos de Azul. Vira: FORA." },
+    { id: "WILL-010", type: 'tie',      seq: ['empate','empate','vermelho'], enter: 'azul', desc: "Dois empates seguidos de Vermelho. Vira: CASA." },
     // Empate intercalado (4)
-    { id: "WILL-011", seq: ['empate','azul','empate','vermelho'], enter: 'azul', desc: "Empate-Azul-Empate-Vermelho. Reversao: CASA." },
-    { id: "WILL-012", seq: ['empate','vermelho','empate','azul'], enter: 'vermelho', desc: "Empate-Vermelho-Empate-Azul. Reversao: FORA." },
+    { id: "WILL-011", type: 'tie',      seq: ['empate','azul','empate','vermelho'], enter: 'azul', desc: "Empate-Azul-Empate-Vermelho. Reversao: CASA." },
+    { id: "WILL-012", type: 'tie',      seq: ['empate','vermelho','empate','azul'], enter: 'vermelho', desc: "Empate-Vermelho-Empate-Azul. Reversao: FORA." },
     // Espelhos longos (5)
-    { id: "WILL-013", seq: ['azul','azul','azul','vermelho','vermelho'], enter: 'azul', desc: "3 Azuis + 2 Vermelhos. Vira: CASA." },
-    { id: "WILL-014", seq: ['vermelho','vermelho','vermelho','azul','azul'], enter: 'vermelho', desc: "3 Vermelhos + 2 Azuis. Vira: FORA." }
+    { id: "WILL-013", type: 'mirror',   seq: ['azul','azul','azul','vermelho','vermelho'], enter: 'azul', desc: "3 Azuis + 2 Vermelhos. Vira: CASA." },
+    { id: "WILL-014", type: 'mirror',   seq: ['vermelho','vermelho','vermelho','azul','azul'], enter: 'vermelho', desc: "3 Vermelhos + 2 Azuis. Vira: FORA." }
   ];
 
   /**
@@ -767,7 +767,8 @@ const PatternEngine = (() => {
           sequenceBase: padrao.seq,
           desc: padrao.desc,
           matchType: 'sequential-extra',
-          tamanho: padrao.seq.length
+          tamanho: padrao.seq.length,
+          patternType: padrao.type || 'extra'
         };
       }
     }
@@ -791,7 +792,8 @@ const PatternEngine = (() => {
           source: 'wmsg',
           patternId: padrao.id,
           desc: padrao.desc,
-          matchType: 'sequential'
+          matchType: 'sequential',
+          patternType: padrao.type || 'wmsg'
         };
       }
     }

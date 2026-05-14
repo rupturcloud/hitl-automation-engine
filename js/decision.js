@@ -126,13 +126,43 @@ const DecisionEngine = (() => {
     return false;
   }
 
+  function verificarTrailingStop() {
+    const trail = Number(CONFIG.trailingStop) || 0;
+    if (trail <= 0) return false;
+    if (typeof state.picoLucro !== 'number') state.picoLucro = 0;
+    if (state.lucroSessao > state.picoLucro) state.picoLucro = state.lucroSessao;
+    const recuo = state.picoLucro - state.lucroSessao;
+    if (state.picoLucro > 0 && recuo >= trail) {
+      state.motivoParada = `Trailing Stop: pico R$${state.picoLucro.toFixed(2)} recuou R$${recuo.toFixed(2)} (limite R$${trail})`;
+      return true;
+    }
+    return false;
+  }
+
+  function gerarExplicacaoNatural(padrao, f1ScoreResult, decisionModel) {
+    const partes = [];
+    if (padrao?.nome) partes.push(padrao.nome);
+    if (padrao?.confianca != null) partes.push(`${Math.round(padrao.confianca)}%`);
+    const f1 = Number(f1ScoreResult?.score);
+    if (Number.isFinite(f1)) {
+      if (f1 >= 70) partes.push('sinal forte');
+      else if (f1 >= 50) partes.push('sinal moderado');
+      else partes.push('sinal fraco');
+    }
+    const ctx = decisionModel?.contextoMesa;
+    if (ctx && ctx !== 'neutra') partes.push(`contexto ${ctx}`);
+    const risco = decisionModel?.riscoOperacional;
+    if (risco === 'alto') partes.push('risco alto');
+    return partes.join(' · ') || 'Padrão detectado';
+  }
+
   function verificarBanca() {
     // Extensão NUNCA bloqueia por banca. Quem aceita ou recusa o clique é a casa.
     return false;
   }
 
   function deveParar() {
-    return verificarStopWin() || verificarStopLoss() || verificarBanca();
+    return verificarStopWin() || verificarStopLoss() || verificarTrailingStop() || verificarBanca();
   }
 
   function trimEntradas() {
@@ -501,7 +531,14 @@ const DecisionEngine = (() => {
         fsmGrafo: grafo?.id || null
       };
 
-      console.log(`[DECISOR-DEBUG] ✅ DECISÃO PRONTA: ${melhorPadrao.nome} → ${melhorPadrao.acao} | stake=R$${stake} | deveApostar=true (extensão sempre arma)`);
+      const explicacaoNatural = gerarExplicacaoNatural(melhorPadrao, f1ScoreResult, decisionModel);
+      const convictionScore = Number.isFinite(Number(decisionModel?.convictionScore))
+        ? Number(decisionModel.convictionScore)
+        : (Number.isFinite(confiancaResolvida) ? confiancaResolvida : 0);
+      const autoExecuteThreshold = Number(CONFIG.autoExecuteThreshold) || 85;
+      const autoExecute = convictionScore >= autoExecuteThreshold;
+
+      console.log(`[DECISOR-DEBUG] ✅ DECISÃO PRONTA: ${melhorPadrao.nome} → ${melhorPadrao.acao} | stake=R$${stake} | conviction=${convictionScore}% | autoExecute=${autoExecute} | ${explicacaoNatural}`);
       return {
         deveApostar: true, // Extensão NUNCA bloqueia — sempre arma. Quem decide aceitar/recusar é a casa.
         cor: melhorPadrao.acao,
@@ -520,7 +557,11 @@ const DecisionEngine = (() => {
         decisionModel,
         f1Score: f1ScoreResult?.score || null,
         f1ScoreResult: f1ScoreResult || null,
-        fsmGrafo: grafo?.id || null
+        fsmGrafo: grafo?.id || null,
+        // Explicabilidade + HITL bifurcação
+        explicacaoNatural,
+        convictionScore,
+        autoExecute
       };
     },
 

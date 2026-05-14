@@ -1761,7 +1761,10 @@ const Overlay = (() => {
           decisao.padrao.decisionModel = decisao.decisionModel || null;
           atualizarPadrao(decisao.padrao);
           atualizarEntradaSugerida(decisao);
-          Overlay.atualizarRaciocinio(`${decisao.padrao.nome} detectado com ${decisao.confianca}% de confiança.`, 'success');
+          const raciocinio = decisao.explicacaoNatural
+            ? `${decisao.padrao.nome}: ${decisao.explicacaoNatural}${decisao.autoExecute ? ' · AUTODRIVE' : ' · HITL'}`
+            : `${decisao.padrao.nome} detectado com ${decisao.confianca}% de confiança.`;
+          Overlay.atualizarRaciocinio(raciocinio, 'success');
           Overlay.atualizarConfianca(decisao.confianca);
         } else {
           Overlay.atualizarRaciocinio('Analisando padrões no histórico...', 'info');

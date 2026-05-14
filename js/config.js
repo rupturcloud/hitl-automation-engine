@@ -19,6 +19,11 @@ const CONFIG = {
   // --- Stop Win / Stop Loss ---
   stopWin: 1000,            // Meta de lucro para parar
   stopLoss: 500,            // Limite de perda para parar
+  trailingStop: 0,          // Trailing stop em R$ (0 = desativado). Quando lucro recua N reais a partir do pico, para.
+
+  // --- Autodrive / HITL bifurcação ---
+  autoExecuteThreshold: 85,    // Conviction >= 85% executa sem aguardar countdown HITL
+  hitlCountdownSeconds: 5,     // Tempo do countdown HITL quando conviction < threshold
 
   // --- Banca ---
   bancaInicial: 1000,       // Valor inicial da banca

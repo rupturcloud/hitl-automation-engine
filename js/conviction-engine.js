@@ -149,6 +149,19 @@ const ConvictionEngine = (() => {
     return trustFactors.map(f => explanations[f] || f);
   }
 
+  // Explicação natural por faixa de conviction (uso no overlay HITL)
+  function explainConviction(conviction) {
+    if (!conviction || typeof conviction.convictionScore !== 'number') {
+      return 'Aguardando sinal...';
+    }
+    const score = conviction.convictionScore;
+    if (score >= 88) return 'Sinal excelente — alta confiança operacional';
+    if (score >= 80) return 'Bom sinal — executando com supervisão';
+    if (score >= 65) return 'Sinal moderado — aguardar confirmação humana';
+    if (score >= 50) return 'Sinal fraco — sugere hesitar';
+    return 'Sinal de risco — recomendado bloquear';
+  }
+
   // Detectar mudança de conviction (drift)
   function detectConvictionDrift(windowSize = 10) {
     if (convictionHistory.length < windowSize) return null;
@@ -181,6 +194,7 @@ const ConvictionEngine = (() => {
     calculateConviction,
     explainHesitation,
     explainTrust,
+    explainConviction,
     detectConvictionDrift,
     getHistory
   };
