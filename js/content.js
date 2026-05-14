@@ -1065,6 +1065,84 @@
     return null;
   }
 
+  // ============================================================
+  // FALLBACK DE COORDENADAS HEURÍSTICAS — CANVAS-AWARE
+  // ============================================================
+  // Quando ChipDetector e spot-finder DOM falham (ex: Evolution Mini é canvas),
+  // ainda podemos clicar via CDP usando coordenadas calculadas a partir do
+  // canvas principal do iframe. Layout padrão Evolution Bac Bo:
+  //   - canvas grande no topo com a mesa
+  //   - PLAYER esquerda, BANKER direita, TIE área central superior
+  //   - Fichas em barra horizontal na parte inferior
+  function calcularCoordsHeuristicas(alvo, chipValue) {
+    // Procura o maior canvas visível como referência
+    const canvases = Array.from(document.querySelectorAll('canvas')).filter((c) => {
+      const r = c.getBoundingClientRect();
+      return r.width > 200 && r.height > 200;
+    });
+    let ref = canvases.sort((a, b) => {
+      const ra = a.getBoundingClientRect();
+      const rb = b.getBoundingClientRect();
+      return (rb.width * rb.height) - (ra.width * ra.height);
+    })[0];
+    let refRect = ref
+      ? ref.getBoundingClientRect()
+      : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+
+    // Sanity: se canvas é minúsculo, usar viewport
+    if (refRect.width < 200 || refRect.height < 200) {
+      refRect = { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+    }
+
+    const x0 = refRect.left;
+    const y0 = refRect.top;
+    const w = refRect.width;
+    const h = refRect.height;
+
+    // Frações relativas (baseadas no layout Evolution Bac Bo)
+    const SPOT_FRACTIONS = {
+      player: { x: 0.30, y: 0.62 },
+      banker: { x: 0.70, y: 0.62 },
+      tie:    { x: 0.50, y: 0.48 }
+    };
+    // Barra de fichas: 9 fichas distribuídas de x=0.08 a x=0.80, y=0.92
+    const CHIP_INDEX = { 5: 0, 10: 1, 25: 2, 125: 3, 500: 4, 2500: 5, 6000: 6, 10000: 7, 12000: 8 };
+
+    const spotFrac = SPOT_FRACTIONS[alvo];
+    if (!spotFrac) return null;
+
+    const stake = Number(chipValue);
+    const idx = Number.isFinite(stake) && CHIP_INDEX[stake] != null ? CHIP_INDEX[stake] : 0;
+    const chipX = 0.08 + (idx * (0.72 / 8));
+    const chipFrac = { x: chipX, y: 0.92 };
+
+    return {
+      chip: { x: x0 + chipFrac.x * w, y: y0 + chipFrac.y * h },
+      spot: { x: x0 + spotFrac.x * w, y: y0 + spotFrac.y * h },
+      refRect: { left: x0, top: y0, width: w, height: h, canvas: !!ref }
+    };
+  }
+
+  // Envia coords (relativas ao iframe atual) ao top frame, que vai recursivamente
+  // somar offsets e disparar BB_EXECUTE_HARDWARE_CLICK no background.
+  function dispararCDPClick(coords, alvoLabel) {
+    if (!coords) return;
+    try {
+      window.parent.postMessage({
+        source: 'bb-click-result-hardware',
+        alvo: alvoLabel,
+        ok: true,
+        x: coords.x,
+        y: coords.y,
+        ts: Date.now(),
+        viaHeuristic: true
+      }, '*');
+      console.log(`[BB-CLICK] 📡 CDP relay enviado: ${alvoLabel} @ (${Math.round(coords.x)}, ${Math.round(coords.y)})`);
+    } catch (e) {
+      console.warn('[BB-CLICK] Falha relay CDP:', e);
+    }
+  }
+
   function encontrarElementoFallback(tipo = 'chip') {
     if (tipo !== 'chip') return null;
 
@@ -1257,6 +1335,22 @@
       // Responder para o frame pai
       window.top.postMessage(resultado, '*');
       console.log(`%c[BB-CLICK] ${resultado.ok ? '✅' : '❌'} ${normalizedAlvo} | seletor: ${resultado.seletor || 'NÃO ENCONTRADO'}`, 'color:cyan;font-weight:bold');
+
+      // === FALLBACK HEURÍSTICO CDP (canvas-aware) ===
+      // Se DOM falhou (chip ou spot não achados), dispara CDP click via coords heurísticas.
+      // Funciona em canvas-only, web-components com shadow DOM, ou qualquer cenário sem DOM clicável.
+      if (!chip || !found) {
+        const coords = calcularCoordsHeuristicas(normalizedAlvo, chipValue);
+        if (coords) {
+          console.log(`[BB-CLICK] 🎯 FALLBACK HEURÍSTICO ATIVADO: ${normalizedAlvo} stake=${chipValue} canvas=${coords.refRect.canvas}`);
+          // 1. Click na ficha (heurístico)
+          if (!chip) dispararCDPClick(coords.chip, `chip-${chipValue || '5'}`);
+          // 2. Click no spot (heurístico) — delay pra Evolution registrar a ficha
+          setTimeout(() => dispararCDPClick(coords.spot, normalizedAlvo), 350);
+        } else {
+          console.warn('[BB-CLICK] Heurística não disponível (sem canvas/viewport útil)');
+        }
+      }
     }, 100); // Delay inicial para garantir que o frame processou o sinal
   }
 
@@ -1264,6 +1358,27 @@
     // Comando de clique vindo do frame pai → executar no iframe
     if (!IS_TOP_FRAME && event.data?.source === 'bb-click-cmd') {
       await executarComandoClique(event.data.alvo || 'player', event.data.valor || null);
+      return;
+    }
+
+    // Repasse recursivo do hardware click: subframes intermediários (billing-boom envolvendo
+    // evo-games) somam o offset do iframe filho ANTES de repassar pro parent.
+    // Cada frame na cadeia tem acesso ao DOM dos próprios filhos (mesmo cross-origin),
+    // então essa acumulação consegue chegar até o top com coordenadas absolutas corretas.
+    if (!IS_TOP_FRAME && event.data?.source === 'bb-click-result-hardware') {
+      try {
+        const iframes = Array.from(document.querySelectorAll('iframe'));
+        const childFrame = iframes.find((f) => f.contentWindow === event.source);
+        const adjusted = { ...event.data };
+        if (childFrame && typeof adjusted.x === 'number' && typeof adjusted.y === 'number') {
+          const r = childFrame.getBoundingClientRect();
+          adjusted.x = adjusted.x + r.left;
+          adjusted.y = adjusted.y + r.top;
+        }
+        window.parent.postMessage(adjusted, '*');
+      } catch (_) {
+        try { window.parent.postMessage(event.data, '*'); } catch (_) {}
+      }
       return;
     }
 
@@ -1276,9 +1391,14 @@
         const label = r.alvo === 'player' ? 'AZUL (Jogador)' : (r.alvo === 'banker' ? 'VERMELHO (Banca)' : 'EMPATE');
         const msg = r.ok
           ? `✅ Operando: ${label} | ${r.seletor}`
-          : `❌ Falhou em ${label} — não encontrado`;
+          : `❌ Falhou em ${label} — tentando CDP heurístico`;
         if (overlayInicializado && typeof Overlay !== 'undefined' && Overlay.addLog) {
-          Overlay.addLog(msg, r.ok ? 'success' : 'error');
+          Overlay.addLog(msg, r.ok ? 'success' : 'warn');
+        }
+      } else if (r.source === 'bb-click-result-hardware' && r.viaHeuristic) {
+        // CDP heurístico — informar o operador
+        if (overlayInicializado && typeof Overlay !== 'undefined' && Overlay.addLog) {
+          Overlay.addLog(`🎯 CDP heurístico → ${r.alvo}`, 'info');
         }
       }
 
