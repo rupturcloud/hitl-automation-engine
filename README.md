@@ -1,145 +1,136 @@
-# BetBoom Auto Pattern — Extensão Will Dados Pro
+# Autodrive HITL Core — Engine de Decisão Inteligente
 
-**Versão**: 2.3.1  
-**Data**: 2026-05-13  
-**Status**: POC Funcional com 18 Padrões WMSG
+**Versão**: 2.4.0
+**Status**: Engine de Automação com Human-in-the-Loop + Autodrive
+**Branch ativa**: `claude-code`
 
-## 📋 Descrição
-
-Extensão Chrome MV3 que automatiza detecção e execução de padrões visuais no Bac Bo (BetBoom/Evolution) baseado na estratégia do Will Dados Pro.
-
-Implementa **18 padrões WMSG** (sequências exatas) com matching em:
-- ✅ Sequência (últimas 4 casas sequenciais)
-- ✅ Linha (qualquer uma das 6 linhas do tabuleiro)
-- ✅ Diagonal (diagonal ↘ e ↙)
-
-## 🎯 18 Padrões WMSG
-
-| ID | Sequência | Entrada | Descrição |
-|---|---|---|---|
-| WMSG-001 | [A,A,A,V] | FORA | 3 azuis e 1 vermelho |
-| WMSG-002 | [V,V,V,A] | CASA | 3 vermelhos e 1 azul |
-| WMSG-003 | [A,V,A,V] | CASA | Zigue-zague terminando em V |
-| WMSG-004 | [V,A,V,A] | FORA | Zigue-zague terminando em A |
-| WMSG-005 | [A,A,V,V] | CASA | Espelho: 2 azuis e 2 vermelhos |
-| WMSG-006 | [V,V,A,A] | FORA | Espelho: 2 vermelhos e 2 azuis |
-| WMSG-007 | [A,A,V,A] | FORA | AABA — quebra com vermelho |
-| WMSG-008 | [V,V,A,V] | CASA | VVAV — quebra com azul |
-| WMSG-009 | [A,V,V,A] | FORA | AVVA — sanduiche |
-| WMSG-010 | [V,A,A,V] | CASA | VAAV — sanduiche |
-| WMSG-011 | [A,V,V,V] | CASA | Após 3 V seguidos |
-| WMSG-012 | [V,A,A,A] | FORA | Após 3 A seguidos |
-| WMSG-013 | [E,A,A,A] | FORA | Empate + 3 azuis |
-| WMSG-014 | [E,V,V,V] | CASA | Empate + 3 vermelhos |
-| WMSG-015 | [A,E,A,A] | FORA | Empate entre azuis |
-| WMSG-016 | [V,E,V,V] | CASA | Empate entre vermelhos |
-| WMSG-017 | [A,A,E,A] | FORA | 3 azuis com empate |
-| WMSG-018 | [V,V,E,V] | CASA | 3 vermelhos com empate |
-
-## 🔧 Instalação
-
-### 1. Baixar e extrair a extensão
-```bash
-unzip betboom-extension-v2.3.1.zip
-cd betboom-extension-v2.3.1
-```
-
-### 2. Carregar em Chrome
-1. Abrir `chrome://extensions/`
-2. Ativar "Modo de desenvolvedor" (canto superior direito)
-3. Clicar em "Carregar extensão não compactada"
-4. Selecionar a pasta da extensão
-
-## 📊 Arquitetura
-
-### Fluxo de Execução
-```
-1. COLLECTOR (lê mesa via DOM)
-   ↓
-2. PATTERN ENGINE (detecta padrões WMSG)
-   ├─ Sequencial (85%)
-   ├─ Linha (82%)
-   └─ Diagonal (79%)
-   ↓
-3. DECISION MODEL (aplica F1 Score)
-   ↓
-4. EXECUTOR (executa click real)
-   ↓
-5. CONFIRMATION (valida aposta)
-   ↓
-6. BANKROLL MANAGER (gale/reset/stop win/loss)
-```
-
-### Módulos Principais
-
-| Arquivo | Responsabilidade |
-|---------|------------------|
-| `patterns.js` | 18 WMSG + matching sequencial/linha/diagonal |
-| `decision.js` | FSM (OFF→OBSERVING→SIGNAL_FOUND→EXECUTE→CONFIRM) |
-| `executor.js` | Click real + confirmação |
-| `chip-detector.js` | Detecção de fichas no DOM |
-| `safety-governance.js` | Circuit breaker + rate limiting |
-| `f1-scorer.js` | Confiança da decisão |
-| `overlay.js` | UI: sidebar + tabuleiro visual |
-
-## 🚀 Uso
-
-1. **Ligar extensão**: Clique no ícone → "Ligar"
-2. **Configurar**: Ajuste Stake, Gale, Empate, Stop Win/Loss
-3. **Monitorar**: Tabuleiro visual mostra padrões detectados
-4. **Automático**: Robô entra automaticamente quando padrão casa
-
-## ⚙️ Configuração
-
-### Bankroll Management
-- **Stake Base**: Valor inicial por aposta (padrão: 5.00)
-- **Gale**: Martingale — dobra após loss
-- **Stop Win**: Para quando lucro ≥ limite
-- **Stop Loss**: Para quando perda ≥ limite
-
-### Padrões Dinâmicos
-Adicione suas próprias estratégias via painel:
-- Sequência customizada (ex: [A,V,A,V])
-- Casa/Fora
-- Limite de Gale
-- Proteção Empate
-
-## 🧪 Testes
-
-Abrir `test-wmsg-patterns.html` em navegador:
-- Valida carregamento dos 18 padrões
-- Testa matching em 5 sequências
-- Verifica confiança e ação esperada
-
-## 📝 Logs
-
-Console mostra:
-- `[PatternEngine]` → Padrões detectados
-- `[Executor]` → Click confirmado
-- `[Safety]` → Estado do sistema
-- `[F1Scorer]` → Confiança da decisão
-
-## ⚠️ Limitações Conhecidas
-
-1. **Jogo em iframe**: Requer content_script em all_frames
-2. **Cross-origin**: Evolution games podem ter restrições CORS
-3. **Sincronização**: Latência de rede pode afetar timing
-4. **Visual**: Padrão diagonal requer 6 linhas × 4+ colunas
-
-## 🔐 Segurança
-
-- ✅ Sem dados sensíveis transmitidos
-- ✅ Apenas automação de click DOM
-- ✅ Circuit breaker contra falhas
-- ✅ Validação de aposta antes execute
-- ✅ Event Store para auditoria
-
-## 📞 Suporte
-
-- Logs detalhados em DevTools → Console
-- Teste manual com `test-wmsg-patterns.html`
-- Verifique manifest.json para permissions
+Uma plataforma de **decisão autonômica** com forte camada de supervisão humana (HITL), arquitetura modular e foco em auditabilidade total. Originalmente nascido para Bac Bo, projetado para ser **agnóstico de plataforma**.
 
 ---
 
-**Desenvolvido com**: Chrome MV3, JavaScript vanilla, sem dependências externas
+## 🎯 Visão Geral
+
+- **Autodrive** — execução automática quando convicção e contexto são fortes
+- **HITL** — operador confirma, cancela ou aguarda timer (5–8 s) com botões grandes e explicáveis
+- **Explicabilidade** — toda decisão carrega o "Por quê?" (padrão + convicção + contexto)
+- **Auditabilidade Total** — `EventStore` como SSoT + `ReplayEngine` determinístico
+- **Engenharia limpa** — Clean Architecture, ports & adapters, engines modulares
+
+---
+
+## 🧠 Engines do núcleo
+
+| Módulo | Responsabilidade |
+|---|---|
+| `event-store.js` | SSoT com `seq` monotônico + `queryByRoundId` + pub/sub |
+| `round-lifecycle.js` | FSM canônica da rodada (idle/active/closed) + watchdog sob demanda |
+| `plan-executor.js` | Plano serializável com steps/fallbacks/idempotência + executionMode replay-safe |
+| `replay-engine.js` | Replay determinístico read-only + cache LRU + comparação entre rodadas |
+| `calibration-loop.js` | Aprendizado WIN/LOSS por padrão + leader election multi-tab + drift detection |
+| `decision.js` | Orquestrador central + Conviction + Consensus + ContextHealth |
+| `patterns.js` | 18 padrões WMSG + 14 WILL extras + 11 dinâmicos + 18 nativos |
+| `executor.js` | Execução de clique robusta (chip + spot + confirm) com anti-bot |
+| `overlay.js` | UI view-only com HITL forte (countdown, confirmar, cancelar) |
+
+### Adapters de integração
+
+- `lifecycle-gate.js` — PlanExecutor consome RoundLifecycle sem importar direto
+- `lifecycle-replay-projector.js` — Replay reconstrói FSM a partir do EventStore
+- `calibration-lifecycle-adapter.js` — Calibration escuta `round_end` direto
+- `calibration-plan-adapter.js` — Extrai contexto de calibração dos planos
+- `calibration-replay-adapter.js` — Replay nunca polui calibração (modo replay)
+
+---
+
+## 🎲 Padrões de Detecção (47 estratégias ativas)
+
+### WMSG (18 — Will Dados Pro sequências exatas em 4 casas)
+Sequência → Linha → Diagonal. Inclui streaks, zigue-zague, espelhos, sanduíches e padrões de empate.
+
+### WILL Extras (14 — sequências de tamanho variável)
+Streaks longos (5 e 7), espelhos longos, zigue-zague longo, padrões complexos, empate duplo, empate intercalado.
+
+### Bibliotecas Dinâmicas (11) + Padrões Nativos (18)
+Xadrez, Reversão, Pós-Empate, Diagonal, Casadinho, Linha Devedora, Quebra de Padrão, Sequências, Ponta, Ping-Pong, Tendência, Correção Após Empate, Espelho, Canal Horizontal, Reversão Diagonal.
+
+---
+
+## 🤝 Human-in-the-Loop
+
+Três níveis de operação:
+1. **Alta convicção** (≥ 85%) → auto-executa após countdown breve
+2. **Média convicção** → countdown 5s + botão "✅ CONFIRMAR" piscando + botão "❌ CANCELAR" ao lado
+3. **Operador discorda** → clique em CANCELAR aborta instantaneamente
+
+Toda decisão fica registrada no `EventStore` para replay e auditoria.
+
+---
+
+## 💰 Bankroll Management
+
+- **Stake base** configurável
+- **Martingale** (gale) com reset em vitória + proteção empate opcional
+- **Stop Win / Stop Loss** rigorosos
+- **Banca**: extensão **nunca** bloqueia clique por banca — quem aceita ou recusa é a casa
+
+---
+
+## 📡 Observabilidade
+
+- `EventStore` (IndexedDB) com `append → {seq, persistedAt}` síncrono no seq
+- `EvidenceEngine` (localStorage) como índice rápido
+- `ReplayEngine.replayRound(roundId)` reproduz timeline determinística
+- `[BB-FLOW]`, `[DECISOR-DEBUG]`, `[COUNTDOWN-DEBUG]` logs estruturados
+
+---
+
+## 🚀 Instalação
+
+```bash
+git clone https://github.com/rupturcloud/hitl-automation-engine.git
+cd hitl-automation-engine
+git checkout claude-code
+```
+
+1. Chrome → `chrome://extensions/`
+2. Modo desenvolvedor ON
+3. Carregar pasta da extensão
+4. Abrir mesa (BetBoom Bac Bo) — extensão injeta overlay no top frame
+
+---
+
+## 🧪 Como testar
+
+1. Recarregue a extensão após qualquer mudança
+2. Console deve mostrar:
+   ```
+   [EventStore] ✅ IndexedDB inicializado
+   [RoundLifecycle] configure() chamado
+   [Wire-up dos módulos novos concluído]
+   ```
+3. Quando padrão for detectado:
+   ```
+   [DECISOR-DEBUG] ✅ DECISÃO PRONTA: WMSG-007 → vermelho
+   [COUNTDOWN-DEBUG] PASSOU TODOS OS GUARDS — chamando iniciarCountdown
+   ```
+4. Overlay mostra botão laranja piscando "✅ CONFIRMAR (5s)" + botão "❌ CANCELAR"
+
+---
+
+## 📐 Filosofia de engenharia
+
+- UI/UX preservada (operador mantém familiaridade)
+- Motor interno reconstruído com padrões profissionais (Strategy, Observer, Command, State, Repository, Factory)
+- Cada módulo testável isoladamente
+- Backward compatible: tudo opcional via `attach()`, fluxo legado funciona se algo não carregar
+- Multi-plataforma por design (BetBoom → Brazzer → H2 via adapters)
+
+---
+
+## 🤖 Contribuições por agentes
+
+Sprint de 4 rodadas de debate adversarial entre 4 agentes especialistas (Sistemas Distribuídos, FSM/Event Sourcing, Observabilidade, ML/Estatística) + 6 agentes de implementação em paralelo, orquestrados como CTO. Ver `git log claude-code` para histórico detalhado.
+
+---
+
+**Mantido por**: Ruptur Cloud · **Engenharia**: Multi-agente coordenado

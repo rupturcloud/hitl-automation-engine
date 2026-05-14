@@ -2282,6 +2282,42 @@ const Overlay = (() => {
     registrarEntradaManual,
     limparDecisaoArmada,
 
+    /**
+     * Aliases compatíveis com a API simplificada (versão Grok).
+     * Não substituem o fluxo principal — apenas expõem entradas que outros
+     * módulos/clientes possam usar para integrar com a Overlay sem conhecer
+     * a API completa interna.
+     */
+    showSuggestion(decisao) {
+      try {
+        if (!decisao) return;
+        const roundKey = decisao.roundKey || CONFIG.roundIdAtual || `manual-${Date.now()}`;
+        const rodadaOp = decisao.rodadaOperador || (typeof Collector !== 'undefined' ? (Collector.getRodadaAtual?.() || 0) + 1 : 0);
+        armarDecisao(decisao, roundKey, rodadaOp);
+      } catch (e) {
+        console.warn('[Overlay] showSuggestion falhou:', e?.message || e);
+      }
+    },
+    hideSuggestion(motivo = null) {
+      try {
+        limparDecisaoArmada(motivo);
+      } catch (e) {
+        console.warn('[Overlay] hideSuggestion falhou:', e?.message || e);
+      }
+    },
+    updateTabuleiro(historico) {
+      try {
+        // Delega para o HistoryRenderer (fonte de verdade do grid 156 slots).
+        const tab = document.getElementById('bb-tabuleiro');
+        if (tab && typeof HistoryRenderer !== 'undefined') {
+          const hist = Array.isArray(historico) ? historico : (typeof Collector !== 'undefined' ? Collector.getHistorico?.() : []);
+          HistoryRenderer.renderHistoryGrid(tab, hist || []);
+        }
+      } catch (e) {
+        console.warn('[Overlay] updateTabuleiro falhou:', e?.message || e);
+      }
+    },
+
     atualizarStatusIframe(detectado) {
       atualizarStatusIframeUI(detectado);
     },

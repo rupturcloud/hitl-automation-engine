@@ -715,6 +715,30 @@ const DecisionEngine = (() => {
       Logger.info('Sistema parado pelo usuário.');
     },
 
+    // ---------------------------------------------------------------------
+    // Aliases compatíveis com API simplificada (versão Grok).
+    // Apenas delegam — não introduzem bloqueio nem mudam comportamento.
+    // ---------------------------------------------------------------------
+    start(bancaInicial) {
+      return this.iniciar(bancaInicial);
+    },
+    stop() {
+      return this.parar();
+    },
+    async makeDecision(cores) {
+      return this.decidir(cores);
+    },
+    setConfig(novoConfig) {
+      try {
+        if (novoConfig && typeof CONFIG !== 'undefined' && typeof CONFIG === 'object') {
+          Object.assign(CONFIG, novoConfig);
+          Logger.info('[DecisionEngine] setConfig aplicado:', Object.keys(novoConfig).join(', '));
+        }
+      } catch (e) {
+        Logger.warn('[DecisionEngine] setConfig falhou:', e?.message || e);
+      }
+    },
+
     getState() {
       return clone(state);
     },

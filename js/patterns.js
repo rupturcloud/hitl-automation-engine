@@ -712,6 +712,69 @@ const PatternEngine = (() => {
     { id: "WMSG-018", seq: ['vermelho','vermelho','empate','vermelho'], enter: 'azul', desc: "Tres vermelhos com empate no penultimo. Quebra: CASA." }
   ];
 
+  // =====================================================
+  // PADRÕES WILL EXTRAS — sequências de tamanho variável (3, 5, 7)
+  // Conteúdo de negócio enviado por Diego/Will. Complementa os 18 WMSG.
+  // =====================================================
+  const WILL_EXTRA_PATTERNS = [
+    // Streaks longos (5)
+    { id: "WILL-001", seq: ['azul','azul','azul','azul','vermelho'], enter: 'vermelho', desc: "4 Azuis e 1 Vermelho. Continua a quebra: FORA." },
+    { id: "WILL-002", seq: ['vermelho','vermelho','vermelho','vermelho','azul'], enter: 'azul', desc: "4 Vermelhos e 1 Azul. Continua a quebra: CASA." },
+    // Streaks ultra-longos (7)
+    { id: "WILL-003", seq: ['azul','azul','azul','azul','azul','azul','azul'], enter: 'vermelho', desc: "7 Azuis consecutivos. Reversao forte: FORA." },
+    { id: "WILL-004", seq: ['vermelho','vermelho','vermelho','vermelho','vermelho','vermelho','vermelho'], enter: 'azul', desc: "7 Vermelhos consecutivos. Reversao forte: CASA." },
+    // Padrões complexos (7)
+    { id: "WILL-005", seq: ['azul','azul','vermelho','vermelho','azul','vermelho','vermelho'], enter: 'azul', desc: "AAVVAVV — sequencia complexa. Vira: CASA." },
+    { id: "WILL-006", seq: ['vermelho','vermelho','azul','azul','vermelho','azul','azul'], enter: 'vermelho', desc: "VVAAVAA — sequencia complexa. Vira: FORA." },
+    // Zigue-zague longo (5)
+    { id: "WILL-007", seq: ['azul','vermelho','azul','vermelho','azul'], enter: 'azul', desc: "Zigue-Zague AVAVA. Segue ciclo: CASA." },
+    { id: "WILL-008", seq: ['vermelho','azul','vermelho','azul','vermelho'], enter: 'vermelho', desc: "Zigue-Zague VAVAV. Segue ciclo: FORA." },
+    // Pos empate duplo (3)
+    { id: "WILL-009", seq: ['empate','empate','azul'], enter: 'vermelho', desc: "Dois empates seguidos de Azul. Vira: FORA." },
+    { id: "WILL-010", seq: ['empate','empate','vermelho'], enter: 'azul', desc: "Dois empates seguidos de Vermelho. Vira: CASA." },
+    // Empate intercalado (4)
+    { id: "WILL-011", seq: ['empate','azul','empate','vermelho'], enter: 'azul', desc: "Empate-Azul-Empate-Vermelho. Reversao: CASA." },
+    { id: "WILL-012", seq: ['empate','vermelho','empate','azul'], enter: 'vermelho', desc: "Empate-Vermelho-Empate-Azul. Reversao: FORA." },
+    // Espelhos longos (5)
+    { id: "WILL-013", seq: ['azul','azul','azul','vermelho','vermelho'], enter: 'azul', desc: "3 Azuis + 2 Vermelhos. Vira: CASA." },
+    { id: "WILL-014", seq: ['vermelho','vermelho','vermelho','azul','azul'], enter: 'vermelho', desc: "3 Vermelhos + 2 Azuis. Vira: FORA." }
+  ];
+
+  /**
+   * Matcher para padrões WILL extras — testa em ultimas N casas onde N é o tamanho do padrão.
+   * Prioridade: padrões mais longos primeiro (mais específicos).
+   */
+  function will_MatchExtra(cores) {
+    if (!cores || cores.length < 3) return null;
+
+    // Ordena padrões por tamanho desc (mais específico primeiro)
+    const padroesOrdenados = [...WILL_EXTRA_PATTERNS].sort((a, b) => b.seq.length - a.seq.length);
+
+    for (const padrao of padroesOrdenados) {
+      if (cores.length < padrao.seq.length) continue;
+
+      const ultimas = cores.slice(-padrao.seq.length);
+      if (ultimas.every((cor, i) => cor === padrao.seq[i])) {
+        return {
+          nome: padrao.id,
+          acao: padrao.enter,
+          confianca: 85,
+          comGale: false,
+          source: 'will-extra',
+          patternId: padrao.id,
+          strategyId: padrao.id,
+          recognizedSequence: padrao.seq.join('-'),
+          sequenceBase: padrao.seq,
+          desc: padrao.desc,
+          matchType: 'sequential-extra',
+          tamanho: padrao.seq.length
+        };
+      }
+    }
+
+    return null;
+  }
+
   function wmsg_MatchExactSequence(cores) {
     if (cores.length < 4) return null;
 
@@ -891,6 +954,7 @@ const PatternEngine = (() => {
   // LISTA DE TODOS OS PADRÕES (ORDEM DE PRIORIDADE DO WILL)
   // =====================================================
   const todosPadroes = [
+    will_MatchExtra,  // 14 padrões WILL extras (streaks 5/7, zig-zag 5, espelhos 5, empate duplo) — prioridade máxima por especificidade
     wmsg_AllMethods,  // 18 padrões WMSG (sequencial + linha + diagonal) — prioridade 1
     padrao01_Xadrez,
     padrao02_Reversao,
@@ -1056,6 +1120,9 @@ const PatternEngine = (() => {
       console.log(`[BetBoom Auto]  - Padrões WMSG (Will Sequências Exatas): ${WMSG_PATTERNS.length} padrões`);
       WMSG_PATTERNS.forEach((p, i) => console.log(`[BetBoom Auto]    ${i + 1}. ${p.id} → ${p.enter}`));
 
+      console.log(`[BetBoom Auto]  - Padrões WILL Extras (streaks longos, complexos, empate duplo): ${WILL_EXTRA_PATTERNS.length} padrões`);
+      WILL_EXTRA_PATTERNS.forEach((p, i) => console.log(`[BetBoom Auto]    ${i + 1}. ${p.id} (tam=${p.seq.length}) → ${p.enter}`));
+
       if (dynamicStrats.length > 0) {
         console.log('[BetBoom Auto]  - Bibliotecas Dinâmicas:');
         dynamicStrats.forEach((s, i) => console.log(`[BetBoom Auto]    ${i + 1}. ${s.nome} (${s.source})`));
@@ -1064,9 +1131,11 @@ const PatternEngine = (() => {
       console.log('[BetBoom Auto]  - Padrões Nativos (Hardcoded):');
       natives.forEach((nome, i) => console.log(`[BetBoom Auto]    ${i + 1}. ${nome}`));
 
-      console.log(`[BetBoom Auto] Total: ${WMSG_PATTERNS.length + dynamicStrats.length + natives.length} estratégias operacionais.`);
+      const totalPadroes = WMSG_PATTERNS.length + WILL_EXTRA_PATTERNS.length + dynamicStrats.length + natives.length;
+      console.log(`[BetBoom Auto] Total: ${totalPadroes} estratégias operacionais.`);
       return [
         ...WMSG_PATTERNS.map(p => p.id),
+        ...WILL_EXTRA_PATTERNS.map(p => p.id),
         ...dynamicStrats.map(s => s.nome),
         ...natives
       ];
@@ -1104,9 +1173,16 @@ const PatternEngine = (() => {
     },
 
     /**
-     * Quantidade total de padrões (WMSG + Nativos).
+     * Quantidade total de padrões (WMSG + WILL extras + Nativos).
      */
-    totalPadroes: WMSG_PATTERNS.length + todosPadroes.length,
+    totalPadroes: WMSG_PATTERNS.length + WILL_EXTRA_PATTERNS.length + todosPadroes.length,
+
+    /**
+     * Retorna lista de padrões WILL Extras (streaks longos, complexos, empate duplo).
+     */
+    getWILLExtraPatterns() {
+      return WILL_EXTRA_PATTERNS.map(p => ({ ...p, seq: [...p.seq] }));
+    },
 
     /**
      * Retorna lista de padrões WMSG oficiais.
