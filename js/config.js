@@ -7,6 +7,8 @@ const CONFIG = {
   // --- Stake ---
   stakeInicial: 5,          // Valor MÍNIMO REAL da mesa BetBoom (R$5 - R$25.000)
   stakeMax: 25,             // Limite seguro para fase de calibragem
+  stakeCapMultiplier: 10,   // 🛑 SAFETY: nunca apostar > stakeInicial × N (default R$50). Reduz a 1 para apostar só stakeInicial.
+  permitirFallbackHeuristico: false,  // 🛑 SAFETY: fallback heurístico desativado por default. Em mesas live-high, idx 0 pode ser ficha R$5K (não R$5). Calibrar via BBCalibrator.tudo() é o caminho seguro.
 
   // --- Gale (Martingale) ---
   maxGales: 2,              // Quantidade máxima de gales (0 = sem gale)

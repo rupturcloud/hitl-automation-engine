@@ -1336,20 +1336,25 @@
       window.top.postMessage(resultado, '*');
       console.log(`%c[BB-CLICK] ${resultado.ok ? '✅' : '❌'} ${normalizedAlvo} | seletor: ${resultado.seletor || 'NÃO ENCONTRADO'}`, 'color:cyan;font-weight:bold');
 
-      // === FALLBACK HEURÍSTICO CDP (canvas-aware) ===
-      // Se DOM falhou (chip ou spot não achados), dispara CDP click via coords heurísticas.
-      // Funciona em canvas-only, web-components com shadow DOM, ou qualquer cenário sem DOM clicável.
-      if (!chip || !found) {
+      // === FALLBACK HEURÍSTICO CDP — DESATIVADO POR DEFAULT ===
+      // ATENÇÃO: o mapa CHIP_INDEX hardcoded assume layout de mesa específico.
+      // Em mesas live-high do BetBoom, a primeira ficha (idx=0) pode ser R$5000
+      // ao invés de R$5 — risco de apostar 1000x o valor desejado.
+      // Para reativar, o operador precisa:
+      //   1) Calibrar via BBCalibrator.tudo() (coordenadas reais da SUA mesa)
+      //   2) Ou explicitamente setar CONFIG.permitirFallbackHeuristico = true
+      const permitirHeur = (typeof CONFIG !== 'undefined' && CONFIG.permitirFallbackHeuristico === true);
+      if ((!chip || !found) && permitirHeur) {
         const coords = calcularCoordsHeuristicas(normalizedAlvo, chipValue);
         if (coords) {
           console.log(`[BB-CLICK] 🎯 FALLBACK HEURÍSTICO ATIVADO: ${normalizedAlvo} stake=${chipValue} canvas=${coords.refRect.canvas}`);
-          // 1. Click na ficha (heurístico)
           if (!chip) dispararCDPClick(coords.chip, `chip-${chipValue || '5'}`);
-          // 2. Click no spot (heurístico) — delay pra Evolution registrar a ficha
           setTimeout(() => dispararCDPClick(coords.spot, normalizedAlvo), 350);
         } else {
           console.warn('[BB-CLICK] Heurística não disponível (sem canvas/viewport útil)');
         }
+      } else if (!chip || !found) {
+        console.warn(`[BB-CLICK] 🛑 SEM CLIQUE: ChipDetector falhou e fallback heurístico está DESATIVADO. Use BBCalibrator.tudo() pra calibrar coords reais da mesa.`);
       }
     }, 100); // Delay inicial para garantir que o frame processou o sinal
   }

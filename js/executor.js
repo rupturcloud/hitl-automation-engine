@@ -250,6 +250,19 @@ const Executor = (() => {
         return false;
       }
 
+      // 🛑 SAFETY CAP ABSOLUTO — impede aposta acidental >> stakeInicial.
+      // Ex: gale exponencial ou ficha errada (idx=0 pode ser R$5000 em mesas live-high).
+      // Limite default: 10x stakeInicial. Ajustável via CONFIG.stakeCapMultiplier.
+      const stakeInicialSafe = Math.max(Number(CONFIG.stakeInicial) || 5, 1);
+      const cap = stakeInicialSafe * (Number(CONFIG.stakeCapMultiplier) || 10);
+      const stakeNum = Number(decisao.stake) || 0;
+      if (stakeNum > cap) {
+        console.error(`[EXEC-SAFETY] 🛑 APOSTA BLOQUEADA: stake R$${stakeNum} > cap R$${cap} (stakeInicial=R$${stakeInicialSafe} × ${CONFIG.stakeCapMultiplier || 10})`);
+        Logger.error(`SAFETY CAP: aposta de R$${stakeNum} bloqueada (max permitido R$${cap}). Reset gale via DecisionEngine.resetGale() ou ajuste CONFIG.stakeCapMultiplier.`);
+        lastExecutionMeta.statusExecucao = 'bloqueada-safety-cap';
+        return false;
+      }
+
       // ----------------------------------------------------------------------
       // TODO: integrar com PlanExecutor — manter fluxo legado por enquanto.
       //
