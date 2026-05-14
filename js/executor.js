@@ -318,7 +318,26 @@ const Executor = (() => {
         }
 
         Logger.info(`Executando aposta automática: ${decisao.cor} | R$${decisao.stake}`);
-        console.log(`[EXEC-DEBUG] passou todos guards, vai clicar | window.top===window=${window.top === window} | BB_CLICK=${typeof window.BB_CLICK}`);
+        console.log(`[EXEC-DEBUG] passou todos guards, vai clicar | window.top===window=${window.top === window} | BB_CLICK=${typeof window.BB_CLICK} | BBCalibrator=${typeof window.BBCalibrator}`);
+
+        // 🎯 PRIMEIRO FALLBACK: se operador calibrou coordenadas, usar HARDWARE_CLICK
+        // (funciona mesmo se a Evolution for canvas-only ou tiver mudado seletores).
+        if (window.top === window
+            && typeof window.BBCalibrator !== 'undefined'
+            && window.BBCalibrator.temCalibracao()) {
+          console.log('[EXEC-DEBUG] 🎯 Usando BBCalibrator (coordenadas calibradas via Hardware Debugger)');
+          Logger.info('Delegando execução para BBCalibrator (coordenadas calibradas)');
+          try {
+            const resCal = await window.BBCalibrator.executarAposta(decisao.cor, decisao.stake, { clicarConfirmar: true });
+            lastExecutionMeta.statusExecucao = resCal.ok ? 'executado-calibracao' : 'falha-calibracao';
+            lastExecutionMeta.roundId = CONFIG.roundIdAtual;
+            lastExecutionMeta.calibratorDetail = resCal;
+            isExecutando = false;
+            return !!resCal.ok;
+          } catch (e) {
+            console.warn('[EXEC-DEBUG] BBCalibrator falhou, caindo para Bridge:', e?.message);
+          }
+        }
 
         // 🌉 BRIDGE JUMP: Se estiver no Top Frame e tivermos o comando de bridge
         if (window.top === window && typeof window.BB_CLICK === 'function') {
