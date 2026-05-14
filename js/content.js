@@ -544,9 +544,14 @@
       if (typeof RoundLifecycle !== 'undefined') {
         const roundId = CONFIG.roundIdAtual || parserState.currentGameId || null;
         if (roundId && estadoMapeado) {
-          if (estadoMapeado === 'apostando') {
-            RoundLifecycle.start(roundId, { raw: game.stage || null, timer });
-          } else {
+          // Garante que a rodada existe antes de transitar/encerrar.
+          // Se ainda não foi iniciada, start() implícito com a fase atual.
+          const cur = RoundLifecycle.getCurrentRound?.();
+          const precisaIniciar = !cur || cur.roundId !== roundId;
+          if (precisaIniciar) {
+            RoundLifecycle.start(roundId, { raw: game.stage || null, timer, autoStart: true });
+          }
+          if (estadoMapeado !== 'apostando') {
             RoundLifecycle.transition(roundId, estadoMapeado, { raw: game.stage || null, timer });
           }
         }

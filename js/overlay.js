@@ -1704,7 +1704,7 @@ const Overlay = (() => {
       });
     }
 
-    Collector.onNovoResultado((novos, historico) => {
+    Collector.onNovoResultado(async (novos, historico) => {
         const ultimoResultado = novos[novos.length - 1];
 
         console.log(`[HistoryLifecycle] CALLBACK onNovoResultado | historico.length=${historico.length} | roundId=${ultimoResultado?.roundId}`);
@@ -1749,7 +1749,9 @@ const Overlay = (() => {
 
         // Analisar e decidir
         const cores = Collector.getCoresRecentes(20);
-        const decisao = DecisionEngine.decidir(cores);
+        // decidir() é async — precisa de await para receber o objeto resolvido
+        // (sem await, decisao vira Promise e decisao.deveApostar === undefined)
+        const decisao = await DecisionEngine.decidir(cores);
 
         // Atualizar padrão detectado e entrada sugerida no overlay
         if (decisao.padrao) {
