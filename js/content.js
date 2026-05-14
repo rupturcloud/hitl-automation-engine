@@ -1099,13 +1099,17 @@
     const w = refRect.width;
     const h = refRect.height;
 
-    // Frações relativas (baseadas no layout Evolution Bac Bo)
+    // Frações relativas — Bac Bo Evolution Mini layout REAL:
+    // - Spots JOGADOR (Player) / EMPATE (Tie) / BANCA (Banker) ficam alinhados
+    //   horizontalmente em ~78% da altura (logo abaixo dos copinhos e botões grandes)
+    // - PLAYER fica à esquerda, EMPATE no centro, BANKER à direita
     const SPOT_FRACTIONS = {
-      player: { x: 0.30, y: 0.62 },
-      banker: { x: 0.70, y: 0.62 },
-      tie:    { x: 0.50, y: 0.48 }
+      player: { x: 0.22, y: 0.78 },  // JOGADOR / azul (esquerda)
+      tie:    { x: 0.50, y: 0.78 },  // EMPATE / verde (centro, mesma linha)
+      banker: { x: 0.78, y: 0.78 }   // BANCA / vermelho (direita)
     };
-    // Barra de fichas: 9 fichas distribuídas de x=0.08 a x=0.80, y=0.92
+    // Barra de fichas inferior — y=0.94, 9 fichas distribuídas de x=0.16 a x=0.78
+    // Layout do print do user: R$5, 10, 25, 125, 500, 2.5K, 6K, 10K, 12K
     const CHIP_INDEX = { 5: 0, 10: 1, 25: 2, 125: 3, 500: 4, 2500: 5, 6000: 6, 10000: 7, 12000: 8 };
 
     const spotFrac = SPOT_FRACTIONS[alvo];
@@ -1113,8 +1117,8 @@
 
     const stake = Number(chipValue);
     const idx = Number.isFinite(stake) && CHIP_INDEX[stake] != null ? CHIP_INDEX[stake] : 0;
-    const chipX = 0.08 + (idx * (0.72 / 8));
-    const chipFrac = { x: chipX, y: 0.92 };
+    const chipX = 0.16 + (idx * (0.62 / 8));
+    const chipFrac = { x: chipX, y: 0.94 };
 
     return {
       chip: { x: x0 + chipFrac.x * w, y: y0 + chipFrac.y * h },
