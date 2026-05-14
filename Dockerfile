@@ -1,9 +1,10 @@
-FROM node:20-slim
+FROM node:22-slim
 WORKDIR /app
 
 # Instalar dependências
 COPY package*.json ./
 RUN npm install --production
+RUN npm install --production @sentry/react ws
 
 # Copiar código (exceto node_modules do frontend que será ignorado)
 COPY . .
