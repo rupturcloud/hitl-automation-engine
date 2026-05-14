@@ -238,12 +238,15 @@ const Executor = (() => {
      * @returns {Promise<boolean>} - Se a aposta foi realizada com sucesso
      */
     async executarAposta(decisao) {
+      console.log(`[EXEC-DEBUG] executarAposta INICIO | cor=${decisao?.cor} | stake=${decisao?.stake} | deveApostar=${decisao?.deveApostar} | isExecutando=${isExecutando} | modoTeste=${CONFIG.modoTeste} | estadoRodada=${CONFIG.estadoRodadaAtual}`);
       if (isExecutando) {
+        console.log('[EXEC-DEBUG] ABORT: já está executando outra aposta');
         Logger.warn('Já existe uma aposta em execução.');
         return false;
       }
 
       if (!decisao || !decisao.deveApostar) {
+        console.log(`[EXEC-DEBUG] ABORT: decisao=${!!decisao} | deveApostar=${decisao?.deveApostar}`);
         return false;
       }
 
@@ -292,6 +295,7 @@ const Executor = (() => {
 
       try {
         if (CONFIG.modoTeste) {
+          console.log('[EXEC-DEBUG] ABORT: modoTeste ativo');
           Logger.warn('Execução real bloqueada: modoTeste está ativo.');
           lastExecutionMeta.statusExecucao = 'bloqueada-modo-teste';
           isExecutando = false;
@@ -302,8 +306,10 @@ const Executor = (() => {
           // Relaxamento: Se o timer estiver visível e > 2s, permitimos o clique mesmo se o WS não atualizou o estado
           const mesaStatus = mesaAceitandoApostas();
           if (mesaStatus.ok) {
+            console.log(`[EXEC-DEBUG] estado bypass via DOM (${mesaStatus.source})`);
             Logger.info(`Estado bypass: WS diz ${CONFIG.estadoRodadaAtual}, mas DOM diz Aberto/Timer. Prosseguindo.`);
           } else {
+            console.log(`[EXEC-DEBUG] ABORT: estado ${CONFIG.estadoRodadaAtual} + DOM ${mesaStatus.reason}`);
             Logger.warn(`Execução abortada: estado atual = ${CONFIG.estadoRodadaAtual || 'desconhecido'}. Motivo: ${mesaStatus.reason}`);
             lastExecutionMeta.statusExecucao = 'abortado-estado';
             isExecutando = false;
@@ -312,12 +318,14 @@ const Executor = (() => {
         }
 
         Logger.info(`Executando aposta automática: ${decisao.cor} | R$${decisao.stake}`);
+        console.log(`[EXEC-DEBUG] passou todos guards, vai clicar | window.top===window=${window.top === window} | BB_CLICK=${typeof window.BB_CLICK}`);
 
         // 🌉 BRIDGE JUMP: Se estiver no Top Frame e tivermos o comando de bridge
         if (window.top === window && typeof window.BB_CLICK === 'function') {
+          console.log(`[EXEC-DEBUG] BRIDGE JUMP: chamando BB_CLICK("${decisao.cor}", ${decisao.stake})`);
           Logger.info('Delegando execução para Bridge (Iframe)');
           window.BB_CLICK(decisao.cor, decisao.stake);
-          
+
           // No modo bridge, não conseguimos validar visualmente aqui no top frame
           // O resultado virá pelo postMessage e será logado pelo Overlay
           lastExecutionMeta.statusExecucao = 'delegado-bridge';
@@ -325,6 +333,7 @@ const Executor = (() => {
           isExecutando = false;
           return true;
         }
+        console.log('[EXEC-DEBUG] sem Bridge — execução local no DOM');
 
         // 1. Verificar se a mesa aceita apostas
         const mesaStatus = mesaAceitandoApostas();

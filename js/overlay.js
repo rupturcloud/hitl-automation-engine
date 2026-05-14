@@ -1325,8 +1325,10 @@ const Overlay = (() => {
   // ─── Execução efetiva (chamada pelo countdown ao chegar em 0) ─────────────────
 
   function _dispararExecucaoDecisao(contexto) {
-    if (!decisaoArmada) return;
+    console.log(`[EXEC-DEBUG] _dispararExecucaoDecisao chamado | contexto=${contexto} | decisaoArmada=${!!decisaoArmada} | estado=${CONFIG.estadoRodadaAtual}`);
+    if (!decisaoArmada) { console.log('[EXEC-DEBUG] ABORT _disparar: sem decisaoArmada'); return; }
     if (CONFIG.estadoRodadaAtual !== 'apostando') {
+      console.log(`[EXEC-DEBUG] ABORT _disparar: estado != apostando (${CONFIG.estadoRodadaAtual})`);
       limparDecisaoArmada(`Execução abortada no disparo: estado = ${CONFIG.estadoRodadaAtual || 'desconhecido'}`);
       return;
     }
@@ -1341,8 +1343,10 @@ const Overlay = (() => {
 
     addLog(`Executando aposta automática: ${BBStrategyUtils.getEntryLabel(decisao.cor)}`, 'warn');
     console.log(`[AutoClick] Stake R$${decisao.stake || 0} → ${BBStrategyUtils.getEntryLabel(decisao.cor)} → executando (${contexto})`);
+    console.log(`[EXEC-DEBUG] chamando Executor.executarAposta(cor=${decisao.cor}, stake=${decisao.stake})`);
 
     Executor.executarAposta(decisao).then((ok) => {
+      console.log(`[EXEC-DEBUG] Executor.executarAposta retornou ok=${ok} | status=${Executor.getLastExecutionMeta?.()?.statusExecucao}`);
       const executionMeta = Executor.getLastExecutionMeta?.() || null;
       if (btn) { btn.style.background = ok ? 'linear-gradient(135deg, #16a34a, #15803d)' : 'linear-gradient(135deg, #dc2626, #b91c1c)'; }
 
