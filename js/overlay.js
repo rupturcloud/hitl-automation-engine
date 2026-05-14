@@ -45,6 +45,7 @@ const Overlay = (() => {
       <div class="bb-header" id="bb-header">
         <span class="bb-title">🎯 BetBoom Auto v2</span>
         <div class="bb-header-btns">
+          <button id="bb-btn-calibrate" class="bb-btn-sm" title="Calibrar coordenadas de clique (uma vez)" style="background:#9333ea;color:#fff;font-weight:600">🎯 CAL</button>
           <button id="bb-btn-pin" class="bb-btn-sm" title="Fixar/Desfixar Janela">📌</button>
           <button id="bb-btn-minimize" class="bb-btn-sm" title="Minimizar">−</button>
           <button id="bb-btn-close" class="bb-btn-sm" title="Fechar">×</button>
@@ -769,6 +770,38 @@ const Overlay = (() => {
       });
     } else {
       console.warn('[OverlayBindSkipped] bb-btn-minimize não encontrado');
+    }
+
+    // 🎯 Botão CALIBRAR — abre fluxo guiado de captura de coordenadas
+    // Quando o DOM da Evolution é canvas-only ou os seletores mudaram, calibrar
+    // manualmente uma vez resolve. As coords ficam em localStorage e o Executor
+    // passa a usar BBCalibrator.executarAposta automaticamente.
+    const calibrateBtn = document.getElementById('bb-btn-calibrate');
+    if (calibrateBtn) {
+      calibrateBtn.addEventListener('click', async () => {
+        if (typeof window.BBCalibrator === 'undefined') {
+          alert('BBCalibrator não carregado. Recarregue a extensão.');
+          return;
+        }
+        const status = window.BBCalibrator.temCalibracao()
+          ? 'Já existe calibração salva. Refazer?'
+          : 'Iniciar calibração de cliques?\n\nVocê vai clicar em: Ficha R$5, Spot Player, Spot Banker, Spot Tie e Botão Confirmar (opcional).';
+        if (!confirm(status)) return;
+        try {
+          calibrateBtn.disabled = true;
+          calibrateBtn.textContent = '⏳';
+          await window.BBCalibrator.tudo();
+          calibrateBtn.textContent = '✅ CAL';
+          setTimeout(() => { calibrateBtn.textContent = '🎯 CAL'; calibrateBtn.disabled = false; }, 3000);
+          if (Overlay.addLog) {
+            Overlay.addLog('🎯 Calibração concluída — Executor vai usar coords salvas', 'success');
+          }
+        } catch (e) {
+          console.warn('[Overlay] Falha na calibração:', e);
+          calibrateBtn.textContent = '🎯 CAL';
+          calibrateBtn.disabled = false;
+        }
+      });
     }
 
     const closeBtn = document.getElementById('bb-btn-close');

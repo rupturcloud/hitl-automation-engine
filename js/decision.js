@@ -106,6 +106,12 @@ const DecisionEngine = (() => {
       stake *= CONFIG.galeMultiplier;
     }
     stake = Math.min(stake, CONFIG.stakeMax);
+    // 🛑 SAFETY CAP: nunca aposta mais que stakeInicial × stakeCapMultiplier.
+    // Default 10 = teto absoluto de R$50 enquanto calibragem está em curso.
+    const cap = Number(CONFIG.stakeCapMultiplier) > 0
+      ? Number(CONFIG.stakeInicial) * Number(CONFIG.stakeCapMultiplier)
+      : Infinity;
+    stake = Math.min(stake, cap);
     // Garantia: stake mínimo 1 — nunca zero (impediria armar decisão).
     return Math.max(stake, 1);
   }

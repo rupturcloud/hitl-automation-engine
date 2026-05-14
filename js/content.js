@@ -1349,7 +1349,8 @@
         if (coords) {
           console.log(`[BB-CLICK] 🎯 FALLBACK HEURÍSTICO ATIVADO: ${normalizedAlvo} stake=${chipValue} canvas=${coords.refRect.canvas}`);
           if (!chip) dispararCDPClick(coords.chip, `chip-${chipValue || '5'}`);
-          setTimeout(() => dispararCDPClick(coords.spot, normalizedAlvo), 350);
+          // Evita duplo-click no spot: só dispara CDP se DOM NÃO achou o spot
+          if (!found) setTimeout(() => dispararCDPClick(coords.spot, normalizedAlvo), 350);
         } else {
           console.warn('[BB-CLICK] Heurística não disponível (sem canvas/viewport útil)');
         }
