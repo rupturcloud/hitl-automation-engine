@@ -99,13 +99,15 @@ const DecisionEngine = (() => {
   }
 
   function calcularStake() {
+    // Regra: extensão NUNCA bloqueia por banca. Quem aceita ou recusa é a casa.
+    // O stake reflete a estratégia (base + gale), independente do saldo real.
     let stake = CONFIG.stakeInicial;
     for (let i = 0; i < state.galeAtual; i++) {
       stake *= CONFIG.galeMultiplier;
     }
     stake = Math.min(stake, CONFIG.stakeMax);
-    stake = Math.min(stake, state.bancaAtual);
-    return Math.max(stake, 0);
+    // Garantia: stake mínimo 1 — nunca zero (impediria armar decisão).
+    return Math.max(stake, 1);
   }
 
   function verificarStopWin() {
@@ -411,27 +413,10 @@ const DecisionEngine = (() => {
 
       const stake = calcularStake();
       console.log(`[DECISOR-DEBUG] stake calculado=R$${stake}`);
+      // Extensão NUNCA bloqueia por banca/stake. calcularStake já garante mínimo 1.
+      // Se stake é 0 por algum motivo extremo, apenas loga warning e segue.
       if (stake <= 0) {
-        console.log(`[DECISOR-DEBUG] ABORT: stake=0 (CONFIG.stakeInicial=${CONFIG.stakeInicial}, gale=${state.galeAtual})`);
-        const blockedModel = aplicarBloqueioOperacionalNoModelo(decisionModel, 'Stake calculada é zero.');
-        const cappedGalesStake = Math.min(
-          Number.isFinite(Number(melhorPadrao.maxGalesPermitido))
-            ? Number(melhorPadrao.maxGalesPermitido)
-            : CONFIG.maxGales,
-          Number(CONFIG.maxGales || 0)
-        );
-        state.ultimaDecisao = {
-          strategyId: melhorPadrao.strategyId || melhorPadrao.id || null,
-          nome: melhorPadrao.nome,
-          source: melhorPadrao.source || 'legacy',
-          recognizedSequence: melhorPadrao.recognizedSequence || melhorPadrao.sequenceBase || '',
-          cor: melhorPadrao.acao,
-          maxGalesPermitido: cappedGalesStake,
-          usarProtecaoEmpate: melhorPadrao.usarProtecaoEmpate !== false,
-          observacao: melhorPadrao.observacao || '',
-          decisionModel: blockedModel
-        };
-        return { deveApostar: false, motivo: 'Stake calculado é zero', decisionModel: blockedModel };
+        Logger.warn(`Stake zero detectado (CONFIG.stakeInicial=${CONFIG.stakeInicial}) — extensão NÃO bloqueia, prosseguindo com 1.`);
       }
 
       // Calcular F1 Score para esta decisão
