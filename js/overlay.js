@@ -1299,15 +1299,15 @@ const Overlay = (() => {
     console.log(`[Countdown] iniciarCountdown | btn=${!!btnDbg} | segundos=${countdownSecondsLeft}`);
     _atualizarBotaoCountdown();
 
+    // REGRA: countdown só é interrompido pelo OPERADOR clicando em CANCELAR.
+    // Mudança de estado da rodada NÃO cancela mais — quem decide se a mesa
+    // aceita o clique é a casa (via DOM bypass no Executor).
     countdownTimer = setInterval(() => {
-      if (CONFIG.estadoRodadaAtual !== 'apostando') {
-        cancelarCountdown();
-        if (decisaoArmada) limparDecisaoArmada('Countdown cancelado: janela de apostas fechou');
-        return;
-      }
       countdownSecondsLeft--;
       _atualizarBotaoCountdown();
+      console.log(`[Countdown] tick | segundos=${countdownSecondsLeft} | estado=${CONFIG.estadoRodadaAtual}`);
       if (countdownSecondsLeft <= 0) {
+        console.log(`[Countdown] ⏰ ZERO — chamando onExecutar()`);
         cancelarCountdown();
         onExecutar();
       }
@@ -1327,10 +1327,9 @@ const Overlay = (() => {
   function _dispararExecucaoDecisao(contexto) {
     console.log(`[EXEC-DEBUG] _dispararExecucaoDecisao chamado | contexto=${contexto} | decisaoArmada=${!!decisaoArmada} | estado=${CONFIG.estadoRodadaAtual}`);
     if (!decisaoArmada) { console.log('[EXEC-DEBUG] ABORT _disparar: sem decisaoArmada'); return; }
+    // Não aborta por estado — quem decide se aceita é a casa (via DOM bypass no Executor).
     if (CONFIG.estadoRodadaAtual !== 'apostando') {
-      console.log(`[EXEC-DEBUG] ABORT _disparar: estado != apostando (${CONFIG.estadoRodadaAtual})`);
-      limparDecisaoArmada(`Execução abortada no disparo: estado = ${CONFIG.estadoRodadaAtual || 'desconhecido'}`);
-      return;
+      console.log(`[EXEC-DEBUG] aviso: estado=${CONFIG.estadoRodadaAtual} (esperado: apostando). Prosseguindo — Executor vai decidir via DOM.`);
     }
 
     decisaoArmada.executando = true;
