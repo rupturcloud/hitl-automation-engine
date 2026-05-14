@@ -46,6 +46,7 @@
         "js/click-validator.js",
         "js/chip-detector.js",
         "js/calibrator.js",
+        "js/bet-confirmation-tracker.js",
         "js/evidence-engine.js",
         "js/idempotency-layer.js",
         "js/event-store.js",

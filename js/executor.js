@@ -327,6 +327,10 @@ const Executor = (() => {
             && window.BBCalibrator.temCalibracao()) {
           console.log('[EXEC-DEBUG] 🎯 Usando BBCalibrator (coordenadas calibradas via Hardware Debugger)');
           Logger.info('Delegando execução para BBCalibrator (coordenadas calibradas)');
+          // Arma rastreador de confirmacao ANTES do clique
+          if (typeof window.BetConfirmationTracker !== 'undefined') {
+            try { window.BetConfirmationTracker.armar({ cor: decisao.cor, stake: decisao.stake, roundId: CONFIG.roundIdAtual }); } catch (_) {}
+          }
           try {
             const resCal = await window.BBCalibrator.executarAposta(decisao.cor, decisao.stake, { clicarConfirmar: true });
             lastExecutionMeta.statusExecucao = resCal.ok ? 'executado-calibracao' : 'falha-calibracao';
@@ -343,6 +347,10 @@ const Executor = (() => {
         if (window.top === window && typeof window.BB_CLICK === 'function') {
           console.log(`[EXEC-DEBUG] BRIDGE JUMP: chamando BB_CLICK("${decisao.cor}", ${decisao.stake})`);
           Logger.info('Delegando execução para Bridge (Iframe)');
+          // Arma rastreador de confirmacao ANTES do clique
+          if (typeof window.BetConfirmationTracker !== 'undefined') {
+            try { window.BetConfirmationTracker.armar({ cor: decisao.cor, stake: decisao.stake, roundId: CONFIG.roundIdAtual }); } catch (_) {}
+          }
           window.BB_CLICK(decisao.cor, decisao.stake);
 
           // No modo bridge, não conseguimos validar visualmente aqui no top frame
