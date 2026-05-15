@@ -479,6 +479,48 @@
     atualizarStatusWS();
   }
 
+  // Walker recursivo de balance — técnica adotada da extensão Will Dados Pro.
+  // Percorre payload WS em qualquer profundidade procurando chaves cujo PATH
+  // case /balance|wallet|saldo|cash/. Retorna primeiro número válido encontrado.
+  // Profundidade limitada (8) e nodes limitados (1500) pra não estourar em
+  // payloads grandes.
+  function extrairBalanceRecursivo(payload) {
+    if (!payload || typeof payload !== 'object') return null;
+    const BALANCE_PATH_RE = /balance|wallet|saldo|cash/i;
+    let found = null;
+    let visited = 0;
+    const MAX_VISITED = 1500;
+    const MAX_DEPTH = 8;
+
+    function walk(value, path, depth) {
+      if (found != null || visited > MAX_VISITED || depth > MAX_DEPTH) return;
+      visited += 1;
+      if (value == null) return;
+      if (typeof value === 'string' || typeof value === 'number') {
+        if (BALANCE_PATH_RE.test(path)) {
+          const n = Number(String(value).replace(/[^\d.-]/g, ''));
+          if (Number.isFinite(n) && n >= 0) found = n;
+        }
+        return;
+      }
+      if (Array.isArray(value)) {
+        for (let i = 0; i < value.length && found == null; i++) {
+          walk(value[i], `${path}[${i}]`, depth + 1);
+        }
+        return;
+      }
+      if (typeof value === 'object') {
+        for (const k of Object.keys(value)) {
+          if (found != null) break;
+          walk(value[k], path ? `${path}.${k}` : k, depth + 1);
+        }
+      }
+    }
+
+    walk(payload, '', 0);
+    return found;
+  }
+
   function aplicarSaldoOficial(valor, source) {
     const saldo = Number(valor);
     if (!Number.isFinite(saldo) || saldo < 0) return;
@@ -842,6 +884,18 @@
 
     const payload = safeJsonParse(envelope.text);
     if (!payload) return;
+
+    // Walker recursivo de balance — técnica da extensão Will Dados Pro.
+    // Qualquer payload WS (qualquer canal, qualquer profundidade) que tenha
+    // chave casando /balance|wallet|saldo|cash/ atualiza CONFIG.saldoReal
+    // imediatamente. Antes só lia de canais específicos, causando race no
+    // BET-CONFIRM (4s não bastava). Walker garante saldo sempre fresco.
+    try {
+      const balance = extrairBalanceRecursivo(payload);
+      if (balance != null && Number.isFinite(balance)) {
+        aplicarSaldoOficial(balance, `walker:${envelope.channel || 'unknown'}`);
+      }
+    } catch (_) {}
 
     if (envelope.channel === 'evo-game') {
       processarPayloadJogo(payload);
