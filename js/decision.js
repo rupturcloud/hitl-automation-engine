@@ -404,6 +404,25 @@ const DecisionEngine = (() => {
       }
       console.log(`[DECISOR-DEBUG] melhorPadrao=${melhorPadrao.nome} → ${melhorPadrao.acao} (conf=${melhorPadrao.confianca}%)`);
 
+      // R6.1: F1 gate PREVIEW (antes de IdempotencyLayer/EvidenceEngine).
+      // Se gate vai abortar, não persistir suggestion_made — replays/métricas
+      // sujavam. Calcula F1 cedo só pra checagem; cálculo final acontece igual abaixo.
+      const f1MinPreview = Number(CONFIG.f1MinScore) || 0;
+      if (f1MinPreview > 0 && typeof F1Scorer !== 'undefined') {
+        const preview = F1Scorer.scoreDecision({
+          estrategia: melhorPadrao.nome,
+          strategyId: melhorPadrao.strategyId || null,
+          confianca: melhorPadrao.confianca || 0,
+          decisionModel: null
+        });
+        if (preview && Number(preview.score) < f1MinPreview) {
+          console.log(`[DECISOR] gate F1 PREVIEW (${preview.score} < ${f1MinPreview}) — abortando antes de persistir sugestão`);
+          Logger.warn(`Gate F1 (preview) ativo: ${preview.score} < ${f1MinPreview} → abortando rodada ${roundId}`);
+          state.ultimaDecisao = null;
+          return { deveApostar: false, motivo: `F1 score abaixo do mínimo: ${preview.score}` };
+        }
+      }
+
       // Registrar sugestão no IdempotencyLayer para este roundId
       if (typeof IdempotencyLayer !== 'undefined') {
         const idempResult = IdempotencyLayer.registerSuggestion(

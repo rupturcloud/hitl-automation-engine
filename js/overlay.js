@@ -1619,19 +1619,25 @@ const Overlay = (() => {
 
     const label = BBStrategyUtils.getEntryLabel(decisaoArmada.decisao.cor);
 
-    // R6/Fix-1: autoExecute bypass — quando o motor sinaliza convicção alta
-    // (DecisionEngine setta decisao.autoExecute=true quando convictionScore >= threshold),
-    // pulamos o countdown HITL e disparamos a execução imediata. Caso contrário,
-    // mantém o fluxo HITL padrão (5s countdown para o operador cancelar).
+    // R6.1: autoExecute com 1s de GRACE — debate apontou que pular countdown
+    // direto rouba a janela de cancelamento. Mantemos a vantagem (rápido) mas
+    // damos 1s para operador clicar CANCELAR antes da execução.
     if (decisaoArmada.decisao && decisaoArmada.decisao.autoExecute === true) {
-      console.log(`[AUTODRIVE] conviction>=threshold, executando direto sem countdown (cor=${decisaoArmada.decisao.cor}, conviction=${decisaoArmada.decisao.convictionScore})`);
-      // Feedback visual rápido antes do disparo (substitui o "✅ CONFIRMAR (5s)").
+      console.log(`[AUTODRIVE] conviction>=threshold (${decisaoArmada.decisao.convictionScore}%) — 1s grace antes de executar (cor=${decisaoArmada.decisao.cor})`);
       const btn = document.getElementById('bb-btn-confirm');
-      if (btn) {
-        btn.textContent = `⚡ AUTODRIVE ${label.toUpperCase()}`;
-      }
-      addLog(`[AUTODRIVE] ${label} stake R$${decisaoArmada.decisao.stake || 0} — execução direta (sem 5s)`, 'success');
-      _dispararExecucaoDecisao('autoExecute');
+      const cancel = document.getElementById('bb-btn-cancel');
+      if (btn) btn.textContent = `⚡ AUTODRIVE ${label.toUpperCase()} (1s)`;
+      if (cancel) cancel.hidden = false;
+      addLog(`[AUTODRIVE] ${label} stake R$${decisaoArmada.decisao.stake || 0} — 1s para cancelar`, 'success');
+      // cancelarCountdown limpa qualquer timer pendente antes de armar este
+      cancelarCountdown();
+      const graceTimer = setTimeout(() => {
+        if (decisaoArmada && decisaoArmada.decisao && decisaoArmada.decisao.autoExecute) {
+          _dispararExecucaoDecisao('autoExecute');
+        }
+      }, 1000);
+      // Permite que cancelarCountdown limpe esse grace também
+      countdownTimer = graceTimer;
       return true;
     }
 

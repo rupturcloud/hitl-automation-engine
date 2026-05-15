@@ -80,6 +80,13 @@
       return null;
     }
 
+    // R6.1: rejeita armar se já tem aposta pendente (evita cross-attribution
+    // entre 2 apostas concorrentes que leem saldo independente).
+    if (pendentes.length > 0) {
+      console.warn(`${PREFIX} 🛑 ARMAR REJEITADO — já existe ${pendentes.length} aposta(s) pendente(s). Cross-attribution risk.`);
+      return null;
+    }
+
     const item = {
       tArmado,
       roundId,
@@ -90,17 +97,18 @@
       schedule,
       tentativas: 0,
       vencido: false,
-      veredito: null
+      veredito: null,
+      timers: [] // R6.1: cleanup explicito quando fechar antes do tempo
     };
     pendentes.push(item);
 
     console.log(`${PREFIX} ⏱  Aguardando retries [${schedule.join('ms, ')}ms] para confirmar — cor=${cor} stake=R$${stake.toFixed(2)} saldoAntes=R$${saldoAntes.toFixed(2)} esperado=R$${item.saldoEsperado.toFixed(2)}`);
 
-    // Agenda cada checagem. Se alguma checagem fechar o item, as próximas
-    // viram no-op porque `item.vencido` fica true e fechar() retorna cedo.
+    // Agenda cada checagem. Quando fechar() roda, limpa todos os timers.
     schedule.forEach((delayMs, idx) => {
       const isFinal = idx === schedule.length - 1;
-      setTimeout(() => verificar(item, delayMs, isFinal), delayMs);
+      const handle = setTimeout(() => verificar(item, delayMs, isFinal), delayMs);
+      item.timers.push(handle);
     });
     return item;
   }
@@ -110,19 +118,18 @@
     item.tentativas += 1;
     const saldoAtual = lerSaldo();
     if (saldoAtual === null) {
-      // Sem saldo de referência: só finaliza se for a última tentativa.
       if (isFinal) fechar(item, saldoAtual, delayMs);
       return;
     }
     const deltaAtual = +(item.saldoAntes - saldoAtual).toFixed(2);
     const diffEsperado = Math.abs(deltaAtual - item.stake);
-    // Sucesso imediato assim que detectarmos delta dentro da tolerância
-    // OU queda significativa (saldo caiu mais que TOLERANCE).
-    if (diffEsperado <= TOLERANCE || deltaAtual > TOLERANCE) {
+    // R6.1: APENAS match estrito (diff <= TOLERANCE) confirma. Removido o
+    // branch "deltaAtual > TOLERANCE" solto que podia falso-positivar com
+    // dust de bônus/cashback creditando R$0.20 e ser atribuído à aposta.
+    if (diffEsperado <= TOLERANCE) {
       fechar(item, saldoAtual, delayMs);
       return;
     }
-    // Saldo ainda inalterado — só fecha se for a última tentativa (10s).
     if (isFinal) {
       fechar(item, saldoAtual, delayMs);
     }
@@ -131,6 +138,11 @@
   function fechar(item, saldoDepoisOverride, tempoDetectadoMs) {
     if (item.vencido) return;
     item.vencido = true;
+    // R6.1: limpa timers pendentes (evita callbacks zumbis ate 10s)
+    if (Array.isArray(item.timers)) {
+      item.timers.forEach((h) => { try { clearTimeout(h); } catch (_) {} });
+      item.timers = [];
+    }
     item.tFechado = Date.now();
     item.saldoDepois = (typeof saldoDepoisOverride !== 'undefined') ? saldoDepoisOverride : lerSaldo();
     const tempoMs = Number.isFinite(Number(tempoDetectadoMs))

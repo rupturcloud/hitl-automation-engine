@@ -1444,8 +1444,11 @@
       sourceIsChildIframe = false;
     }
 
+    // R6.1: origin === 'null' (sandbox iframe sem allow-same-origin) é caso
+    // legítimo no Evolution. Aceitamos quando source É iframe filho direto.
     let originAllowed = false;
-    if (typeof origin === 'string' && origin) {
+    const isSandboxNull = (origin === 'null' || origin === '');
+    if (typeof origin === 'string' && origin && !isSandboxNull) {
       try {
         const host = new URL(origin).hostname || '';
         originAllowed = HARDWARE_CLICK_ORIGIN_ALLOWLIST.some(
@@ -1455,6 +1458,9 @@
         originAllowed = false;
       }
     }
+
+    // Sandbox/null: só aceita se source é iframe filho legítimo
+    if (isSandboxNull && sourceIsChildIframe) originAllowed = true;
 
     if (!sourceIsChildIframe && !originAllowed) {
       const sourceLabel = source === window ? 'self' : (source ? 'foreign-window' : 'null');
