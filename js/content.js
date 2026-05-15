@@ -1393,6 +1393,33 @@
     }
     const normalizedAlvo = alvoTraduzido;
 
+    // R99.2: SHORTCUT — se já tem CAL salvo recebido do top, pula direto pra CDP.
+    // Em mesa canvas-only, ChipDetector e DOM bridge sempre vão falhar; gastar
+    // 1+ segundo tentando antes de cair pra CAL é só atraso. O top já mandou
+    // os coords reais — usa imediatamente.
+    const calShortcut = window.__bbFallbackCoords;
+    if (calShortcut && calShortcut.chip && calShortcut.spot) {
+      console.log(`[BB-CLICK] ⚡ SHORTCUT CAL: pulando ChipDetector/DOM (canvas-only assumido) — chip=(${Math.round(calShortcut.chip.x)},${Math.round(calShortcut.chip.y)}) spot=(${Math.round(calShortcut.spot.x)},${Math.round(calShortcut.spot.y)})`);
+      dispararCDPClick(calShortcut.chip, `chip-${chipValue || '5'}`);
+      setTimeout(() => dispararCDPClick(calShortcut.spot, normalizedAlvo), 400);
+      if (calShortcut.confirmar && Number.isFinite(calShortcut.confirmar.x)) {
+        setTimeout(() => dispararCDPClick(calShortcut.confirmar, 'confirmar'), 800);
+      }
+      window.__bbFallbackCoords = null;
+      // Mesmo no shortcut, comunica resultado pro top loggar
+      window.top.postMessage({
+        source: 'bb-click-result',
+        alvo: normalizedAlvo,
+        ok: true,
+        seletor: 'CAL-SHORTCUT',
+        texto: 'via calibração inline',
+        chipSel: 'CAL',
+        chipValor: chipValue,
+        ts: Date.now()
+      }, '*');
+      return;
+    }
+
     if (chipValue && typeof ChipDetector !== 'undefined') {
       // Usar novo detector com retry
       chip = await ChipDetector.encontrarComRetry(chipValue, 4, 150);
@@ -1662,6 +1689,54 @@
       if (r.ok && typeof r.x === 'number' && typeof r.y === 'number') {
         // Lógica de Geometria Recursiva: Somar offsets de todos os pais até o topo
         enviarCoordenadaSoberana(r, event.source);
+      }
+      return;
+    }
+
+    // R99.2: detector canvas-only enviado pelo subframe ao carregar.
+    // Top guarda o ÚLTIMO veredito (check mais tardio é mais confiável,
+    // dá tempo do canvas renderizar) e expõe via CONFIG pra overlay ler.
+    if (IS_TOP_FRAME && event.data?.source === 'bb-canvas-detection') {
+      try {
+        const det = event.data;
+        if (typeof CONFIG !== 'undefined') {
+          // Considera canvas-only só se TODOS os checks bateram (mais conservador)
+          // Mas atualiza o último estado sempre.
+          CONFIG._canvasDetection = CONFIG._canvasDetection || { checks: [] };
+          CONFIG._canvasDetection.checks.push({
+            t: det.ts, delay: det.delay,
+            canvasOnly: det.canvasOnly,
+            dom: det.domClicaveis, canvas: det.canvasCount
+          });
+          // Veredicto: se nos 2 últimos checks (8s + 15s) sempre canvas-only → true
+          const tardios = CONFIG._canvasDetection.checks.filter(c => c.delay >= 8000);
+          const veredito = tardios.length > 0 && tardios.every(c => c.canvasOnly === true);
+          CONFIG.canvasOnlyDetected = veredito;
+          // Verifica se calibração existe
+          let temCal = false;
+          try {
+            const raw = localStorage.getItem('BB_INLINE_COORDS_v1');
+            const cal = raw ? JSON.parse(raw) : null;
+            temCal = !!(cal && cal.player && cal.banker && cal.tie && cal.chip5);
+          } catch (_) {}
+          CONFIG.calibracaoExiste = temCal;
+          console.log(`[CANVAS-DETECT@top] check delay=${det.delay}ms canvas=${det.canvasCount} dom=${det.domClicaveis} → veredito=${veredito} temCal=${temCal}`);
+
+          // Notifica overlay (se ele tem método)
+          if (typeof Overlay !== 'undefined' && Overlay.atualizarStatusMesa) {
+            try {
+              Overlay.atualizarStatusMesa({
+                canvasOnly: veredito,
+                temCalibracao: temCal,
+                ultimoCheckMs: det.delay
+              });
+            } catch (e) {
+              console.warn('[CANVAS-DETECT@top] Overlay.atualizarStatusMesa falhou:', e?.message);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('[CANVAS-DETECT@top] erro processando:', e?.message);
       }
       return;
     }
@@ -2028,6 +2103,42 @@
     // Quando o operador roda no console com o iframe focado, vê o DOM real do jogo.
     window.testarSeletores = construirTestarSeletores();
     console.log('[BetBoom Auto] [subframe] testarSeletores() disponível no console deste iframe');
+
+    // R99.2: detector canvas-only AO CARREGAR (não ao clicar).
+    // Roda 3 vezes: 3s, 8s, 15s — Evolution Mini é lenta pra renderizar.
+    // Resultado é enviado pro top via postMessage; overlay vai mostrar banner crítico.
+    const CHECKS_MS = [3000, 8000, 15000];
+    CHECKS_MS.forEach((delay) => {
+      setTimeout(() => {
+        try {
+          const docs = coletarDocsRecursivo();
+          let domClicaveis = 0;
+          let canvasCount = 0;
+          for (const d of docs) {
+            try {
+              domClicaveis += d.querySelectorAll('[data-bet], [data-betia-id^="bet-"], [data-role*="bet-spot"]').length;
+              canvasCount += d.querySelectorAll('canvas').length;
+            } catch (_) {}
+          }
+          const canvasOnly = (domClicaveis === 0 && canvasCount > 0);
+          console.log(`[CANVAS-CHECK@${delay/1000}s] DOM clicáveis=${domClicaveis} canvas=${canvasCount} → canvasOnly=${canvasOnly}`);
+          // Sempre reporta; top decide se mostra banner com base no último estado.
+          try {
+            window.top.postMessage({
+              source: 'bb-canvas-detection',
+              canvasOnly,
+              domClicaveis,
+              canvasCount,
+              delay,
+              ts: Date.now(),
+              urlSubframe: location.href
+            }, '*');
+          } catch (_) {}
+        } catch (e) {
+          console.warn('[CANVAS-CHECK] falhou:', e?.message);
+        }
+      }, delay);
+    });
   }
 
   // R99.1: extraído pra função reutilizável (top + subframe).

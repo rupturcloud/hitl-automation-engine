@@ -2263,6 +2263,50 @@ const Overlay = (() => {
       }
     } catch (_) {}
 
+    // R99.2: BANNER CANVAS-ONLY — quando subframe detecta que mesa não tem DOM
+    // clicável (Bac Bo Mini é canvas WebGL). Mostra CTA pra calibrar OU trocar
+    // de mesa. Se já tem calibração salva, banner some.
+    try {
+      const canvasOnly = typeof CONFIG !== 'undefined' && CONFIG.canvasOnlyDetected === true;
+      // Lê localStorage direto a cada tick — fonte de verdade da calibração.
+      let temCal = false;
+      try {
+        const raw = localStorage.getItem('BB_INLINE_COORDS_v1');
+        const cal = raw ? JSON.parse(raw) : null;
+        temCal = !!(cal && cal.chip5 && (cal.player || cal.banker || cal.tie));
+      } catch (_) {}
+      if (canvasOnly && !temCal) {
+        const banner = document.getElementById('bb-canvas-banner') || (() => {
+          const el = document.createElement('div');
+          el.id = 'bb-canvas-banner';
+          el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483643;padding:10px 16px;background:#7f1d1d;color:#fff;font:700 13px -apple-system,sans-serif;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.5);cursor:pointer;';
+          el.innerHTML = '⚠️ MESA CANVAS-ONLY (Bac Bo Mini) — sem DOM clicável. <u>CLIQUE AQUI para calibrar 🎯</u> OU troque pra Bac Bo (não Mini).';
+          el.title = 'Click para iniciar calibração inline (5 cliques no jogo).';
+          el.addEventListener('click', () => {
+            const calBtn = document.getElementById('bb-btn-calibrate');
+            if (calBtn) {
+              calBtn.click();
+            } else if (Overlay.addLog) {
+              Overlay.addLog('Botão 🎯 CAL não encontrado no overlay.', 'warn');
+            }
+          });
+          document.body.appendChild(el);
+          return el;
+        })();
+        banner.style.display = 'block';
+        // Empilha abaixo de degraded + stop banners se visíveis
+        const degBanner = document.getElementById('bb-degraded-banner');
+        const stopBanner = document.getElementById('bb-stop-banner');
+        let offset = 0;
+        if (degBanner && degBanner.style.display !== 'none') offset += 40;
+        if (stopBanner && stopBanner.style.display !== 'none') offset += 44;
+        banner.style.top = offset + 'px';
+      } else {
+        const banner = document.getElementById('bb-canvas-banner');
+        if (banner) banner.style.display = 'none';
+      }
+    } catch (_) {}
+
     // Ultimo Resultado com Transaction ID
     const txnEl = document.getElementById('bb-last-result');
     if (txnEl) {
