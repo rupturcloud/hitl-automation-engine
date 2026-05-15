@@ -184,24 +184,55 @@ const HardwareAutomationEngine = {
     try {
       await this.attach(tabId);
 
-      const commonParams = {
-        x: Math.round(x),
-        y: Math.round(y),
+      // Garantir que o tab esteja focado — CDP click em tab de background é
+      // ignorado pelo Chrome em alguns cenários canvas (Evolution).
+      try {
+        await new Promise((resolve) => {
+          chrome.tabs.update(tabId, { active: true }, () => resolve());
+        });
+      } catch (_) {}
+
+      const X = Math.round(x);
+      const Y = Math.round(y);
+      const baseParams = {
+        x: X,
+        y: Y,
         button: 'left',
-        clickCount: 1,
         pointerType: 'mouse'
       };
 
-      // Sequência de hardware: Move -> Press -> Release
-      await this.sendCommand(tabId, 'Input.dispatchMouseEvent', { type: 'mousePressed', ...commonParams });
-      // Pequeno delay para simular o tempo de clique físico
-      await new Promise(r => setTimeout(r, 60));
-      await this.sendCommand(tabId, 'Input.dispatchMouseEvent', { type: 'mouseReleased', ...commonParams });
+      console.log(`[BetBoom Hardware] 🎯 Iniciando click em (${X}, ${Y}) tabId=${tabId}`);
 
-      console.log(`[BetBoom Hardware] Clique executado em: ${commonParams.x}, ${commonParams.y}`);
+      // 1) mouseMoved (hover) — "acorda" o canvas e dispara onMouseEnter/Over.
+      //    Evolution canvas precisa do hover ANTES do press, senão ignora.
+      await this.sendCommand(tabId, 'Input.dispatchMouseEvent', {
+        type: 'mouseMoved',
+        ...baseParams,
+        buttons: 0
+      });
+      await new Promise((r) => setTimeout(r, 40));
+
+      // 2) mousePressed com buttons:1 (botão esquerdo segurado)
+      await this.sendCommand(tabId, 'Input.dispatchMouseEvent', {
+        type: 'mousePressed',
+        ...baseParams,
+        clickCount: 1,
+        buttons: 1
+      });
+      await new Promise((r) => setTimeout(r, 80));
+
+      // 3) mouseReleased — completa o click
+      await this.sendCommand(tabId, 'Input.dispatchMouseEvent', {
+        type: 'mouseReleased',
+        ...baseParams,
+        clickCount: 1,
+        buttons: 0
+      });
+
+      console.log(`[BetBoom Hardware] ✅ Click completo em: ${X}, ${Y}`);
       return true;
     } catch (error) {
-      console.error('[BetBoom Hardware] Falha no despacho do clique:', error.message);
+      console.error('[BetBoom Hardware] ❌ Falha no despacho do clique:', error.message);
       return false;
     }
   },
