@@ -1138,26 +1138,40 @@
     return melhor;
   }
 
-  function encontrarElemento(lista) {
-    // Coleta docs: documento atual + todos os iframes filhos same-origin acessíveis.
-    // Igual ao approach da extensão Will Dados Pro que funciona — Evolution às vezes
-    // renderiza os spots de aposta em iframe interno que conseguimos atravessar.
-    const docs = [document];
+  // Coleta documento atual + iframes filhos same-origin RECURSIVAMENTE.
+  // Evolution às vezes aninha o canvas/spots em iframe interno (billing-boom
+  // → evo-games → app). Recursão limitada (depth 4) evita loop infinito.
+  function coletarDocsRecursivo(rootDoc = document, depth = 0, maxDepth = 4) {
+    const docs = [rootDoc];
+    if (depth >= maxDepth) return docs;
     try {
-      document.querySelectorAll('iframe').forEach((iframe) => {
+      rootDoc.querySelectorAll('iframe').forEach((iframe) => {
         try {
-          if (iframe.contentDocument) docs.push(iframe.contentDocument);
+          if (iframe.contentDocument) {
+            const sub = coletarDocsRecursivo(iframe.contentDocument, depth + 1, maxDepth);
+            sub.forEach((d) => { if (!docs.includes(d)) docs.push(d); });
+          }
         } catch (_) { /* cross-origin, ignora */ }
       });
     } catch (_) {}
+    return docs;
+  }
 
+  function encontrarElemento(lista) {
+    const docs = coletarDocsRecursivo();
     for (const sel of lista) {
       for (const doc of docs) {
         try {
           const nodes = doc.querySelectorAll(sel);
           if (!nodes.length) continue;
           const el = nodes.length === 1 ? nodes[0] : pickBestCandidate(nodes);
-          if (el && el.getBoundingClientRect().width > 0) return { el, sel };
+          if (el && el.getBoundingClientRect().width > 0) {
+            // Log explícito para data-bet (seletor canônico Evolution)
+            if (sel.startsWith('[data-bet=')) {
+              console.log(`[BB-CLICK] ✅ Encontrado via ${sel} (${docs.length} docs varridos)`);
+            }
+            return { el, sel };
+          }
         } catch (_) { }
       }
     }
@@ -1481,19 +1495,31 @@
       // Para reativar, o operador precisa:
       //   1) Calibrar via BBCalibrator.tudo() (coordenadas reais da SUA mesa)
       //   2) Ou explicitamente setar CONFIG.permitirFallbackHeuristico = true
-      const permitirHeur = (typeof CONFIG !== 'undefined' && CONFIG.permitirFallbackHeuristico === true);
-      if ((!chip || !found) && permitirHeur) {
-        const coords = calcularCoordsHeuristicas(normalizedAlvo, chipValue);
-        if (coords) {
-          console.log(`[BB-CLICK] 🎯 FALLBACK HEURÍSTICO ATIVADO: ${normalizedAlvo} stake=${chipValue} canvas=${coords.refRect.canvas}`);
-          if (!chip) dispararCDPClick(coords.chip, `chip-${chipValue || '5'}`);
-          // Evita duplo-click no spot: só dispara CDP se DOM NÃO achou o spot
-          if (!found) setTimeout(() => dispararCDPClick(coords.spot, normalizedAlvo), 350);
+      // R99: PRIORIDADE de fallback quando DOM falhou:
+      //   1) Coords calibradas recebidas do top (window.__bbFallbackCoords)
+      //   2) Heurística (só se CONFIG.permitirFallbackHeuristico=true)
+      //   3) Avisar e desistir
+      if (!chip || !found) {
+        const calFb = window.__bbFallbackCoords;
+        const permitirHeur = (typeof CONFIG !== 'undefined' && CONFIG.permitirFallbackHeuristico === true);
+
+        if (calFb && calFb.chip && calFb.spot) {
+          console.log(`[BB-CLICK] 🎯 CALIBRADO (fallback do top): chip=(${Math.round(calFb.chip.x)},${Math.round(calFb.chip.y)}) spot=(${Math.round(calFb.spot.x)},${Math.round(calFb.spot.y)})`);
+          if (!chip) dispararCDPClick(calFb.chip, `chip-${chipValue || '5'}`);
+          if (!found) setTimeout(() => dispararCDPClick(calFb.spot, normalizedAlvo), 350);
+          window.__bbFallbackCoords = null;
+        } else if (permitirHeur) {
+          const coords = calcularCoordsHeuristicas(normalizedAlvo, chipValue);
+          if (coords) {
+            console.log(`[BB-CLICK] 🎯 FALLBACK HEURÍSTICO: ${normalizedAlvo} stake=${chipValue}`);
+            if (!chip) dispararCDPClick(coords.chip, `chip-${chipValue || '5'}`);
+            if (!found) setTimeout(() => dispararCDPClick(coords.spot, normalizedAlvo), 350);
+          } else {
+            console.warn('[BB-CLICK] Heurística não disponível (sem canvas/viewport útil)');
+          }
         } else {
-          console.warn('[BB-CLICK] Heurística não disponível (sem canvas/viewport útil)');
+          console.warn(`[BB-CLICK] 🛑 SEM CLIQUE: DOM falhou, sem cal salva, heurística desativada. Use 🎯 CAL no overlay.`);
         }
-      } else if (!chip || !found) {
-        console.warn(`[BB-CLICK] 🛑 SEM CLIQUE: ChipDetector falhou e fallback heurístico está DESATIVADO. Use BBCalibrator.tudo() pra calibrar coords reais da mesa.`);
       }
     }, 100); // Delay inicial para garantir que o frame processou o sinal
   }
@@ -1567,8 +1593,13 @@
   }
 
   async function tratarMensagemWindow(event) {
-    // Comando de clique vindo do frame pai → executar no iframe
+    // Comando de clique vindo do frame pai → executar no iframe.
+    // R99: aceita fallbackCoords (coords calibradas) que o top passa pra
+    // o subframe usar caso DOM falhe.
     if (!IS_TOP_FRAME && event.data?.source === 'bb-click-cmd') {
+      if (event.data.fallbackCoords) {
+        window.__bbFallbackCoords = event.data.fallbackCoords;
+      }
       await executarComandoClique(event.data.alvo || 'player', event.data.valor || null);
       return;
     }
@@ -2122,13 +2153,15 @@
       }
     }
 
-    // Expor função global para disparar clique no iframe da Evolution
+    // Expor função global para disparar clique no iframe da Evolution.
+    // ORDEM (R99): 1) Bridge DOM real → 2) Calibrado salvo → 3) CDP heurístico.
+    // DOM via [data-bet=...] tem que ser o caminho default. CDP só pra canvas-only.
     window.BB_CLICK = function (alvo = 'player', valor = null) {
       const PT_TO_EN = { 'azul': 'player', 'vermelho': 'banker', 'empate': 'tie' };
       const alvoEN = PT_TO_EN[String(alvo).toLowerCase()] || String(alvo).toLowerCase();
 
-      // 0) PRIORIDADE MÁXIMA: coords calibradas via botão CAL no overlay
-      // (salvas em localStorage pelo handler de bb-btn-calibrate)
+      // Lê coords calibradas (se houver) pra passar pro subframe como fallback
+      let calCoords = null;
       try {
         const calRaw = localStorage.getItem('BB_INLINE_COORDS_v1');
         if (calRaw) {
@@ -2137,42 +2170,101 @@
           const chipPos = cal[chipKey] || cal.chip5;
           const spotPos = cal[alvoEN];
           if (chipPos && spotPos && Number.isFinite(chipPos.x) && Number.isFinite(spotPos.x)) {
-            console.log(`[BB_CLICK] 🎯 CALIBRATED mode | usando coords salvas`);
-            dispararCDPDireto(chipPos.x, chipPos.y, `chip-${valor || 5}`);
-            setTimeout(() => dispararCDPDireto(spotPos.x, spotPos.y, alvoEN), 400);
-            if (cal.confirmar && Number.isFinite(cal.confirmar.x)) {
-              setTimeout(() => dispararCDPDireto(cal.confirmar.x, cal.confirmar.y, 'confirmar'), 800);
-            }
-            return;
+            calCoords = { chip: chipPos, spot: spotPos, confirmar: cal.confirmar || null };
           }
         }
       } catch (_) {}
 
-      // 1) Top-direct: calcula coords no iframe visual real e dispara CDP
+      // 1) BRIDGE DOM (caminho PRINCIPAL) — subframe tenta [data-bet=...] primeiro,
+      //    cai pra CDP heurístico internamente se DOM falhar.
+      const iframes = Array.from(document.querySelectorAll('iframe'));
+      const evoFrame = iframes.find(f =>
+        f.src && (f.src.includes('evo-games.com') || f.src.includes('billing-boom.com'))
+      );
+      if (evoFrame && evoFrame.contentWindow) {
+        console.log(`[BB_CLICK] 🌉 BRIDGE DOM (caminho principal): ${alvo} | valor: ${valor}`);
+        evoFrame.contentWindow.postMessage({
+          source: 'bb-click-cmd',
+          alvo,
+          valor,
+          fallbackCoords: calCoords  // subframe usa se DOM falhar
+        }, '*');
+        return;
+      }
+
+      // 2) CALIBRADO — usado quando iframe Evolution NÃO foi encontrado
+      if (calCoords) {
+        console.log(`[BB_CLICK] 🎯 CALIBRATED fallback (iframe ausente)`);
+        dispararCDPDireto(calCoords.chip.x, calCoords.chip.y, `chip-${valor || 5}`);
+        setTimeout(() => dispararCDPDireto(calCoords.spot.x, calCoords.spot.y, alvoEN), 400);
+        if (calCoords.confirmar && Number.isFinite(calCoords.confirmar.x)) {
+          setTimeout(() => dispararCDPDireto(calCoords.confirmar.x, calCoords.confirmar.y, 'confirmar'), 800);
+        }
+        return;
+      }
+
+      // 3) TOP-DIRECT CDP heurístico (último recurso)
       const coords = calcularCoordsTopFrame(alvoEN, valor);
       if (coords) {
-        console.log(`[BB_CLICK] 🎯 TOP-DIRECT mode | iframe rect: ${Math.round(coords.rect.left)},${Math.round(coords.rect.top)} ${Math.round(coords.rect.width)}x${Math.round(coords.rect.height)}`);
+        console.log(`[BB_CLICK] 🎯 TOP-DIRECT mode (último recurso) | iframe rect: ${Math.round(coords.rect.left)},${Math.round(coords.rect.top)} ${Math.round(coords.rect.width)}x${Math.round(coords.rect.height)}`);
         dispararCDPDireto(coords.chip.x, coords.chip.y, `chip-${valor || '5'}`);
         setTimeout(() => dispararCDPDireto(coords.spot.x, coords.spot.y, alvoEN), 400);
         return;
       }
 
-      // 2) Fallback legado: postMessage pro subframe (relay com offsets)
-      const iframes = Array.from(document.querySelectorAll('iframe'));
-      const evoFrame = iframes.find(f =>
-        f.src && (f.src.includes('evo-games.com') || f.src.includes('billing-boom.com'))
-      );
-      if (!evoFrame) {
-        console.error('[BB_CLICK] ❌ Iframe da Evolution não encontrado.');
-        if (overlayInicializado && typeof Overlay !== 'undefined' && Overlay.addLog) {
-          Overlay.addLog('❌ Iframe Evolution não encontrado', 'error');
-        }
-        return;
+      console.error('[BB_CLICK] ❌ Nenhum caminho de clique disponível (sem iframe, sem cal, sem coords).');
+      if (overlayInicializado && typeof Overlay !== 'undefined' && Overlay.addLog) {
+        Overlay.addLog('❌ Nenhum caminho de clique disponível', 'error');
       }
-      console.log(`[BB_CLICK] (fallback) Enviando comando para iframe: ${alvo} | valor: ${valor}`);
-      evoFrame.contentWindow.postMessage({ source: 'bb-click-cmd', alvo, valor }, '*');
     };
     console.log('[BetBoom Auto] BB_CLICK("player"/"banker"/"tie") disponível no console');
+
+    // R99: helper de diagnóstico. Rode no console (top OU iframe) pra ver
+    // se a Evolution está expondo [data-bet=*] como esperado.
+    window.testarSeletores = function () {
+      console.group('[testarSeletores] varredura completa');
+      const docs = coletarDocsRecursivo();
+      console.log(`Docs varridos (top + iframes filhos): ${docs.length}`);
+      const seletores = [
+        '[data-bet="player"]',
+        '[data-bet="banker"]',
+        '[data-bet="tie"]',
+        '[data-bet]',
+        '[data-betia-id^="bet-"]',
+        '[data-automation-id^="betting-grid-item-"]',
+        '[data-role*="bet-spot"]',
+        '[aria-label*="Player" i]',
+        '[aria-label*="Banker" i]',
+        '[class*="chip" i]',
+        'canvas'
+      ];
+      const out = {};
+      seletores.forEach((sel) => {
+        let count = 0;
+        let firstSample = null;
+        for (const doc of docs) {
+          try {
+            const nodes = doc.querySelectorAll(sel);
+            count += nodes.length;
+            if (!firstSample && nodes.length) {
+              const el = nodes[0];
+              const r = el.getBoundingClientRect();
+              firstSample = {
+                tag: el.tagName,
+                cls: (el.className || '').toString().slice(0, 60),
+                size: `${Math.round(r.width)}x${Math.round(r.height)}`,
+                pos: `${Math.round(r.left)},${Math.round(r.top)}`
+              };
+            }
+          } catch (_) {}
+        }
+        out[sel] = { count, firstSample };
+      });
+      console.table(out);
+      console.groupEnd();
+      return out;
+    };
+    console.log('[BetBoom Auto] testarSeletores() disponível no console');
   } else {
     inicializarSubframe();
   }
