@@ -1,10 +1,22 @@
 /**
- * BetBoom Auto Pattern — Round Lifecycle (FSM + Event Sourcing)
+ * BetBoom Auto Pattern — Round Lifecycle (Event Sourcing IDEMPOTENTE)
  *
- * Modulo central que formaliza o ciclo de vida de uma rodada do Bac Bo:
- * inicio, fases, duracao, encerramento e telemetria. Hoje o estado da rodada
- * estava espalhado em `content.js` (parser -> mapearEstado) e cada modulo
- * lia por conta propria. Este modulo centraliza tudo via pub/sub.
+ * FILOSOFIA (R99.5):
+ *   A rodada SEMPRE existe (a banca rodou ela). O que pode variar é o
+ *   REGISTRO da extensão sobre ela. Toda mensagem (start/transition/end)
+ *   é um EVENTO que ENRIQUECE o registro — ninguém "cria" ou "destrói"
+ *   rodadas. UPSERT idempotente: a mesma chamada N vezes = 1 vez.
+ *
+ *   Não importa a ordem de chegada dos eventos: o registro nasce no
+ *   primeiro evento (qualquer um) e vai sendo preenchido pelos demais.
+ *
+ *   Fatos armazenados (são DADOS, não inferências):
+ *     - t0Real          : timestamp do start observado (null = não vimos)
+ *     - tFimReal        : timestamp do end observado (null = ainda rodando)
+ *     - fasesObservadas : lista das fases que efetivamente vimos
+ *
+ *   Tudo o mais (completude da observação) é DERIVADO via
+ *   `derivarObservacao(rodada)` — única fonte da verdade.
  *
  * FSM canonico:
  *   OFF -> OBSERVING -> APOSTANDO -> FECHADO -> JOGANDO -> RESULTADO -> ENCERRADA -> OBSERVING
@@ -28,16 +40,17 @@
  *     o modulo continua funcionando apenas com pub/sub interno.
  *
  *   RoundLifecycle.start(roundId, metadata?)
- *     Inicia uma nova rodada. Se a rodada ja existir com fase ativa, NAO reabre
- *     e emite anomalia `start_duplicado`.
+ *     R99.5: UPSERT idempotente. Marca t0Real. Sem ramo "existe vs não":
+ *     pega ou cria o registro. Chamar N vezes = chamar 1.
  *
  *   RoundLifecycle.transition(roundId, novoEstado, metadata?)
- *     Transicao de fase. NAO cria rodada implicita: se roundId desconhecido,
- *     emite anomalia `transition_orfan` e retorna null.
+ *     R99.5: UPSERT idempotente. Registra fase em fasesObservadas.
+ *     Não pergunta se a rodada existe — ela sempre existe (vide filosofia).
  *
  *   RoundLifecycle.end(roundId, resultado?)
- *     Encerra rodada. NAO cria rodada implicita: se roundId desconhecido,
- *     emite anomalia `end_sobre_rodada_inexistente` e retorna null.
+ *     R99.5: UPSERT idempotente. Marca tFimReal. Pode ser o PRIMEIRO
+ *     evento da rodada (extensão entrou só pra ver o resultado) — segue
+ *     funcionando. Histórico preservado independente da ordem.
  *
  *   RoundLifecycle.forceClose(roundId, motivo)
  *     Forca o encerramento de uma rodada (closeReason: 'forced'). Emite
@@ -60,7 +73,8 @@
  * Requisitos:
  *   - Logs com prefixo [RoundLifecycle]
  *   - Nao chama DOM nem outros modulos do projeto (mantem isolado)
- *   - Tolerante a chamadas fora de ordem (sem criar rodada implicita)
+ *   - Idempotente: chamadas repetidas ou fora de ordem não quebram nem
+ *     duplicam estado. Banca é soberana, extensão é cronista subordinada.
  *   - Schema versionado nos payloads (v: 1)
  */
 
@@ -300,6 +314,16 @@ const RoundLifecycle = (() => {
 
   /**
    * Cria estrutura interna de uma nova rodada.
+   *
+   * R99.5 — Campos de OBSERVAÇÃO REAL separados dos campos derivados:
+   * - `t0Real`         : timestamp do start observado (null = não vimos início)
+   * - `tFimReal`       : timestamp do end observado (null = não vimos fim)
+   * - `fasesObservadas`: lista de fases que CHEGAMOS a presenciar
+   *
+   * Esses campos são FATOS. Tudo o mais (`state`, `phase`, flags de
+   * observação parcial) é DERIVADO deles via `derivarObservacao()`.
+   * Eventos chegam fora de ordem? Tudo bem — quem chega preenche o
+   * que sabe, o registro vai sendo enriquecido. Idempotência total.
    */
   function criarRodada(roundId, metadata) {
     const t = agora();
@@ -309,8 +333,11 @@ const RoundLifecycle = (() => {
       phase: ESTADOS.OBSERVING,
       fases: [],
       faseAtual: null,
-      t0: t,
-      t1: null,
+      t0: t,                  // timestamp da CRIAÇÃO do registro (primeiro evento)
+      t0Real: null,           // R99.5: timestamp do start observado pela extensão
+      t1: null,               // timestamp do encerramento do registro
+      tFimReal: null,         // R99.5: timestamp do end observado pela extensão
+      fasesObservadas: [],    // R99.5: nomes das fases que chegamos a ver
       resultado: null,
       ultimaAtividade: t,
       anomalias: [],
@@ -322,6 +349,248 @@ const RoundLifecycle = (() => {
     ordemInsercao.push(roundId);
     aplicarLimiteFIFO();
     return rodada;
+  }
+
+  /**
+   * R99.5 — UPSERT idempotente da rodada.
+   *
+   * Por que existe: hoje o módulo perguntava "rodada existe?" antes de
+   * cada evento. Errado. A rodada SEMPRE existe (a banca rodou ela). O
+   * que pode faltar é o REGISTRO da extensão. Esta função garante que
+   * o registro existe, sem importar qual evento chegou primeiro.
+   *
+   * Análogo a `INSERT ... ON CONFLICT DO NOTHING` em SQL: se o
+   * registro já está lá, devolve; se não, cria do zero. Idempotente:
+   * pode chamar N vezes pra mesma roundId sem efeito colateral.
+   */
+  function obterOuCriar(roundId, metadataInicial) {
+    const existente = rodadas.get(roundId);
+    if (existente) return existente;
+    return criarRodada(roundId, metadataInicial || {});
+  }
+
+  // ---------------------------------------------------------------------------
+  // R99.6 — Atomicidade real (snapshot + commit + rollback + invariantes)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Tira um snapshot estrutural da rodada (deep clone dos campos mutáveis).
+   * Usado pra rollback se uma transação falhar no meio.
+   */
+  function snapshotRodada(rodada) {
+    if (!rodada) return null;
+    return {
+      state: rodada.state,
+      phase: rodada.phase,
+      t0: rodada.t0,
+      t0Real: rodada.t0Real,
+      t1: rodada.t1,
+      tFimReal: rodada.tFimReal,
+      fasesObservadas: [...rodada.fasesObservadas],
+      fases: rodada.fases.map(f => ({ ...f, metadata: { ...(f.metadata || {}) } })),
+      faseAtual: rodada.faseAtual
+        ? { ...rodada.faseAtual, metadata: { ...(rodada.faseAtual.metadata || {}) } }
+        : null,
+      resultado: rodada.resultado,
+      ultimaAtividade: rodada.ultimaAtividade,
+      anomalias: rodada.anomalias.map(a => ({ ...a })),
+      metadata: { ...(rodada.metadata || {}) },
+      closeReason: rodada.closeReason,
+      forced: rodada.forced
+    };
+  }
+
+  /**
+   * Restaura uma rodada a partir de um snapshot. Mutação in-place
+   * pra preservar a identidade do objeto (outros módulos podem ter
+   * referência via clone, mas o registro canônico é por roundId no Map).
+   */
+  function restaurarSnapshot(rodada, snap) {
+    if (!rodada || !snap) return;
+    rodada.state = snap.state;
+    rodada.phase = snap.phase;
+    rodada.t0 = snap.t0;
+    rodada.t0Real = snap.t0Real;
+    rodada.t1 = snap.t1;
+    rodada.tFimReal = snap.tFimReal;
+    rodada.fasesObservadas = [...snap.fasesObservadas];
+    rodada.fases = snap.fases;
+    rodada.faseAtual = snap.faseAtual;
+    rodada.resultado = snap.resultado;
+    rodada.ultimaAtividade = snap.ultimaAtividade;
+    rodada.anomalias = snap.anomalias;
+    rodada.metadata = snap.metadata;
+    rodada.closeReason = snap.closeReason;
+    rodada.forced = snap.forced;
+  }
+
+  /**
+   * Invariantes da rodada — verificações que DEVEM valer pra qualquer
+   * estado consistente. Se quebrar, retorna a lista de violações.
+   *
+   * NUNCA silenciar uma violação: significa bug. Atomicidade exige que
+   * o estado final de cada transação satisfaça todas as invariantes.
+   */
+  function validarInvariantes(rodada) {
+    const violacoes = [];
+    if (!rodada) return ['rodada nula'];
+
+    // I1: roundId presente e estável
+    if (!rodada.roundId) violacoes.push('I1: roundId vazio');
+
+    // I2: state válido
+    if (!Object.values(STATES).includes(rodada.state)) {
+      violacoes.push(`I2: state inválido (${rodada.state})`);
+    }
+
+    // I3: se CLOSED, t1 e closeReason obrigatórios
+    if (rodada.state === STATES.CLOSED) {
+      if (rodada.t1 == null) violacoes.push('I3: CLOSED sem t1');
+      if (!rodada.closeReason) violacoes.push('I3: CLOSED sem closeReason');
+    }
+
+    // I4: t1 sempre depois de t0 (se ambos definidos)
+    if (rodada.t1 != null && rodada.t1 < rodada.t0) {
+      violacoes.push('I4: t1 < t0 (tempo viajando pra trás)');
+    }
+
+    // I5: tFimReal sempre depois de t0Real (se ambos definidos)
+    if (rodada.tFimReal != null && rodada.t0Real != null && rodada.tFimReal < rodada.t0Real) {
+      violacoes.push('I5: tFimReal < t0Real');
+    }
+
+    // I6: fases fechadas têm t1 e duracaoMs
+    for (const f of rodada.fases) {
+      if (f.t1 == null) violacoes.push(`I6: fase "${f.nome}" sem t1`);
+      if (f.duracaoMs == null) violacoes.push(`I6: fase "${f.nome}" sem duracaoMs`);
+    }
+
+    // I7: fasesObservadas é subconjunto dos nomes em fases[] + faseAtual
+    const nomesObservados = new Set([
+      ...rodada.fases.map(f => f.nome),
+      ...(rodada.faseAtual ? [rodada.faseAtual.nome] : [])
+    ]);
+    for (const nome of rodada.fasesObservadas) {
+      if (!nomesObservados.has(nome)) {
+        violacoes.push(`I7: fasesObservadas inclui "${nome}" mas não há fase com esse nome`);
+      }
+    }
+
+    return violacoes;
+  }
+
+  /**
+   * R99.6 — Executa uma mutação ATÔMICA na rodada.
+   *
+   * Padrão clássico de transação:
+   *   1. SNAPSHOT (pra rollback)
+   *   2. MUTATE via `mutacao(rodada)` (callback que altera in-place)
+   *   3. VALIDATE invariantes
+   *   4. Se invariantes OK → COMMIT (estado fica) e retorna sucesso
+   *      Se invariantes falham → ROLLBACK (restaura snapshot) e loga
+   *
+   * Eventos NÃO são emitidos aqui — quem chamar `mutarAtomicamente`
+   * deve emitir eventos só DEPOIS do retorno de sucesso (vide
+   * `commitarEEmitir` abaixo).
+   */
+  function mutarAtomicamente(rodada, mutacao, contextoLog) {
+    if (!rodada) {
+      warn('mutarAtomicamente: rodada nula. Contexto:', contextoLog);
+      return { ok: false, motivo: 'rodada-nula' };
+    }
+    const snap = snapshotRodada(rodada);
+    try {
+      mutacao(rodada);
+    } catch (err) {
+      restaurarSnapshot(rodada, snap);
+      warn(`mutarAtomicamente: mutação lançou (${contextoLog}). Rollback aplicado:`, err?.message || err);
+      return { ok: false, motivo: 'mutacao-lancou', erro: err };
+    }
+    const violacoes = validarInvariantes(rodada);
+    if (violacoes.length > 0) {
+      restaurarSnapshot(rodada, snap);
+      warn(`mutarAtomicamente: invariantes violadas (${contextoLog}):`, violacoes);
+      registrarAnomalia(rodada, 'invariantes_violadas_rollback', {
+        contexto: contextoLog,
+        violacoes
+      });
+      return { ok: false, motivo: 'invariantes-violadas', violacoes };
+    }
+    return { ok: true };
+  }
+
+  /**
+   * R99.6 — Commit transacional: muta atomicamente E SÓ EMITE evento
+   * se o commit deu certo. Garante que estado e evento estão alinhados.
+   * Se a emissão do evento lançar, NÃO faz rollback do estado (o estado
+   * já está válido por construção) mas registra anomalia separada.
+   */
+  function commitarEEmitir(rodada, mutacao, eventoFn, contextoLog) {
+    const res = mutarAtomicamente(rodada, mutacao, contextoLog);
+    if (!res.ok) return res;
+    if (typeof eventoFn === 'function') {
+      try {
+        eventoFn();
+      } catch (err) {
+        warn(`commitarEEmitir: emissão de evento falhou (${contextoLog}):`, err?.message || err);
+        registrarAnomalia(rodada, 'evento_falhou_pos_commit', {
+          contexto: contextoLog,
+          erro: err?.message || String(err)
+        });
+        // Estado FICA — invariantes batem; só a propagação falhou.
+        return { ok: true, eventoFalhou: true };
+      }
+    }
+    return { ok: true };
+  }
+
+  // ---------------------------------------------------------------------------
+  // R99.6 — Deduplicação de eventos da banca
+  // ---------------------------------------------------------------------------
+
+  // Set de chaves já processadas. FIFO com cap (não cresce indefinidamente).
+  const eventosProcessados = new Set();
+  const filaDedup = []; // ordem de inserção
+  const LIMITE_DEDUP = 1000;
+
+  function chaveDedup(tipo, roundId, marca) {
+    return `${tipo}::${roundId}::${marca}`;
+  }
+
+  function jaProcessado(chave) {
+    return eventosProcessados.has(chave);
+  }
+
+  function marcarProcessado(chave) {
+    if (eventosProcessados.has(chave)) return;
+    eventosProcessados.add(chave);
+    filaDedup.push(chave);
+    while (filaDedup.length > LIMITE_DEDUP) {
+      const antigo = filaDedup.shift();
+      eventosProcessados.delete(antigo);
+    }
+  }
+
+  /**
+   * R99.5 — Deriva flags de observação parcial a partir dos FATOS
+   * (t0Real, tFimReal, fasesObservadas). Não é estado armazenado; é
+   * query sobre o que efetivamente vimos. Garante que a verdade
+   * sobre "completude da observação" está num lugar só.
+   */
+  function derivarObservacao(rodada) {
+    if (!rodada) return null;
+    const viuInicio = rodada.t0Real != null;
+    const viuFim = rodada.tFimReal != null;
+    const viuFases = rodada.fasesObservadas.length > 0;
+    return {
+      completa: viuInicio && viuFim,
+      somenteResultado: !viuInicio && !viuFases && viuFim,
+      aposInicio: !viuInicio && viuFases,
+      emAndamento: viuInicio && !viuFim,
+      viuInicio,
+      viuFim,
+      viuFases
+    };
   }
 
   /**
@@ -471,6 +740,7 @@ const RoundLifecycle = (() => {
 
   /**
    * Retorna copia segura (sem expor referencias internas mutaveis).
+   * R99.5: inclui `observacao` derivada (completa/parcial/etc).
    */
   function clonarRodada(rodada) {
     if (!rodada) return null;
@@ -479,7 +749,10 @@ const RoundLifecycle = (() => {
       state: rodada.state,
       phase: rodada.phase,
       t0: rodada.t0,
+      t0Real: rodada.t0Real,        // R99.5: timestamp do start observado
       t1: rodada.t1,
+      tFimReal: rodada.tFimReal,    // R99.5: timestamp do end observado
+      fasesObservadas: [...rodada.fasesObservadas], // R99.5
       duracaoTotalMs: rodada.t1 ? rodada.t1 - rodada.t0 : null,
       fases: rodada.fases.map(f => ({ ...f, metadata: { ...(f.metadata || {}) } })),
       faseAtual: rodada.faseAtual
@@ -489,7 +762,8 @@ const RoundLifecycle = (() => {
       anomalias: rodada.anomalias.map(a => ({ ...a })),
       metadata: { ...(rodada.metadata || {}) },
       closeReason: rodada.closeReason,
-      forced: !!rodada.forced
+      forced: !!rodada.forced,
+      observacao: derivarObservacao(rodada)  // R99.5: derivado, não armazenado
     };
   }
 
@@ -507,49 +781,66 @@ const RoundLifecycle = (() => {
   }
 
   /**
-   * Implementacao interna do encerramento (compartilhada por end() e forceClose()).
+   * R99.6 — Encerramento ATÔMICO: snapshot → mutação → invariantes →
+   * commit (ou rollback). Eventos só saem se commit deu certo.
+   * Compartilhado por end() e forceClose().
+   * Retorna { ok: bool, motivo?, eventoFalhou? }.
    */
   function encerrarRodada(rodada, { resultado, forced, closeReason }) {
-    const t = agora();
-    fecharFaseAtual(rodada, t);
-    rodada.state = STATES.CLOSED;
-    rodada.phase = ESTADOS.ENCERRADA;
-    rodada.t1 = t;
-    rodada.resultado = resultado != null ? resultado : rodada.resultado;
-    rodada.ultimaAtividade = t;
-    rodada.forced = !!forced;
-    rodada.closeReason = closeReason || (forced ? 'forced' : 'natural');
+    const tipoContexto = forced ? 'forceClose' : 'end';
+    const fasePreEncerramento = rodada.faseAtual
+      ? rodada.faseAtual.nome
+      : (rodada.fases.length ? rodada.fases[rodada.fases.length - 1].nome : null);
 
-    if (rodadaAtualId === rodada.roundId) {
-      rodadaAtualId = null;
-      pararWatchdog();
-    }
+    return commitarEEmitir(
+      rodada,
+      (r) => {
+        const t = agora();
+        fecharFaseAtual(r, t);
+        r.state = STATES.CLOSED;
+        r.phase = ESTADOS.ENCERRADA;
+        r.t1 = t;
+        // Só marca tFimReal se ainda não foi marcado (caso end() encadeie).
+        if (r.tFimReal == null) r.tFimReal = t;
+        r.resultado = resultado != null ? resultado : r.resultado;
+        r.ultimaAtividade = t;
+        r.forced = !!forced;
+        r.closeReason = closeReason || (forced ? 'forced' : 'natural');
+      },
+      () => {
+        if (rodadaAtualId === rodada.roundId) {
+          rodadaAtualId = null;
+          pararWatchdog();
+        }
+        log(`Rodada encerrada: ${rodada.roundId} (duracao total: ${rodada.t1 - rodada.t0}ms, motivo: ${rodada.closeReason})`);
 
-    log(`Rodada encerrada: ${rodada.roundId} (duracao total: ${rodada.t1 - rodada.t0}ms, motivo: ${rodada.closeReason})`);
+        emitirLifecycleEvent({
+          roundId: rodada.roundId,
+          fromPhase: fasePreEncerramento,
+          toPhase: ESTADOS.ENCERRADA,
+          kind: 'round_end',
+          metadata: { forced: !!forced, closeReason: rodada.closeReason }
+        });
 
-    // Lifecycle event canonico
-    emitirLifecycleEvent({
-      roundId: rodada.roundId,
-      fromPhase: rodada.fases.length ? rodada.fases[rodada.fases.length - 1].nome : null,
-      toPhase: ESTADOS.ENCERRADA,
-      kind: 'round_end',
-      metadata: { forced: !!forced, closeReason: rodada.closeReason }
-    });
-
-    // Evento round_end versionado
-    const endPayload = {
-      v: SCHEMA_VERSION,
-      roundId: rodada.roundId,
-      outcome: rodada.resultado,
-      t0: rodada.t0,
-      t1: rodada.t1,
-      duracaoTotalMs: rodada.t1 - rodada.t0,
-      fases: montarFasesParaEncerramento(rodada),
-      anomalias: rodada.anomalias.map(a => ({ ...a })),
-      forced: !!forced,
-      closeReason: rodada.closeReason
-    };
-    return emitirEPersistir(EVENTOS.ROUND_END, endPayload);
+        emitirEPersistir(EVENTOS.ROUND_END, {
+          v: SCHEMA_VERSION,
+          roundId: rodada.roundId,
+          outcome: rodada.resultado,
+          t0: rodada.t0,
+          t0Real: rodada.t0Real,
+          t1: rodada.t1,
+          tFimReal: rodada.tFimReal,
+          duracaoTotalMs: rodada.t1 - rodada.t0,
+          fases: montarFasesParaEncerramento(rodada),
+          fasesObservadas: [...rodada.fasesObservadas],
+          observacao: derivarObservacao(rodada),
+          anomalias: rodada.anomalias.map(a => ({ ...a })),
+          forced: !!forced,
+          closeReason: rodada.closeReason
+        });
+      },
+      tipoContexto
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -596,11 +887,11 @@ const RoundLifecycle = (() => {
     },
 
     /**
-     * Inicia uma nova rodada.
-     * - Se ja existir rodada anterior nao encerrada (com roundId diferente),
-     *   essa rodada e encerrada implicitamente com closeReason='superseded'.
-     * - Se a propria rodada ja existir e estiver em fase ativa, emite anomalia
-     *   `start_duplicado` e NAO reabre.
+     * R99.6 — Registra que a extensão OBSERVOU o início da rodada.
+     *
+     * ATÔMICO via commitarEEmitir: snapshot → mutação → invariantes →
+     * commit (ou rollback). Evento só sai se commit deu certo.
+     * IDEMPOTENTE via dedupKey + obterOuCriar.
      */
     start(roundId, metadata) {
       if (roundId == null || roundId === '') {
@@ -608,13 +899,14 @@ const RoundLifecycle = (() => {
         return null;
       }
 
+      // Dedup: mesmo (tipo, roundId, t0Real existente) = no-op.
+      const chave = chaveDedup('start', roundId, 'unique');
+      if (jaProcessado(chave)) return clonarRodada(rodadas.get(roundId));
+
       // Encerra rodada anterior se ainda estiver ativa (roundId diferente)
       if (rodadaAtualId && rodadaAtualId !== roundId) {
         const anterior = rodadas.get(rodadaAtualId);
         if (anterior && anterior.state !== STATES.CLOSED) {
-          registrarAnomalia(anterior, 'encerrada_implicitamente_por_nova_rodada', {
-            novaRoundId: roundId
-          });
           encerrarRodada(anterior, {
             resultado: null,
             forced: false,
@@ -623,65 +915,64 @@ const RoundLifecycle = (() => {
         }
       }
 
-      let rodada = rodadas.get(roundId);
-      if (rodada) {
-        // Se ja existe e esta em fase ativa, NAO reabrir
-        const faseCorrente = rodada.faseAtual ? rodada.faseAtual.nome : rodada.phase;
-        const emFaseAtiva = rodada.state === STATES.ACTIVE
-          || FASES_ATIVAS.includes(faseCorrente);
-        if (emFaseAtiva && rodada.state !== STATES.CLOSED) {
-          registrarAnomalia(rodada, 'start_duplicado', {
-            faseCorrente,
-            state: rodada.state
-          });
-          return clonarRodada(rodada);
-        }
-        // Se ja foi fechada, tambem nao reabre (evita reuso de id)
-        if (rodada.state === STATES.CLOSED) {
-          registrarAnomalia(rodada, 'start_em_rodada_fechada', {
-            closeReason: rodada.closeReason
-          });
-          return clonarRodada(rodada);
-        }
-        // Caso state=idle: atualiza metadata e segue
-        if (metadata) {
-          rodada.metadata = { ...rodada.metadata, ...metadata };
-        }
-      } else {
-        rodada = criarRodada(roundId, metadata);
+      const rodada = obterOuCriar(roundId, metadata);
+
+      // Idempotência forte: já encerrada ou já viu start → no-op.
+      if (rodada.state === STATES.CLOSED) {
+        marcarProcessado(chave);
+        return clonarRodada(rodada);
+      }
+      if (rodada.t0Real != null) {
+        if (metadata) rodada.metadata = { ...rodada.metadata, ...metadata };
+        marcarProcessado(chave);
+        return clonarRodada(rodada);
       }
 
-      // Por convencao, start coloca em APOSTANDO (inicio da janela de apostas)
+      // Transação atômica: muta + valida invariantes + emite evento.
       const faseAnterior = rodada.faseAtual ? rodada.faseAtual.nome : null;
-      abrirFase(rodada, ESTADOS.APOSTANDO, metadata);
-      rodadaAtualId = roundId;
-      iniciarWatchdog();
+      const res = commitarEEmitir(
+        rodada,
+        (r) => {
+          r.t0Real = agora();
+          if (metadata) r.metadata = { ...r.metadata, ...metadata };
+          abrirFase(r, ESTADOS.APOSTANDO, metadata);
+          if (!r.fasesObservadas.includes(ESTADOS.APOSTANDO)) {
+            r.fasesObservadas.push(ESTADOS.APOSTANDO);
+          }
+        },
+        () => {
+          rodadaAtualId = roundId;
+          iniciarWatchdog();
+          emitirLifecycleEvent({
+            roundId,
+            fromPhase: faseAnterior,
+            toPhase: ESTADOS.APOSTANDO,
+            kind: 'round_start',
+            metadata: rodada.metadata
+          });
+          emitirEPersistir(EVENTOS.ROUND_START, {
+            v: SCHEMA_VERSION,
+            roundId,
+            t0: rodada.t0,
+            t0Real: rodada.t0Real,
+            metadata: { ...(rodada.metadata || {}) }
+          });
+        },
+        'start'
+      );
 
+      if (!res.ok) {
+        warn(`start(${roundId}) abortado: ${res.motivo}`);
+        return null;
+      }
+      marcarProcessado(chave);
       log(`Rodada iniciada: ${roundId}`);
-
-      // Lifecycle event canonico
-      emitirLifecycleEvent({
-        roundId,
-        fromPhase: faseAnterior,
-        toPhase: ESTADOS.APOSTANDO,
-        kind: 'round_start',
-        metadata: rodada.metadata
-      });
-
-      // Evento round_start versionado
-      emitirEPersistir(EVENTOS.ROUND_START, {
-        v: SCHEMA_VERSION,
-        roundId,
-        t0: rodada.t0,
-        metadata: { ...(rodada.metadata || {}) }
-      });
-
       return clonarRodada(rodada);
     },
 
     /**
-     * Registra transicao de fase. NAO cria rodada implicita:
-     * se roundId desconhecido, emite anomalia `transition_orfan` e retorna null.
+     * R99.6 — Registra transição de fase. Atômica + idempotente.
+     * UPSERT: se a rodada ainda não existe na extensão, nasce aqui.
      */
     transition(roundId, novoEstado, metadata) {
       if (roundId == null || roundId === '') {
@@ -695,76 +986,86 @@ const RoundLifecycle = (() => {
         return null;
       }
 
-      const rodada = rodadas.get(roundId);
-      if (!rodada) {
-        // P0: nao criar rodada implicita; emitir anomalia orfan
-        registrarAnomalia(null, 'transition_orfan', {
-          roundId,
-          tentativaFase: estadoCanonico,
-          estadoRecebido: novoEstado
-        });
-        return null;
-      }
+      const rodada = obterOuCriar(roundId, metadata);
 
-      // Se a rodada ja foi encerrada, ignora silenciosamente (esperado: estados
-      // pós-Confirmation chegam após end e não devem encher o log).
+      // Idempotência forte: já encerrada → no-op.
       if (rodada.state === STATES.CLOSED) {
         return clonarRodada(rodada);
       }
 
       const estadoAnterior = rodada.faseAtual ? rodada.faseAtual.nome : rodada.phase;
 
-      // Valida transicao (mas nao bloqueia: apenas registra anomalia)
-      if (!transicaoValida(estadoAnterior, estadoCanonico)) {
+      // Se o estado de destino é ENCERRADA, delega para end().
+      if (estadoCanonico === ESTADOS.ENCERRADA) {
+        return this.end(roundId, metadata && metadata.resultado);
+      }
+
+      // Mesma fase: só atualiza atividade (idempotente, sem evento).
+      if (estadoAnterior === estadoCanonico) {
+        rodada.ultimaAtividade = agora();
+        return clonarRodada(rodada);
+      }
+
+      // Dedup: (transition, roundId, estadoCanonico+contadorVisita).
+      // Permite múltiplas visitas à mesma fase em rodadas diferentes, mas
+      // bloqueia replay do mesmo evento dentro da mesma rodada.
+      const marca = `${estadoAnterior}->${estadoCanonico}@${rodada.fases.length}`;
+      const chave = chaveDedup('transition', roundId, marca);
+      if (jaProcessado(chave)) return clonarRodada(rodada);
+
+      // Anomalia só se houve transição vista E ela é inválida.
+      if (estadoAnterior !== ESTADOS.OBSERVING
+          && !transicaoValida(estadoAnterior, estadoCanonico)) {
         registrarAnomalia(rodada, 'transicao_invalida', {
           de: estadoAnterior,
           para: estadoCanonico
         });
       }
 
-      // Se o estado de destino e ENCERRADA, delega para end()
-      if (estadoCanonico === ESTADOS.ENCERRADA) {
-        return this.end(roundId, metadata && metadata.resultado);
+      const res = commitarEEmitir(
+        rodada,
+        (r) => {
+          abrirFase(r, estadoCanonico, metadata);
+          if (!r.fasesObservadas.includes(estadoCanonico)) {
+            r.fasesObservadas.push(estadoCanonico);
+          }
+        },
+        () => {
+          rodadaAtualId = roundId;
+          iniciarWatchdog();
+          emitirLifecycleEvent({
+            roundId,
+            fromPhase: estadoAnterior,
+            toPhase: estadoCanonico,
+            kind: 'phase_change',
+            metadata
+          });
+          emitirEPersistir(EVENTOS.PHASE_CHANGE, {
+            v: SCHEMA_VERSION,
+            roundId,
+            de: estadoAnterior,
+            para: estadoCanonico,
+            t: rodada.faseAtual.t0,
+            metadata: { ...(rodada.faseAtual.metadata || {}) }
+          });
+        },
+        `transition(${estadoAnterior}->${estadoCanonico})`
+      );
+
+      if (!res.ok) {
+        warn(`transition(${roundId}, ${estadoCanonico}) abortado: ${res.motivo}`);
+        return null;
       }
-
-      // Mesma fase: apenas atualiza atividade
-      if (estadoAnterior === estadoCanonico) {
-        rodada.ultimaAtividade = agora();
-        return clonarRodada(rodada);
-      }
-
-      abrirFase(rodada, estadoCanonico, metadata);
-      rodadaAtualId = roundId;
-      iniciarWatchdog();
-
+      marcarProcessado(chave);
       log(`Rodada ${roundId}: ${estadoAnterior} -> ${estadoCanonico}`);
-
-      // Lifecycle event canonico
-      emitirLifecycleEvent({
-        roundId,
-        fromPhase: estadoAnterior,
-        toPhase: estadoCanonico,
-        kind: 'phase_change',
-        metadata
-      });
-
-      // Evento phase_change versionado (mantido para compat com consumidores legados)
-      emitirEPersistir(EVENTOS.PHASE_CHANGE, {
-        v: SCHEMA_VERSION,
-        roundId,
-        de: estadoAnterior,
-        para: estadoCanonico,
-        t: rodada.faseAtual.t0,
-        metadata: { ...(rodada.faseAtual.metadata || {}) }
-      });
-
       return clonarRodada(rodada);
     },
 
     /**
-     * Encerra a rodada com resultado final.
-     * NAO cria rodada implicita: se roundId desconhecido, emite anomalia
-     * `end_sobre_rodada_inexistente` e retorna null.
+     * R99.6 — Registra que a extensão OBSERVOU o fim da rodada.
+     *
+     * Atômica via commitarEEmitir + idempotente via dedupKey + obterOuCriar.
+     * Pode ser o PRIMEIRO evento da rodada (entramos só pra ver o resultado).
      */
     end(roundId, resultado) {
       if (roundId == null || roundId === '') {
@@ -772,27 +1073,29 @@ const RoundLifecycle = (() => {
         return null;
       }
 
-      const rodada = rodadas.get(roundId);
-      if (!rodada) {
-        // P0: nao cria rodada implicita; emite anomalia e retorna null
-        registrarAnomalia(null, 'end_sobre_rodada_inexistente', {
-          roundId,
-          resultado: resultado != null ? resultado : null
-        });
-        return null;
-      }
+      // Dedup: cada (end, roundId) é único — só processa uma vez.
+      const chave = chaveDedup('end', roundId, 'unique');
+      if (jaProcessado(chave)) return clonarRodada(rodadas.get(roundId));
 
+      const rodada = obterOuCriar(roundId);
+
+      // Idempotência forte: já encerrada → no-op.
       if (rodada.state === STATES.CLOSED) {
-        // ja encerrada — idempotente
+        marcarProcessado(chave);
         return clonarRodada(rodada);
       }
 
-      encerrarRodada(rodada, {
+      // encerrarRodada já valida invariantes via commitarEEmitir.
+      const res = encerrarRodada(rodada, {
         resultado,
         forced: false,
         closeReason: 'natural'
       });
-
+      if (!res || res.ok === false) {
+        warn(`end(${roundId}) abortado: ${res?.motivo || 'desconhecido'}`);
+        return null;
+      }
+      marcarProcessado(chave);
       return clonarRodada(rodada);
     },
 
@@ -895,17 +1198,25 @@ const RoundLifecycle = (() => {
 
     /**
      * Retorna estatisticas agregadas das ultimas N rodadas encerradas.
+     *
+     * R99.5: usa `derivarObservacao()` — única fonte da verdade sobre
+     * completude. Rodadas observadas parcialmente NÃO entram em médias
+     * de duração (não temos dados confiáveis), mas seguem no histórico.
      */
     getAggregateStats(n) {
       const limite = typeof n === 'number' && n > 0 ? n : 50;
-      // Pega as ultimas rodadas encerradas (em ordem inversa de insercao)
       const encerradas = [];
+      const parciais = [];
       for (let i = ordemInsercao.length - 1; i >= 0 && encerradas.length < limite; i--) {
         const id = ordemInsercao[i];
         const r = rodadas.get(id);
-        if (r && r.state === STATES.CLOSED) {
-          encerradas.push(r);
+        if (!r || r.state !== STATES.CLOSED) continue;
+        const obs = derivarObservacao(r);
+        if (!obs.completa) {
+          parciais.push(r);
+          continue;
         }
+        encerradas.push(r);
       }
 
       const duracoesTotais = encerradas
@@ -925,6 +1236,7 @@ const RoundLifecycle = (() => {
 
       return {
         amostra: encerradas.length,
+        amostraParcial: parciais.length, // rodadas observadas só pelo fim — só pro histórico
         mediaDuracaoTotal: calcularMedia(duracoesTotais),
         mediaApostando: calcularMedia(apostando),
         mediaJogando: calcularMedia(jogando),

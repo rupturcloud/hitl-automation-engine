@@ -333,14 +333,37 @@ const Executor = (() => {
         Logger.info(`Executando aposta automática: ${decisao.cor} | R$${decisao.stake}`);
         console.log(`[EXEC-DEBUG] passou todos guards, vai clicar | window.top===window=${window.top === window} | BB_CLICK=${typeof window.BB_CLICK} | BBCalibrator=${typeof window.BBCalibrator}`);
 
-        // 🎯 PRIMEIRO FALLBACK: se operador calibrou coordenadas, usar HARDWARE_CLICK
-        // (funciona mesmo se a Evolution for canvas-only ou tiver mudado seletores).
+        // 🌉 CAMINHO PRINCIPAL (R99-FECHAMENTO): BB_CLICK no top frame.
+        // BB_CLICK já implementa a cascata correta internamente:
+        //   1) Bridge DOM via subframe → [data-bet="player|banker|tie"] + iframe traversal
+        //   2) Coords calibradas salvas (CDP) — só se DOM falhar
+        //   3) Heurístico TOP-DIRECT — último recurso
+        // Por isso BB_CLICK vem ANTES de BBCalibrator: garante DOM-primeiro sempre.
+        if (window.top === window && typeof window.BB_CLICK === 'function') {
+          console.log(`[EXEC-DEBUG] 🌉 BRIDGE DOM (caminho principal): BB_CLICK("${decisao.cor}", ${decisao.stake})`);
+          Logger.info(`Clique via DOM [data-bet=${decisao.cor}] + iframe traversal (CDP fallback automático)`);
+          // Arma rastreador de confirmacao ANTES do clique
+          if (typeof window.BetConfirmationTracker !== 'undefined') {
+            try { window.BetConfirmationTracker.armar({ cor: decisao.cor, stake: decisao.stake, roundId: CONFIG.roundIdAtual }); } catch (_) {}
+          }
+          window.BB_CLICK(decisao.cor, decisao.stake);
+
+          // No modo bridge, não conseguimos validar visualmente aqui no top frame.
+          // O resultado virá pelo postMessage e será logado pelo Overlay.
+          lastExecutionMeta.statusExecucao = 'delegado-bridge';
+          lastExecutionMeta.roundId = CONFIG.roundIdAtual;
+          isExecutando = false;
+          return true;
+        }
+
+        // 🎯 FALLBACK CDP DIRETO: BB_CLICK indisponível e operador calibrou coordenadas.
+        // Esse caminho só é alcançado quando o content.js falhou em expor BB_CLICK
+        // (cenário raro — usado como rede de segurança).
         if (window.top === window
             && typeof window.BBCalibrator !== 'undefined'
             && window.BBCalibrator.temCalibracao()) {
-          console.log('[EXEC-DEBUG] 🎯 Usando BBCalibrator (coordenadas calibradas via Hardware Debugger)');
-          Logger.info('Delegando execução para BBCalibrator (coordenadas calibradas)');
-          // Arma rastreador de confirmacao ANTES do clique
+          console.log('[EXEC-DEBUG] 🎯 FALLBACK: BBCalibrator (CDP, sem BB_CLICK disponível)');
+          Logger.warn('BB_CLICK ausente — usando BBCalibrator (CDP) como fallback');
           if (typeof window.BetConfirmationTracker !== 'undefined') {
             try { window.BetConfirmationTracker.armar({ cor: decisao.cor, stake: decisao.stake, roundId: CONFIG.roundIdAtual }); } catch (_) {}
           }
@@ -352,28 +375,10 @@ const Executor = (() => {
             isExecutando = false;
             return !!resCal.ok;
           } catch (e) {
-            console.warn('[EXEC-DEBUG] BBCalibrator falhou, caindo para Bridge:', e?.message);
+            console.warn('[EXEC-DEBUG] BBCalibrator falhou, caindo para DOM local:', e?.message);
           }
         }
-
-        // 🌉 BRIDGE JUMP: Se estiver no Top Frame e tivermos o comando de bridge
-        if (window.top === window && typeof window.BB_CLICK === 'function') {
-          console.log(`[EXEC-DEBUG] BRIDGE JUMP: chamando BB_CLICK("${decisao.cor}", ${decisao.stake})`);
-          Logger.info('Delegando execução para Bridge (Iframe)');
-          // Arma rastreador de confirmacao ANTES do clique
-          if (typeof window.BetConfirmationTracker !== 'undefined') {
-            try { window.BetConfirmationTracker.armar({ cor: decisao.cor, stake: decisao.stake, roundId: CONFIG.roundIdAtual }); } catch (_) {}
-          }
-          window.BB_CLICK(decisao.cor, decisao.stake);
-
-          // No modo bridge, não conseguimos validar visualmente aqui no top frame
-          // O resultado virá pelo postMessage e será logado pelo Overlay
-          lastExecutionMeta.statusExecucao = 'delegado-bridge';
-          lastExecutionMeta.roundId = CONFIG.roundIdAtual;
-          isExecutando = false;
-          return true;
-        }
-        console.log('[EXEC-DEBUG] sem Bridge — execução local no DOM');
+        console.log('[EXEC-DEBUG] sem Bridge nem CDP — execução local no DOM (último recurso)');
 
         // 1. Verificar se a mesa aceita apostas
         const mesaStatus = mesaAceitandoApostas();

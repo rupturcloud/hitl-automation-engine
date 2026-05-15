@@ -18,6 +18,52 @@ const ChipDetector = (() => {
   let chipCache = {};
   let lastRoundId = null;
 
+  // R99.3: contador de falhas consecutivas. Quando estourar o limite,
+  // escala pro top frame como "canvas-only forçado" → banner aparece sozinho
+  // e SHORTCUT CAL passa a ser obrigatório. Reseta a cada sucesso.
+  let falhasConsecutivas = 0;
+  let canvasOnlyJaEscalado = false;
+  const LIMITE_FALHAS_CANVAS_ONLY = 3;
+
+  function escalarCanvasOnly(motivo) {
+    if (canvasOnlyJaEscalado) return;
+    canvasOnlyJaEscalado = true;
+    const payload = {
+      source: 'bb-canvas-detection',
+      canvasOnly: true,
+      forced: true,
+      reason: motivo,
+      delay: 9999, // satisfaz filtro do top (delay >= 8000)
+      ts: Date.now(),
+      canvasCount: -1,
+      domClicaveis: -1
+    };
+    try {
+      // Envia pro top em qualquer caso (top filtra por IS_TOP_FRAME).
+      window.top?.postMessage(payload, '*');
+      // Também posta no próprio frame, caso este SEJA o top.
+      window.postMessage(payload, '*');
+      console.warn(`${PREFIX} 🚨 CANVAS-ONLY FORÇADO após ${falhasConsecutivas} falhas (motivo=${motivo}). Banner deve aparecer.`);
+    } catch (e) {
+      console.warn(`${PREFIX} falha ao escalar canvas-only:`, e?.message);
+    }
+  }
+
+  function registrarSucesso() {
+    if (falhasConsecutivas > 0) {
+      console.log(`${PREFIX} ↩ resetando contador de falhas (era ${falhasConsecutivas}).`);
+    }
+    falhasConsecutivas = 0;
+  }
+
+  function registrarFalha() {
+    falhasConsecutivas++;
+    console.warn(`${PREFIX} contador de falhas consecutivas = ${falhasConsecutivas}/${LIMITE_FALHAS_CANVAS_ONLY}`);
+    if (falhasConsecutivas >= LIMITE_FALHAS_CANVAS_ONLY) {
+      escalarCanvasOnly('chip_detector_falhas_consecutivas');
+    }
+  }
+
   // Seletores em ordem de prioridade (Betia + Evolution Gaming + novos heurísticos)
   // IMPORTANTE: prioridade baixa = mais específico (preferido). Não remover seletores legacy.
   const CHIP_SELECTORS = [
@@ -300,6 +346,7 @@ const ChipDetector = (() => {
           TelemetryCollector.recordDetectionLatency(valor, duration, true);
         }
 
+        registrarSucesso();
         return resultado;
       }
 
@@ -318,6 +365,8 @@ const ChipDetector = (() => {
       if (typeof TelemetryCollector !== 'undefined') {
         TelemetryCollector.recordDetectionLatency(valor, duration, true);
       }
+      // Best-fit conta como sucesso parcial (achou algo clicável), reseta contador.
+      registrarSucesso();
       return bestFit;
     }
 
@@ -333,6 +382,8 @@ const ChipDetector = (() => {
         TelemetryCollector.recordDetectionLatency(valor, duration, true);
       }
 
+      // Fallback visual: NÃO reseta — é heurístico fraco, pode estar clicando lixo.
+      // Também NÃO conta como falha total (achou algo). Mantém contador estável.
       return fallback;
     }
 
@@ -344,6 +395,9 @@ const ChipDetector = (() => {
     if (typeof TelemetryCollector !== 'undefined') {
       TelemetryCollector.recordDetectionLatency(valor, duration, false);
     }
+
+    // R99.3: incrementa contador → eventualmente força canvas-only.
+    registrarFalha();
 
     return null;
   }
@@ -395,6 +449,34 @@ const ChipDetector = (() => {
 
   // Public API
   return {
+    /**
+     * R99.3: estado do contador de falhas → canvas-only.
+     */
+    statusFalhas() {
+      return {
+        falhasConsecutivas,
+        limite: LIMITE_FALHAS_CANVAS_ONLY,
+        canvasOnlyJaEscalado,
+      };
+    },
+
+    /**
+     * R99.3: força escalação manual (debug — Diego no console).
+     */
+    forcarCanvasOnly(motivo = 'manual_debug') {
+      canvasOnlyJaEscalado = false; // permite re-escalar
+      escalarCanvasOnly(motivo);
+    },
+
+    /**
+     * R99.3: reseta contador (debug / pós-calibração).
+     */
+    resetarFalhas() {
+      falhasConsecutivas = 0;
+      canvasOnlyJaEscalado = false;
+      console.log(`${PREFIX} contador zerado.`);
+    },
+
     /**
      * Encontra ficha para um valor (sincronous, sem retry)
      */

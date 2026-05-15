@@ -1349,21 +1349,32 @@ const Overlay = (() => {
       lastBlockReason: null
     };
     const label = BBStrategyUtils.getEntryLabel(decisao.cor);
-    _armarBotaoUI(label);
-    addLog(`Decisão armada: ${label}`, 'info');
-    console.log(`[COUNTDOWN-DEBUG] armarDecisao OK | cor=${decisao.cor} | estado=${CONFIG.estadoRodadaAtual} | chamando tentarExecutar direto`);
+    const stake = Number(decisao.stake) || 0;
+    const confianca = Number(decisao.confianca) || 0;
+    _armarBotaoUI(label, stake, confianca);
+    // R99-FECHAMENTO: log de destaque com cor + stake + confiança.
+    // Humano precisa enxergar a sugestão completa antes de confirmar.
+    addLog(`🎯 Will sugere: ${label} R$${stake.toFixed(2)} (${confianca.toFixed(0)}%)`, 'success');
+    console.log(`[COUNTDOWN-DEBUG] armarDecisao OK | cor=${decisao.cor} | stake=R$${stake} | conf=${confianca}% | estado=${CONFIG.estadoRodadaAtual}`);
     tentarExecutarDecisaoArmada('armarDecisao');
   }
 
   // ─── Estado UI do botão (armar / resetar) ───────────────────────────────────
 
-  function _armarBotaoUI(label) {
+  function _armarBotaoUI(label, stake, confianca) {
     const btn = document.getElementById('bb-btn-confirm');
     const cancel = document.getElementById('bb-btn-cancel');
     if (btn) {
       btn.disabled = false;
       btn.classList.add('armed');
-      btn.textContent = `✅ CONFIRMAR ${label.toUpperCase()}`;
+      // R99-FECHAMENTO: label completo no botão = COR + STAKE + CONFIANÇA.
+      // Humano vê tudo que precisa antes de clicar Confirmar.
+      const stakeNum = Number(stake) || 0;
+      const confNum = Number(confianca) || 0;
+      const partes = [`✅ CONFIRMAR ${String(label || '').toUpperCase()}`];
+      if (stakeNum > 0) partes.push(`R$${stakeNum.toFixed(2)}`);
+      if (confNum > 0) partes.push(`(${confNum.toFixed(0)}%)`);
+      btn.textContent = partes.join(' ');
     }
     if (cancel) cancel.hidden = false;
   }
@@ -1393,8 +1404,16 @@ const Overlay = (() => {
     if (!btn) return;
 
     if (countdownSecondsLeft > 0) {
-      const label = decisaoArmada ? BBStrategyUtils.getEntryLabel(decisaoArmada.decisao.cor).toUpperCase() : '';
-      btn.textContent = `✅ CONFIRMAR ${label} (${countdownSecondsLeft}s)`;
+      // R99-FECHAMENTO: preserva COR + STAKE + CONFIANÇA durante countdown.
+      const dec = decisaoArmada?.decisao;
+      const label = dec ? BBStrategyUtils.getEntryLabel(dec.cor).toUpperCase() : '';
+      const stake = Number(dec?.stake) || 0;
+      const conf = Number(dec?.confianca) || 0;
+      const partes = [`✅ CONFIRMAR ${label}`];
+      if (stake > 0) partes.push(`R$${stake.toFixed(2)}`);
+      if (conf > 0) partes.push(`(${conf.toFixed(0)}%)`);
+      partes.push(`— ${countdownSecondsLeft}s`);
+      btn.textContent = partes.join(' ');
       if (bar) {
         bar.style.width = `${(countdownSecondsLeft / COUNTDOWN_SEGUNDOS) * 100}%`;
         bar.style.display = 'block';
@@ -1668,9 +1687,13 @@ const Overlay = (() => {
   function logDecisionErrors(decisao, erros) {
     if (!Array.isArray(erros) || erros.length === 0) return;
 
-    console.error('[ERROR_DECISION]');
-    console.error('- estrategia:', decisao?.padrao?.nome || '—');
-    erros.forEach((erro) => console.error('-', erro));
+    // R99.4: a extensão NÃO bloqueia execução por validação (vide decision.js:
+    // "deveApostar: true, // Extensão NUNCA bloqueia"). Logo, essas inconsistências
+    // são METADADO, não erro. Rebaixadas pra console.info silencioso — quem decide
+    // aceitar/recusar é a casa (banca). Mantemos o registro pra debug.
+    console.info('[DECISION-METADATA-WARN]');
+    console.info('- estrategia:', decisao?.padrao?.nome || '—');
+    erros.forEach((erro) => console.info('-', erro));
   }
 
   function aplicarModoDebug() {
@@ -1929,8 +1952,9 @@ const Overlay = (() => {
           atualizarDebug(decisao, validacao);
 
           if (!validacao.ok) {
+            // R99.4: metadado inconsistente — extensão não bloqueia, só registra.
             logDecisionErrors(decisao, validacao.erros);
-            addLog(`ERROR_DECISION: ${validacao.erros[0]}`, 'warn');
+            addLog(`Aviso (não bloqueia): ${validacao.erros[0]}`, 'info');
           }
 
           console.log(`[BB-FLOW] deveApostar=${decisao.deveApostar} | modoTeste=${CONFIG.modoTeste} | estado=${CONFIG.estadoRodadaAtual} | cor=${decisao.cor}`);

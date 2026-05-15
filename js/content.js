@@ -797,12 +797,11 @@
   function processarPayloadJogo(payload) {
     if (!payload || typeof payload !== 'object') return;
 
+    // R99-FECHAMENTO: balance NÃO é mais lido aqui. O walker recursivo em
+    // processarEnvelopeWS já varre o payload inteiro antes deste handler.
+    // Fonte única: CONFIG.saldoReal = walker output.
     if (payload.type === 'balanceUpdated') {
-      const saldo = payload?.args?.balance;
-      if (typeof saldo === 'number') {
-        aplicarSaldoOficial(saldo, 'evo-game');
-      }
-      return;
+      return; // walker já aplicou; não duplicar.
     }
 
     if (payload.type === 'bacbo.playerState') {
@@ -840,15 +839,9 @@
   function processarPayloadPlataforma(payload) {
     if (!payload || typeof payload !== 'object') return;
 
-    if (payload.namespace === 'accountBalance' && payload.method === 'getMy') {
-      const balances = payload?.result?.balances;
-      if (!Array.isArray(balances)) return;
-
-      const oficial = balances.find((item) => item && item.real === true && item.display === true);
-      if (oficial && typeof oficial.value === 'number') {
-        aplicarSaldoOficial(oficial.value, 'betboom-platform');
-      }
-    }
+    // R99-FECHAMENTO: balance da plataforma NÃO é mais lido aqui.
+    // O walker recursivo (processarEnvelopeWS:894) já capturou. Fonte única.
+    // Mantemos a função vazia para preservar pontos de extensão futuros.
   }
 
   function processarEnvelopeWS(envelope) {
@@ -885,15 +878,15 @@
     const payload = safeJsonParse(envelope.text);
     if (!payload) return;
 
-    // Walker recursivo de balance — técnica da extensão Will Dados Pro.
+    // R99-FECHAMENTO: walker recursivo de balance é a FONTE ÚNICA de saldo.
     // Qualquer payload WS (qualquer canal, qualquer profundidade) que tenha
     // chave casando /balance|wallet|saldo|cash/ atualiza CONFIG.saldoReal
-    // imediatamente. Antes só lia de canais específicos, causando race no
-    // BET-CONFIRM (4s não bastava). Walker garante saldo sempre fresco.
+    // imediatamente. Source = canal de origem (evo-game | betboom-platform).
+    // Os handlers específicos NÃO leem mais balance — só esta linha aplica.
     try {
       const balance = extrairBalanceRecursivo(payload);
       if (balance != null && Number.isFinite(balance)) {
-        aplicarSaldoOficial(balance, `walker:${envelope.channel || 'unknown'}`);
+        aplicarSaldoOficial(balance, envelope.channel || 'walker');
       }
     } catch (_) {}
 
@@ -1706,11 +1699,22 @@
           CONFIG._canvasDetection.checks.push({
             t: det.ts, delay: det.delay,
             canvasOnly: det.canvasOnly,
+            forced: det.forced === true,
+            reason: det.reason,
             dom: det.domClicaveis, canvas: det.canvasCount
           });
-          // Veredicto: se nos 2 últimos checks (8s + 15s) sempre canvas-only → true
-          const tardios = CONFIG._canvasDetection.checks.filter(c => c.delay >= 8000);
-          const veredito = tardios.length > 0 && tardios.every(c => c.canvasOnly === true);
+          // R99.3: se veio FORCED (ChipDetector estourou falhas), trava em true direto.
+          // Caso contrário, usa a regra original: 2 checks tardios (delay >= 8000) batendo.
+          let veredito;
+          if (det.forced === true && det.canvasOnly === true) {
+            veredito = true;
+            console.warn(`[CANVAS-DETECT@top] 🚨 FORCED canvas-only (reason=${det.reason || 'unknown'}).`);
+          } else {
+            const tardios = CONFIG._canvasDetection.checks.filter(c => c.delay >= 8000);
+            veredito = tardios.length > 0 && tardios.every(c => c.canvasOnly === true);
+          }
+          // Sticky: uma vez canvas-only, não volta a false (evita banner piscando).
+          if (CONFIG.canvasOnlyDetected === true) veredito = true;
           CONFIG.canvasOnlyDetected = veredito;
           // Verifica se calibração existe
           let temCal = false;
