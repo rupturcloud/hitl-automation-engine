@@ -1083,8 +1083,23 @@
   //   - PLAYER esquerda, BANKER direita, TIE área central superior
   //   - Fichas em barra horizontal na parte inferior
   function calcularCoordsHeuristicas(alvo, chipValue) {
-    // Procura o maior canvas visível como referência
-    const canvases = Array.from(document.querySelectorAll('canvas')).filter((c) => {
+    // 1. Procura canvas no DOM normal + Shadow DOM (Evolution esconde em shadowRoot).
+    function coletarCanvasesDeep(root = document) {
+      const out = [];
+      try {
+        root.querySelectorAll('canvas').forEach((c) => out.push(c));
+      } catch (_) {}
+      try {
+        const all = root.querySelectorAll ? root.querySelectorAll('*') : [];
+        for (const el of all) {
+          if (el.shadowRoot) {
+            coletarCanvasesDeep(el.shadowRoot).forEach((c) => out.push(c));
+          }
+        }
+      } catch (_) {}
+      return out;
+    }
+    const canvases = coletarCanvasesDeep().filter((c) => {
       const r = c.getBoundingClientRect();
       return r.width > 200 && r.height > 200;
     });
@@ -1093,13 +1108,33 @@
       const rb = b.getBoundingClientRect();
       return (rb.width * rb.height) - (ra.width * ra.height);
     })[0];
-    let refRect = ref
-      ? ref.getBoundingClientRect()
-      : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+    let refRect = ref ? ref.getBoundingClientRect() : null;
+    const canvasFound = !!ref && refRect && refRect.width >= 200 && refRect.height >= 200;
 
-    // Sanity: se canvas é minúsculo, usar viewport
-    if (refRect.width < 200 || refRect.height < 200) {
-      refRect = { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+    if (!canvasFound) {
+      // 2. Sem canvas detectável: Evolution Mini renderiza mesa em letterbox 4:3
+      // centralizada dentro do iframe landscape. Calcula o canvas hipotético
+      // (proporção 4:3) com letterbox preto nas laterais.
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const targetRatio = 4 / 3; // canvas Bac Bo
+      const iframeRatio = vw / vh;
+      let canvasW, canvasH, marginLeft, marginTop;
+      if (iframeRatio > targetRatio) {
+        // iframe mais largo que canvas: letterbox lateral
+        canvasH = vh;
+        canvasW = vh * targetRatio;
+        marginLeft = (vw - canvasW) / 2;
+        marginTop = 0;
+      } else {
+        // iframe mais alto que canvas: letterbox cima/baixo
+        canvasW = vw;
+        canvasH = vw / targetRatio;
+        marginLeft = 0;
+        marginTop = (vh - canvasH) / 2;
+      }
+      refRect = { left: marginLeft, top: marginTop, width: canvasW, height: canvasH };
+      console.log(`[BB-CLICK] 📐 letterbox 4:3 assumido — canvas hipotético: ${Math.round(canvasW)}x${Math.round(canvasH)} @ (${Math.round(marginLeft)},${Math.round(marginTop)}) dentro iframe ${vw}x${vh}`);
     }
 
     const x0 = refRect.left;
@@ -1131,7 +1166,7 @@
     return {
       chip: { x: x0 + chipFrac.x * w, y: y0 + chipFrac.y * h },
       spot: { x: x0 + spotFrac.x * w, y: y0 + spotFrac.y * h },
-      refRect: { left: x0, top: y0, width: w, height: h, canvas: !!ref }
+      refRect: { left: x0, top: y0, width: w, height: h, canvas: canvasFound, mode: canvasFound ? 'canvas' : 'letterbox-4x3' }
     };
   }
 
