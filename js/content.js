@@ -544,14 +544,17 @@
       if (typeof RoundLifecycle !== 'undefined') {
         const roundId = CONFIG.roundIdAtual || parserState.currentGameId || null;
         if (roundId && estadoMapeado) {
-          // Garante que a rodada existe antes de transitar/encerrar.
-          // Se ainda não foi iniciada, start() implícito com a fase atual.
+          // SÓ chama start() em APOSTANDO (início real de rodada).
+          // Estados pós-encerramento (FourthDie/Confirmation/AcceptingBets após end)
+          // não devem reabrir rodada — gerava spam "start_em_rodada_fechada".
           const cur = RoundLifecycle.getCurrentRound?.();
-          const precisaIniciar = !cur || cur.roundId !== roundId;
+          const precisaIniciar = (!cur || cur.roundId !== roundId)
+            && estadoMapeado === 'apostando';
           if (precisaIniciar) {
             RoundLifecycle.start(roundId, { raw: game.stage || null, timer, autoStart: true });
           }
-          if (estadoMapeado !== 'apostando') {
+          // Só transita se a rodada existe e está aberta (não chama em fechada)
+          if (estadoMapeado !== 'apostando' && cur && cur.roundId === roundId) {
             RoundLifecycle.transition(roundId, estadoMapeado, { raw: game.stage || null, timer });
           }
         }

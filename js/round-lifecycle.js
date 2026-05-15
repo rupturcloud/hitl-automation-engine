@@ -706,9 +706,9 @@ const RoundLifecycle = (() => {
         return null;
       }
 
-      // Se a rodada ja foi encerrada, ignora novas transicoes
+      // Se a rodada ja foi encerrada, ignora silenciosamente (esperado: estados
+      // pós-Confirmation chegam após end e não devem encher o log).
       if (rodada.state === STATES.CLOSED) {
-        warn(`transition() em rodada ja encerrada (${roundId}). Ignorando.`);
         return clonarRodada(rodada);
       }
 
