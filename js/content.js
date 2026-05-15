@@ -1852,15 +1852,17 @@
       const rect = evoFrame.getBoundingClientRect();
       if (rect.width < 100 || rect.height < 100) return null;
 
-      // Layout Bac Bo Evolution Mini (sobre o iframe REAL VISUAL):
-      // - JOGADOR / EMPATE / BANCA são 3 spots alinhados HORIZONTALMENTE
-      // - Quando TIE em y=0.64 acerta mas PLAYER/BANKER em y=0.76 erram,
-      //   significa que os 3 spots compartilham a MESMA LINHA y=0.64.
-      // - Fichas em y=0.92 (barra inferior abaixo dos spots)
+      // Layout Bac Bo Evolution Mini — atenção: TEM 2 linhas separadas!
+      //   Linha 1 (y ~0.50-0.65): texto grande "PLAYER" / "BANKER" + odds
+      //                            INFORMATIVO, NÃO clicável.
+      //   Linha 2 (y ~0.75-0.85): spots reais "JOGADOR" / "EMPATE" / "BANCA"
+      //                            CLICÁVEIS (área de aposta).
+      // Frações antigas y=0.64 caíam na linha 1 (texto) — Evolution ignorava.
+      // Agora y=0.80 cai na linha 2 (área de aposta real).
       const SPOT_FRAC = {
-        player: { x: 0.28, y: 0.64 },  // JOGADOR (azul, esquerda) — mesma linha tie
-        tie:    { x: 0.50, y: 0.64 },  // EMPATE (verde, centro)
-        banker: { x: 0.72, y: 0.64 }   // BANCA (vermelho, direita) — mesma linha tie
+        player: { x: 0.28, y: 0.80 },  // JOGADOR (azul, aposta)
+        tie:    { x: 0.50, y: 0.80 },  // EMPATE (verde centro, aposta)
+        banker: { x: 0.72, y: 0.80 }   // BANCA (vermelho, aposta)
       };
       const CHIP_INDEX = { 5: 0, 10: 1, 25: 2, 125: 3, 500: 4, 2500: 5, 6000: 6, 10000: 7, 12000: 8 };
       const sf = SPOT_FRAC[alvo];
