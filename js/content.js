@@ -1872,7 +1872,69 @@
       };
     }
 
+    // Marker visual do clique do robô — anel pulsante + etiqueta "🤖 ROBÔ"
+    // pra diferenciar de cliques humanos. Auto-some em 1.5s.
+    function mostrarMarcadorRobo(x, y, label) {
+      try {
+        if (!document.getElementById('bb-robot-marker-style')) {
+          const style = document.createElement('style');
+          style.id = 'bb-robot-marker-style';
+          style.textContent = `
+            @keyframes bbRoboPulse {
+              0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+              60% { transform: translate(-50%, -50%) scale(1.6); opacity: 0.8; }
+              100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+            }
+            @keyframes bbRoboLabelFade {
+              0% { opacity: 0; transform: translate(-50%, -150%) scale(0.7); }
+              25% { opacity: 1; transform: translate(-50%, -200%) scale(1); }
+              100% { opacity: 0; transform: translate(-50%, -250%) scale(1); }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+        const ring = document.createElement('div');
+        ring.style.cssText = `
+          position: fixed;
+          left: ${x}px;
+          top: ${y}px;
+          width: 36px;
+          height: 36px;
+          border: 3px solid #06b6d4;
+          border-radius: 50%;
+          background: rgba(6, 182, 212, 0.25);
+          box-shadow: 0 0 24px rgba(6, 182, 212, 0.9), inset 0 0 12px rgba(255, 255, 255, 0.4);
+          pointer-events: none;
+          z-index: 2147483646;
+          animation: bbRoboPulse 1.4s ease-out forwards;
+        `;
+        const tag = document.createElement('div');
+        tag.style.cssText = `
+          position: fixed;
+          left: ${x}px;
+          top: ${y}px;
+          padding: 4px 10px;
+          background: #06b6d4;
+          color: #fff;
+          font: 700 11px -apple-system, Segoe UI, sans-serif;
+          border-radius: 6px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+          pointer-events: none;
+          z-index: 2147483647;
+          white-space: nowrap;
+          animation: bbRoboLabelFade 1.5s ease-out forwards;
+        `;
+        tag.textContent = `🤖 ROBÔ → ${label}`;
+        document.body.appendChild(ring);
+        document.body.appendChild(tag);
+        setTimeout(() => { ring.remove(); tag.remove(); }, 1600);
+      } catch (_) {}
+    }
+
     function dispararCDPDireto(x, y, label) {
+      // Mostra o marker AO MESMO TEMPO do CDP — operador vê exatamente
+      // onde o robô vai clicar (diferenciado do mouse humano).
+      mostrarMarcadorRobo(x, y, label);
       try {
         chrome.runtime.sendMessage(
           { type: 'BB_EXECUTE_HARDWARE_CLICK', x: Math.round(x), y: Math.round(y) },
