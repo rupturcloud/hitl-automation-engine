@@ -2023,6 +2023,76 @@
     // Expor BB_CLICK_CMD globalmente para teste via console
     window.BB_CLICK = async (alvo = 'player') => executarComandoClique(alvo);
     console.log('[BetBoom Auto] [subframe] BB_CLICK("player"/"banker"/"tie") disponível');
+
+    // R99.1: expõe testarSeletores TAMBÉM no subframe para diagnóstico do iframe Evolution.
+    // Quando o operador roda no console com o iframe focado, vê o DOM real do jogo.
+    window.testarSeletores = construirTestarSeletores();
+    console.log('[BetBoom Auto] [subframe] testarSeletores() disponível no console deste iframe');
+  }
+
+  // R99.1: extraído pra função reutilizável (top + subframe).
+  function construirTestarSeletores() {
+    return function () {
+      console.group('[testarSeletores] varredura completa');
+      const docs = coletarDocsRecursivo();
+      console.log(`Docs varridos (top + iframes filhos): ${docs.length}`);
+      const seletores = [
+        '[data-bet="player"]',
+        '[data-bet="banker"]',
+        '[data-bet="tie"]',
+        '[data-bet]',
+        '[data-betia-id^="bet-"]',
+        '[data-automation-id^="betting-grid-item-"]',
+        '[data-role*="bet-spot"]',
+        '[aria-label*="Player" i]',
+        '[aria-label*="Banker" i]',
+        '[class*="chip" i]',
+        '[role="button"]',
+        'canvas'
+      ];
+      const out = {};
+      let totalElementosClicaveis = 0;
+      let canvasCount = 0;
+      seletores.forEach((sel) => {
+        let count = 0;
+        let firstSample = null;
+        for (const doc of docs) {
+          try {
+            const nodes = doc.querySelectorAll(sel);
+            count += nodes.length;
+            if (!firstSample && nodes.length) {
+              const el = nodes[0];
+              const r = el.getBoundingClientRect();
+              firstSample = {
+                tag: el.tagName,
+                cls: (el.className || '').toString().slice(0, 60),
+                size: `${Math.round(r.width)}x${Math.round(r.height)}`,
+                pos: `${Math.round(r.left)},${Math.round(r.top)}`
+              };
+            }
+          } catch (_) {}
+        }
+        if (sel === 'canvas') canvasCount = count;
+        else if (sel !== '[role="button"]') totalElementosClicaveis += count;
+        out[sel] = { count, firstSample };
+      });
+      console.table(out);
+
+      // Veredicto R99.1
+      if (totalElementosClicaveis === 0 && canvasCount > 0) {
+        console.warn('%c⚠️  VEREDICTO: mesa CANVAS-ONLY (zero seletores DOM). ' +
+          'Clique via [data-bet] NÃO funciona aqui. Use 🎯 CAL no overlay ou troque pra mesa Bac Bo (não Mini).',
+          'background:#7f1d1d;color:#fff;padding:4px 8px;font-weight:bold');
+      } else if (totalElementosClicaveis > 0) {
+        console.log('%c✅ VEREDICTO: DOM tem seletores clicáveis. Bridge deve funcionar.',
+          'background:#14532d;color:#fff;padding:4px 8px;font-weight:bold');
+      } else {
+        console.warn('%c⚠️  VEREDICTO: zero DOM E zero canvas. Frame errado?',
+          'background:#78350f;color:#fff;padding:4px 8px;font-weight:bold');
+      }
+      console.groupEnd();
+      return out;
+    };
   }
 
   window.addEventListener('message', tratarMensagemWindow);
@@ -2219,52 +2289,10 @@
     };
     console.log('[BetBoom Auto] BB_CLICK("player"/"banker"/"tie") disponível no console');
 
-    // R99: helper de diagnóstico. Rode no console (top OU iframe) pra ver
+    // R99/R99.1: helper de diagnóstico. Rode no console (top OU iframe) pra ver
     // se a Evolution está expondo [data-bet=*] como esperado.
-    window.testarSeletores = function () {
-      console.group('[testarSeletores] varredura completa');
-      const docs = coletarDocsRecursivo();
-      console.log(`Docs varridos (top + iframes filhos): ${docs.length}`);
-      const seletores = [
-        '[data-bet="player"]',
-        '[data-bet="banker"]',
-        '[data-bet="tie"]',
-        '[data-bet]',
-        '[data-betia-id^="bet-"]',
-        '[data-automation-id^="betting-grid-item-"]',
-        '[data-role*="bet-spot"]',
-        '[aria-label*="Player" i]',
-        '[aria-label*="Banker" i]',
-        '[class*="chip" i]',
-        'canvas'
-      ];
-      const out = {};
-      seletores.forEach((sel) => {
-        let count = 0;
-        let firstSample = null;
-        for (const doc of docs) {
-          try {
-            const nodes = doc.querySelectorAll(sel);
-            count += nodes.length;
-            if (!firstSample && nodes.length) {
-              const el = nodes[0];
-              const r = el.getBoundingClientRect();
-              firstSample = {
-                tag: el.tagName,
-                cls: (el.className || '').toString().slice(0, 60),
-                size: `${Math.round(r.width)}x${Math.round(r.height)}`,
-                pos: `${Math.round(r.left)},${Math.round(r.top)}`
-              };
-            }
-          } catch (_) {}
-        }
-        out[sel] = { count, firstSample };
-      });
-      console.table(out);
-      console.groupEnd();
-      return out;
-    };
-    console.log('[BetBoom Auto] testarSeletores() disponível no console');
+    window.testarSeletores = construirTestarSeletores();
+    console.log('[BetBoom Auto] testarSeletores() disponível no console (top)');
   } else {
     inicializarSubframe();
   }
