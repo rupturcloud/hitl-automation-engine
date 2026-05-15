@@ -18,6 +18,21 @@ const Collector = (() => {
   let ultimaLeituraDom = [];
   let domProcessTimer = null;
   const invalidSelectorsWarned = new Set();
+  let _canonicalSigLogged = false;
+
+  // R5 — uso da fonte única de signature exposta pelo HistoryStore (agente A).
+  // Mantemos fallback inline defensivo caso HistoryStore ainda não tenha carregado.
+  function _gerarSignatureCanonica(payload, fallback) {
+    if (typeof HistoryStore !== 'undefined' && typeof HistoryStore.generateSignature === 'function') {
+      const sig = HistoryStore.generateSignature(payload);
+      if (!_canonicalSigLogged) {
+        _canonicalSigLogged = true;
+        console.log(`[Collector-SIG] usando canonical signature: ${sig}`);
+      }
+      return sig;
+    }
+    return fallback();
+  }
 
   function splitSelectors(selectors) {
     return String(selectors || '')
@@ -518,10 +533,20 @@ const Collector = (() => {
       // Fix B: signature estável — nunca usa rodadaAtual (muda entre payloads da mesma rodada)
       const gameIdPart = resultado.gameId || null;
       const tsPart = resultado.timestamp ? Math.floor(resultado.timestamp / 1000) : null;
+      // Signature canônica via HistoryStore (single source of truth).
+      // Defensivo: se HistoryStore não carregou, mantém fallback inline.
       const signature = resultado.signature || (
-        gameIdPart
+        (typeof HistoryStore !== 'undefined' && HistoryStore.generateSignature
+          && HistoryStore.generateSignature({
+              gameId: gameIdPart,
+              vencedor: resultado.vencedor || resultado.cor,
+              playerScore: resultado.playerScore,
+              bankerScore: resultado.bankerScore,
+              occurrence: tsPart || 0
+            }))
+        || (gameIdPart
           ? `gid:${gameIdPart}:${resultado.vencedor || resultado.cor}`
-          : `auto:${resultado.vencedor || resultado.cor}:${resultado.playerScore || '?'}:${resultado.bankerScore || '?'}:${tsPart || 'unk'}`
+          : `auto:${resultado.vencedor || resultado.cor}:${resultado.playerScore || '?'}:${resultado.bankerScore || '?'}:${tsPart || 'unk'}`)
       );
 
       // Fix A: deduplicação por Set (janela de 300 entradas, FIFO)
@@ -642,10 +667,19 @@ const Collector = (() => {
         const _baseKey = `${vencedor || cor}:${item.playerScore || '?'}:${item.bankerScore || '?'}`;
         const _occ = _contentCount[_baseKey] || 0;
         _contentCount[_baseKey] = _occ + 1;
+        // Signature canônica via HistoryStore (single source of truth)
         const signature = item.signature || (
-          gameIdPart
+          (typeof HistoryStore !== 'undefined' && HistoryStore.generateSignature
+            && HistoryStore.generateSignature({
+                gameId: gameIdPart,
+                vencedor: vencedor || cor,
+                playerScore: item.playerScore,
+                bankerScore: item.bankerScore,
+                occurrence: _occ
+              }))
+          || (gameIdPart
             ? `gid:${gameIdPart}:${vencedor || cor}`
-            : `auto:${_baseKey}:${_occ}`
+            : `auto:${_baseKey}:${_occ}`)
         );
 
         if (assinaturasConfirmadas.has(signature)) continue;

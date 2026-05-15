@@ -655,9 +655,17 @@
         const _hsVencedor = resultado.vencedor || null;
         const _hsCorMap = { 'azul': 'blue', 'vermelho': 'red', 'empate': 'green' };
         const _hsColor = _hsCorMap[resultado.cor] || null;
-        const _hsSignature = _hsRoundId
-          ? `gid:${_hsRoundId}:${_hsVencedor}`
-          : (resultado.signature || `auto:${_hsVencedor}:${resultado.playerScore}:${resultado.bankerScore}:${Math.floor((resultado.timestamp || Date.now()) / 1000)}`);
+        const _hsSignature = (typeof HistoryStore !== 'undefined' && HistoryStore.generateSignature)
+          ? HistoryStore.generateSignature({
+              gameId: _hsRoundId,
+              vencedor: _hsVencedor,
+              playerScore: resultado.playerScore,
+              bankerScore: resultado.bankerScore,
+              occurrence: 0
+            })
+          : (_hsRoundId
+              ? `gid:${_hsRoundId}:${_hsVencedor}`
+              : (resultado.signature || `auto:${_hsVencedor}:${resultado.playerScore}:${resultado.bankerScore}:0`));
         const _hsRes = HistoryStore.addRound({
           roundId:     _hsRoundId,
           result:      (_hsVencedor || '').toLowerCase() || null,

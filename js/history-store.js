@@ -39,6 +39,32 @@ const HistoryStore = (() => {
   let divergenceLog = [];           // Log de conflitos
 
   /**
+   * Gera signature canônica para um round.
+   * Contrato compartilhado entre collector.js, content.js e history-store.js
+   * para evitar duplicatas entre paths diferentes (snapshot bulk vs wire vs sync).
+   *
+   * Aceita aliases: vencedor|result|cor, gameId|roundId
+   * Capitaliza o resultado: 'banker' → 'Banker', 'PLAYER' → 'Player'.
+   * Quando há id, retorna 'gid:<id>:<Result>'.
+   * Fallback determinístico (sem id): 'auto:<Result>:<ps>:<bs>:<occurrence>'.
+   */
+  function generateSignature(round) {
+    if (!round || typeof round !== 'object') return null;
+
+    const id = round.gameId || round.roundId || null;
+    const rawResult = round.vencedor || round.result || round.cor || '';
+    const resultCap = String(rawResult).charAt(0).toUpperCase() + String(rawResult).slice(1).toLowerCase();
+    if (!resultCap) return null;
+
+    if (id) return `gid:${id}:${resultCap}`;
+
+    const ps = Number.isFinite(Number(round.playerScore)) ? Number(round.playerScore) : '?';
+    const bs = Number.isFinite(Number(round.bankerScore)) ? Number(round.bankerScore) : '?';
+    const occ = Number.isFinite(Number(round.occurrence)) ? Number(round.occurrence) : 0;
+    return `auto:${resultCap}:${ps}:${bs}:${occ}`;
+  }
+
+  /**
    * Valida se um round cumpre o contrato
    */
   function validateRound(round) {
@@ -159,6 +185,33 @@ const HistoryStore = (() => {
         }
 
         return { added: false, reason: 'roundid_conflict', merged: incomingP > existingP };
+      }
+    }
+
+    // Anti-duplicate: round novo com gid:<id>:Result pode ser o mesmo round
+    // que veio antes via snapshot bulk (sem roundId, sig 'auto:Banker:6:9:0').
+    // Procura órfão com mesmo result+playerScore+bankerScore sem roundId, e mergeia.
+    if (rId && sig && sig.indexOf('gid:') === 0) {
+      const ps = Number(round.playerScore);
+      const bs = Number(round.bankerScore);
+      const result = round.result;
+      if (Number.isFinite(ps) && Number.isFinite(bs) && result) {
+        const orfaoIdx = realHistory.findIndex(r =>
+          !r.roundId &&
+          r.result === result &&
+          Number(r.playerScore) === ps &&
+          Number(r.bankerScore) === bs &&
+          r.signature && r.signature.indexOf('auto:') === 0
+        );
+        if (orfaoIdx >= 0) {
+          const orfao = realHistory[orfaoIdx];
+          roundIndex.delete(orfao.signature);
+          realHistory[orfaoIdx] = { ...ROUND_SCHEMA, ...orfao, ...round, index: orfaoIdx };
+          roundIndex.set(sig, realHistory[orfaoIdx]);
+          roundIdIndex.set(rId, realHistory[orfaoIdx]);
+          console.log(`[HistoryStore] 🔗 MERGE orphan-auto → gid (idx=${orfaoIdx}, ${orfao.signature} → ${sig})`);
+          return { added: false, reason: 'merged_with_orphan', index: orfaoIdx };
+        }
       }
     }
 
@@ -411,6 +464,28 @@ const HistoryStore = (() => {
     };
   }
 
+  /**
+   * Função canônica de geração de signature.
+   * Single source of truth — chamada por collector.js e content.js
+   * pra garantir que o mesmo round real sempre gere a MESMA signature,
+   * evitando duplicação no addRound.
+   */
+  function generateSignature(round) {
+    if (!round) return null;
+    const id = round.gameId || round.roundId || null;
+    const rawResult = round.vencedor || round.result || round.cor || '';
+    const resultStr = String(rawResult).trim();
+    if (!resultStr) return null;
+    const resultCap = resultStr.charAt(0).toUpperCase() + resultStr.slice(1).toLowerCase();
+
+    if (id) return `gid:${id}:${resultCap}`;
+
+    const ps = Number.isFinite(Number(round.playerScore)) ? Number(round.playerScore) : '?';
+    const bs = Number.isFinite(Number(round.bankerScore)) ? Number(round.bankerScore) : '?';
+    const occ = Number.isFinite(Number(round.occurrence)) ? Number(round.occurrence) : 0;
+    return `auto:${resultCap}:${ps}:${bs}:${occ}`;
+  }
+
   return {
     addRound,
     addMany,
@@ -427,6 +502,7 @@ const HistoryStore = (() => {
     export: exportJSON,   // alias spec-compliant
     exportJSON,           // mantém compatibilidade com chamadores existentes
     getDiagnostics,
+    generateSignature,    // canônica — usada por collector + content.js
     ROUND_SCHEMA,
     SOURCE_CONFIDENCE
   };
