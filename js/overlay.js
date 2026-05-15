@@ -778,26 +778,103 @@ const Overlay = (() => {
     // passa a usar BBCalibrator.executarAposta automaticamente.
     const calibrateBtn = document.getElementById('bb-btn-calibrate');
     if (calibrateBtn) {
+      // Calibração INLINE — não depende de BBCalibrator do MAIN world.
+      // Captura cliques reais do operador, salva em localStorage,
+      // e BB_CLICK no top frame usa essas coords (prioridade sobre frações).
       calibrateBtn.addEventListener('click', async () => {
-        if (typeof window.BBCalibrator === 'undefined') {
-          alert('BBCalibrator não carregado. Recarregue a extensão.');
-          return;
-        }
-        const status = window.BBCalibrator.temCalibracao()
-          ? 'Já existe calibração salva. Refazer?'
-          : 'Iniciar calibração de cliques?\n\nVocê vai clicar em: Ficha R$5, Spot Player, Spot Banker, Spot Tie e Botão Confirmar (opcional).';
-        if (!confirm(status)) return;
-        try {
-          calibrateBtn.disabled = true;
-          calibrateBtn.textContent = '⏳';
-          await window.BBCalibrator.tudo();
-          calibrateBtn.textContent = '✅ CAL';
-          setTimeout(() => { calibrateBtn.textContent = '🎯 CAL'; calibrateBtn.disabled = false; }, 3000);
-          if (Overlay.addLog) {
-            Overlay.addLog('🎯 Calibração concluída — Executor vai usar coords salvas', 'success');
+        const SLOTS = [
+          { id: 'chip5',     label: 'Ficha R$ 5' },
+          { id: 'player',    label: 'Spot JOGADOR (azul)' },
+          { id: 'banker',    label: 'Spot BANCA (vermelho)' },
+          { id: 'tie',       label: 'Spot EMPATE (verde)' },
+          { id: 'confirmar', label: 'Botão CONFIRMAR (ESC se não usar)' }
+        ];
+        const STORAGE_KEY = 'BB_INLINE_COORDS_v1';
+        const prev = (() => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (_) { return {}; } })();
+        const temCal = prev && prev.chip5 && (prev.player || prev.banker || prev.tie);
+        const msg = temCal
+          ? 'Já existe calibração. Refazer todas as 5 posições?'
+          : 'Calibração de cliques. Você vai clicar em 5 posições reais da mesa (na ordem). ESC pula. OK pra começar.';
+        if (!confirm(msg)) return;
+
+        function showBanner(texto, cor) {
+          let el = document.getElementById('bb-cal-banner');
+          if (!el) {
+            el = document.createElement('div');
+            el.id = 'bb-cal-banner';
+            el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483646;padding:14px 20px;color:#fff;font:700 16px -apple-system,sans-serif;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.5);pointer-events:none;';
+            document.body.appendChild(el);
           }
+          el.style.background = cor || '#1d4ed8';
+          el.textContent = texto;
+        }
+        function hideBanner() {
+          const el = document.getElementById('bb-cal-banner');
+          if (el) el.remove();
+        }
+        function flash(x, y) {
+          const dot = document.createElement('div');
+          dot.style.cssText = `position:fixed;left:${x-16}px;top:${y-16}px;width:32px;height:32px;border-radius:50%;background:rgba(34,197,94,0.5);border:3px solid #22c55e;box-shadow:0 0 24px rgba(34,197,94,0.9);pointer-events:none;z-index:2147483647;transition:transform 0.5s ease-out, opacity 0.5s ease-out;`;
+          document.body.appendChild(dot);
+          requestAnimationFrame(() => { dot.style.transform = 'scale(2.5)'; dot.style.opacity = '0'; });
+          setTimeout(() => dot.remove(), 600);
+        }
+        function capturarClick(label) {
+          return new Promise((resolve) => {
+            showBanner(`👉 Clique em: ${label}  —  ESC para pular`, '#1d4ed8');
+            let done = false;
+            const onClick = (ev) => {
+              if (done) return;
+              done = true;
+              ev.preventDefault();
+              ev.stopPropagation();
+              ev.stopImmediatePropagation();
+              const x = ev.clientX, y = ev.clientY;
+              flash(x, y);
+              cleanup();
+              resolve({ x, y });
+            };
+            const onKey = (ev) => {
+              if (done) return;
+              if (ev.key === 'Escape') {
+                done = true;
+                cleanup();
+                resolve(null);
+              }
+            };
+            const cleanup = () => {
+              document.removeEventListener('click', onClick, true);
+              document.removeEventListener('keydown', onKey, true);
+            };
+            document.addEventListener('click', onClick, true);
+            document.addEventListener('keydown', onKey, true);
+          });
+        }
+
+        calibrateBtn.disabled = true;
+        calibrateBtn.textContent = '⏳';
+        const coords = { ...prev };
+        try {
+          for (const slot of SLOTS) {
+            const pt = await capturarClick(slot.label);
+            if (pt) {
+              coords[slot.id] = { x: pt.x, y: pt.y };
+              console.log(`[CAL] ✅ ${slot.id} = (${pt.x}, ${pt.y})`);
+            } else {
+              console.log(`[CAL] ⏭️  ${slot.id} pulado`);
+            }
+            await new Promise((r) => setTimeout(r, 250));
+          }
+          coords.atualizadoEm = new Date().toISOString();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(coords));
+          showBanner('✅ CALIBRAÇÃO COMPLETA — robô agora usa as coords salvas', '#16a34a');
+          setTimeout(hideBanner, 3000);
+          calibrateBtn.textContent = '✅ CAL';
+          if (Overlay.addLog) Overlay.addLog('🎯 Calibração inline salva', 'success');
+          setTimeout(() => { calibrateBtn.textContent = '🎯 CAL'; calibrateBtn.disabled = false; }, 3000);
         } catch (e) {
-          console.warn('[Overlay] Falha na calibração:', e);
+          console.warn('[CAL] erro:', e);
+          hideBanner();
           calibrateBtn.textContent = '🎯 CAL';
           calibrateBtn.disabled = false;
         }

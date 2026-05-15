@@ -1953,6 +1953,27 @@
       const PT_TO_EN = { 'azul': 'player', 'vermelho': 'banker', 'empate': 'tie' };
       const alvoEN = PT_TO_EN[String(alvo).toLowerCase()] || String(alvo).toLowerCase();
 
+      // 0) PRIORIDADE MÁXIMA: coords calibradas via botão CAL no overlay
+      // (salvas em localStorage pelo handler de bb-btn-calibrate)
+      try {
+        const calRaw = localStorage.getItem('BB_INLINE_COORDS_v1');
+        if (calRaw) {
+          const cal = JSON.parse(calRaw);
+          const chipKey = `chip${valor || 5}`;
+          const chipPos = cal[chipKey] || cal.chip5;
+          const spotPos = cal[alvoEN];
+          if (chipPos && spotPos && Number.isFinite(chipPos.x) && Number.isFinite(spotPos.x)) {
+            console.log(`[BB_CLICK] 🎯 CALIBRATED mode | usando coords salvas`);
+            dispararCDPDireto(chipPos.x, chipPos.y, `chip-${valor || 5}`);
+            setTimeout(() => dispararCDPDireto(spotPos.x, spotPos.y, alvoEN), 400);
+            if (cal.confirmar && Number.isFinite(cal.confirmar.x)) {
+              setTimeout(() => dispararCDPDireto(cal.confirmar.x, cal.confirmar.y, 'confirmar'), 800);
+            }
+            return;
+          }
+        }
+      } catch (_) {}
+
       // 1) Top-direct: calcula coords no iframe visual real e dispara CDP
       const coords = calcularCoordsTopFrame(alvoEN, valor);
       if (coords) {
