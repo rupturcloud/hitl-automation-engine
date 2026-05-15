@@ -1850,14 +1850,14 @@
       if (rect.width < 100 || rect.height < 100) return null;
 
       // Layout Bac Bo Evolution Mini (sobre o iframe REAL VISUAL):
-      // - PLAYER spot azul: ~28% horizontal, ~76% vertical
-      // - TIE spot verde: ~50%, ~64% (acima de player/banker)
-      // - BANKER spot vermelho: ~72%, ~76%
-      // - Fichas barra inferior: y=92%, x distribuído 0.18 a 0.78
+      // - JOGADOR / EMPATE / BANCA são 3 spots alinhados HORIZONTALMENTE
+      // - Quando TIE em y=0.64 acerta mas PLAYER/BANKER em y=0.76 erram,
+      //   significa que os 3 spots compartilham a MESMA LINHA y=0.64.
+      // - Fichas em y=0.92 (barra inferior abaixo dos spots)
       const SPOT_FRAC = {
-        player: { x: 0.28, y: 0.76 },
-        tie:    { x: 0.50, y: 0.64 },
-        banker: { x: 0.72, y: 0.76 }
+        player: { x: 0.28, y: 0.64 },  // JOGADOR (azul, esquerda) — mesma linha tie
+        tie:    { x: 0.50, y: 0.64 },  // EMPATE (verde, centro)
+        banker: { x: 0.72, y: 0.64 }   // BANCA (vermelho, direita) — mesma linha tie
       };
       const CHIP_INDEX = { 5: 0, 10: 1, 25: 2, 125: 3, 500: 4, 2500: 5, 6000: 6, 10000: 7, 12000: 8 };
       const sf = SPOT_FRAC[alvo];
