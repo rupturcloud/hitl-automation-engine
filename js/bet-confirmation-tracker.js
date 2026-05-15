@@ -57,11 +57,21 @@
     } catch (_) {}
   }
 
+  // R6/Fix-2: cronograma de retries para o caso de o saldo demorar pra atualizar.
+  // O parser BetBoom às vezes refletia o débito só em 5-7s, gerando NAO_ENTROU
+  // falso positivo com a janela única de 4s. Agora checamos em 2s/4s/7s/10s:
+  // assim que detectamos delta dentro da tolerância, fechamos CONFIRMADA.
+  // Se 10s sem mudança → fecha FALHA (saldo inalterado).
+  const RETRY_SCHEDULE_MS = [2000, 4000, 7000, 10000];
+
   function armar(decisao, opts = {}) {
     const stake = Number(decisao?.stake) || 0;
     const cor = decisao?.cor || '?';
     const roundId = decisao?.roundId || (typeof CONFIG !== 'undefined' ? CONFIG.roundIdAtual : null) || null;
-    const windowMs = Number(opts.windowMs) || 4000;
+    // Permite override; default = schedule exponencial novo.
+    const schedule = Array.isArray(opts.schedule) && opts.schedule.length > 0
+      ? opts.schedule.map((n) => Number(n)).filter((n) => Number.isFinite(n) && n > 0)
+      : RETRY_SCHEDULE_MS;
     const saldoAntes = lerSaldo();
     const tArmado = Date.now();
 
@@ -77,39 +87,74 @@
       stake,
       saldoAntes,
       saldoEsperado: +(saldoAntes - stake).toFixed(2),
+      schedule,
+      tentativas: 0,
       vencido: false,
       veredito: null
     };
     pendentes.push(item);
 
-    console.log(`${PREFIX} ⏱  Aguardando ${windowMs}ms para confirmar — cor=${cor} stake=R$${stake.toFixed(2)} saldoAntes=R$${saldoAntes.toFixed(2)} esperado=R$${item.saldoEsperado.toFixed(2)}`);
+    console.log(`${PREFIX} ⏱  Aguardando retries [${schedule.join('ms, ')}ms] para confirmar — cor=${cor} stake=R$${stake.toFixed(2)} saldoAntes=R$${saldoAntes.toFixed(2)} esperado=R$${item.saldoEsperado.toFixed(2)}`);
 
-    setTimeout(() => fechar(item), windowMs);
+    // Agenda cada checagem. Se alguma checagem fechar o item, as próximas
+    // viram no-op porque `item.vencido` fica true e fechar() retorna cedo.
+    schedule.forEach((delayMs, idx) => {
+      const isFinal = idx === schedule.length - 1;
+      setTimeout(() => verificar(item, delayMs, isFinal), delayMs);
+    });
     return item;
   }
 
-  function fechar(item) {
+  function verificar(item, delayMs, isFinal) {
+    if (item.vencido) return;
+    item.tentativas += 1;
+    const saldoAtual = lerSaldo();
+    if (saldoAtual === null) {
+      // Sem saldo de referência: só finaliza se for a última tentativa.
+      if (isFinal) fechar(item, saldoAtual, delayMs);
+      return;
+    }
+    const deltaAtual = +(item.saldoAntes - saldoAtual).toFixed(2);
+    const diffEsperado = Math.abs(deltaAtual - item.stake);
+    // Sucesso imediato assim que detectarmos delta dentro da tolerância
+    // OU queda significativa (saldo caiu mais que TOLERANCE).
+    if (diffEsperado <= TOLERANCE || deltaAtual > TOLERANCE) {
+      fechar(item, saldoAtual, delayMs);
+      return;
+    }
+    // Saldo ainda inalterado — só fecha se for a última tentativa (10s).
+    if (isFinal) {
+      fechar(item, saldoAtual, delayMs);
+    }
+  }
+
+  function fechar(item, saldoDepoisOverride, tempoDetectadoMs) {
     if (item.vencido) return;
     item.vencido = true;
     item.tFechado = Date.now();
-    item.saldoDepois = lerSaldo();
+    item.saldoDepois = (typeof saldoDepoisOverride !== 'undefined') ? saldoDepoisOverride : lerSaldo();
+    const tempoMs = Number.isFinite(Number(tempoDetectadoMs))
+      ? Number(tempoDetectadoMs)
+      : (item.tFechado - item.tArmado);
+    item.tempoDetectadoMs = tempoMs;
+    const tempoSeg = (tempoMs / 1000).toFixed(1);
 
     if (item.saldoDepois === null) {
       item.veredito = 'INDEFINIDO';
       item.delta = null;
-      console.warn(`${PREFIX} ⚠️  Saldo indisponivel apos janela. cor=${item.cor} stake=R$${item.stake.toFixed(2)}`);
+      console.warn(`${PREFIX} ⚠️  Saldo indisponivel apos janela. cor=${item.cor} stake=R$${item.stake.toFixed(2)} (tentativas=${item.tentativas})`);
     } else {
       item.delta = +(item.saldoAntes - item.saldoDepois).toFixed(2);
       const diffEsperado = Math.abs(item.delta - item.stake);
       if (diffEsperado <= TOLERANCE) {
         item.veredito = 'CONFIRMADA';
-        console.log(`${PREFIX} ✅ APOSTA CONFIRMADA — cor=${item.cor} stake=R$${item.stake.toFixed(2)} | saldo: R$${item.saldoAntes.toFixed(2)} → R$${item.saldoDepois.toFixed(2)} (delta=-R$${item.delta.toFixed(2)})`);
+        console.log(`${PREFIX} ✅ APOSTA CONFIRMADA em ${tempoSeg}s — cor=${item.cor} stake=R$${item.stake.toFixed(2)} | saldo R$${item.saldoAntes.toFixed(2)} → R$${item.saldoDepois.toFixed(2)} (delta=-R$${item.delta.toFixed(2)}, tentativas=${item.tentativas})`);
       } else if (item.delta > TOLERANCE) {
         item.veredito = 'PARCIAL';
-        console.warn(`${PREFIX} ⚠️  APOSTA PARCIAL — saldo caiu R$${item.delta.toFixed(2)} mas stake era R$${item.stake.toFixed(2)} (diff=R$${diffEsperado.toFixed(2)})`);
+        console.warn(`${PREFIX} ⚠️  APOSTA PARCIAL em ${tempoSeg}s — saldo caiu R$${item.delta.toFixed(2)} mas stake era R$${item.stake.toFixed(2)} (diff=R$${diffEsperado.toFixed(2)})`);
       } else {
         item.veredito = 'NAO_ENTROU';
-        console.warn(`${PREFIX} ❌ APOSTA NAO ENTROU — cor=${item.cor} stake=R$${item.stake.toFixed(2)} | saldo inalterado (R$${item.saldoAntes.toFixed(2)})`);
+        console.warn(`${PREFIX} ❌ APOSTA NAO ENTROU após ${tempoSeg}s (${item.tentativas} tentativas) — cor=${item.cor} stake=R$${item.stake.toFixed(2)} | saldo inalterado (R$${item.saldoAntes.toFixed(2)})`);
       }
     }
 
@@ -125,7 +170,9 @@
       saldoAntes: item.saldoAntes,
       saldoDepois: item.saldoDepois,
       delta: item.delta,
-      veredito: item.veredito
+      veredito: item.veredito,
+      tempoDetectadoMs: item.tempoDetectadoMs || null,
+      tentativas: item.tentativas || 0
     });
     salvarHistorico(historico);
 

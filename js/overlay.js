@@ -1618,6 +1618,23 @@ const Overlay = (() => {
     }
 
     const label = BBStrategyUtils.getEntryLabel(decisaoArmada.decisao.cor);
+
+    // R6/Fix-1: autoExecute bypass — quando o motor sinaliza convicção alta
+    // (DecisionEngine setta decisao.autoExecute=true quando convictionScore >= threshold),
+    // pulamos o countdown HITL e disparamos a execução imediata. Caso contrário,
+    // mantém o fluxo HITL padrão (5s countdown para o operador cancelar).
+    if (decisaoArmada.decisao && decisaoArmada.decisao.autoExecute === true) {
+      console.log(`[AUTODRIVE] conviction>=threshold, executando direto sem countdown (cor=${decisaoArmada.decisao.cor}, conviction=${decisaoArmada.decisao.convictionScore})`);
+      // Feedback visual rápido antes do disparo (substitui o "✅ CONFIRMAR (5s)").
+      const btn = document.getElementById('bb-btn-confirm');
+      if (btn) {
+        btn.textContent = `⚡ AUTODRIVE ${label.toUpperCase()}`;
+      }
+      addLog(`[AUTODRIVE] ${label} stake R$${decisaoArmada.decisao.stake || 0} — execução direta (sem 5s)`, 'success');
+      _dispararExecucaoDecisao('autoExecute');
+      return true;
+    }
+
     console.log(`[COUNTDOWN-DEBUG] PASSOU TODOS OS GUARDS — chamando iniciarCountdown(${label})`);
     console.log(`[Countdown] INICIANDO countdown para ${label}`);
     addLog(`[AutoClick] Stake R$${decisaoArmada.decisao.stake || 0} → ${label} → Confirmando em ${COUNTDOWN_SEGUNDOS}s...`, 'info');

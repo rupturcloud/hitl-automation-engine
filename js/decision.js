@@ -474,6 +474,18 @@ const DecisionEngine = (() => {
         }
       }
 
+      // R6/Fix-3: gate F1 OPT-IN. Default CONFIG.f1MinScore=0 mantém o comportamento
+      // histórico ("extensão NUNCA bloqueia"). Quando o operador eleva para, ex.,
+      // 50, decisões com score abaixo desse piso passam a ser abortadas para
+      // proteger a banca em rodadas com sinal fraco.
+      const f1Min = Number(CONFIG.f1MinScore) || 0;
+      if (f1Min > 0 && f1ScoreResult && Number(f1ScoreResult.score) < f1Min) {
+        console.log(`[DECISOR] gate F1 (${f1ScoreResult.score} < ${f1Min}) — abortando`);
+        Logger.warn(`Gate F1 ativo: score ${f1ScoreResult.score} < piso ${f1Min} → abortando rodada ${roundId}`);
+        state.ultimaDecisao = null;
+        return { deveApostar: false, motivo: `F1 score abaixo do mínimo: ${f1ScoreResult.score}` };
+      }
+
       const maxGalesPermitido = Math.min(
         Number.isFinite(Number(melhorPadrao.maxGalesPermitido))
           ? Number(melhorPadrao.maxGalesPermitido)

@@ -143,40 +143,100 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 /**
  * HardwareAutomationEngine
  * Utiliza a API chrome.debugger para disparar eventos de mouse reais.
+ *
+ * R6-Fix1 (SW efêmero): MV3 service worker morre após ~30s idle e perde estado
+ *   em memória. Tratamos "Another debugger is already attached" como sucesso
+ *   idempotente e reidratamos o Map via chrome.debugger.getTargets() no boot.
+ *
+ * R6-Fix2 (single-flight): trocamos Set<tabId> por Map<tabId, Promise>. Chamadas
+ *   concorrentes a attach(tabId) compartilham a MESMA Promise enquanto o
+ *   handshake CDP está em voo — evita "Another debugger is already attached"
+ *   causado por race entre ficha e spot (dispatchClick 2x em 350ms).
  */
 const HardwareAutomationEngine = {
-  attachedTabs: new Set(),
+  // Map<tabId, Promise<void>>. Entry presente => já anexado OU anexando.
+  attachPromises: new Map(),
 
-  async attach(tabId) {
-    if (this.attachedTabs.has(tabId)) return;
-    return new Promise((resolve, reject) => {
+  isAttached(tabId) {
+    return this.attachPromises.has(tabId);
+  },
+
+  attach(tabId) {
+    // Single-flight: se já existe Promise para esta aba (resolvida ou em voo),
+    // reutiliza. Resolvida → no-op imediato; em voo → coalesce concorrentes.
+    const existing = this.attachPromises.get(tabId);
+    if (existing) return existing;
+
+    const promise = new Promise((resolve, reject) => {
       chrome.debugger.attach({ tabId }, '1.3', () => {
         if (chrome.runtime.lastError) {
-          const msg = chrome.runtime.lastError.message;
-          if (msg.includes('already attached')) {
-            this.attachedTabs.add(tabId);
+          const msg = chrome.runtime.lastError.message || '';
+          // Idempotente: aba já tem debugger anexado (ex.: SW reiniciou e perdeu
+          // o Map, mas o debugger CDP continua vivo na aba real).
+          if (msg.includes('already attached') || msg.includes('Another debugger')) {
+            console.log('[BetBoom Hardware] Debugger já estava anexado (idempotente):', tabId);
             resolve();
           } else {
             console.error('[BetBoom Hardware] Erro ao anexar debugger:', msg);
+            // Limpa entry falha para permitir retry futuro.
+            this.attachPromises.delete(tabId);
             reject(chrome.runtime.lastError);
           }
         } else {
           console.log('[BetBoom Hardware] Debugger anexado à aba:', tabId);
-          this.attachedTabs.add(tabId);
           resolve();
         }
       });
     });
+
+    this.attachPromises.set(tabId, promise);
+    return promise;
   },
 
   async detach(tabId) {
-    if (!this.attachedTabs.has(tabId)) return;
+    if (!this.attachPromises.has(tabId)) return;
     return new Promise((resolve) => {
       chrome.debugger.detach({ tabId }, () => {
-        this.attachedTabs.delete(tabId);
+        this.attachPromises.delete(tabId);
         console.log('[BetBoom Hardware] Debugger removido da aba:', tabId);
         resolve();
       });
+    });
+  },
+
+  /**
+   * R6-Fix1: reidrata attachPromises após restart do SW.
+   * chrome.debugger.getTargets() lista todos os targets — filtramos os que já
+   * têm debugger attached pela nossa extensão (attached:true e type:'page').
+   */
+  rehydrateAttachedTabs() {
+    return new Promise((resolve) => {
+      try {
+        chrome.debugger.getTargets((targets) => {
+          if (chrome.runtime.lastError) {
+            console.warn('[BetBoom Hardware] getTargets falhou no boot:',
+              chrome.runtime.lastError.message);
+            resolve();
+            return;
+          }
+          let rehydrated = 0;
+          (targets || []).forEach((target) => {
+            if (target.attached && target.type === 'page' && typeof target.tabId === 'number') {
+              if (!this.attachPromises.has(target.tabId)) {
+                this.attachPromises.set(target.tabId, Promise.resolve());
+                rehydrated++;
+              }
+            }
+          });
+          if (rehydrated > 0) {
+            console.log(`[BetBoom Hardware] Reidratadas ${rehydrated} aba(s) já anexada(s) após boot do SW.`);
+          }
+          resolve();
+        });
+      } catch (err) {
+        console.warn('[BetBoom Hardware] Exceção em rehydrate:', err?.message || err);
+        resolve();
+      }
     });
   },
 
@@ -184,12 +244,13 @@ const HardwareAutomationEngine = {
     try {
       await this.attach(tabId);
 
-      // Garantir que o tab esteja focado — CDP click em tab de background é
-      // ignorado pelo Chrome em alguns cenários canvas (Evolution).
+      // R6-Fix3: garantir foco da aba ANTES do CDP click — canvas Evolution
+      // ignora click em aba background em certos cenários.
       try {
         await new Promise((resolve) => {
           chrome.tabs.update(tabId, { active: true }, () => resolve());
         });
+        console.log(`[BB-CDP] aba focada tabId=${tabId}`);
       } catch (_) {}
 
       const X = Math.round(x);
@@ -254,7 +315,15 @@ const HardwareAutomationEngine = {
 // Listener para desconexão acidental do debugger
 chrome.debugger.onDetach.addListener((source, reason) => {
   console.warn(`[BetBoom Hardware] Debugger desconectado da aba ${source.tabId}. Motivo: ${reason}`);
-  HardwareAutomationEngine.attachedTabs.delete(source.tabId);
+  HardwareAutomationEngine.attachPromises.delete(source.tabId);
+});
+
+// R6-Fix1: reidrata Map ao subir o SW (cobre wake-up após idle ~30s e
+// chrome.runtime.onStartup). Sem isso, attachPromises fica vazio e o próximo
+// attach() em aba já-attached falharia com "Another debugger is already attached".
+HardwareAutomationEngine.rehydrateAttachedTabs();
+chrome.runtime.onStartup?.addListener?.(() => {
+  HardwareAutomationEngine.rehydrateAttachedTabs();
 });
 
 // Adicionar listener para cliques de hardware no handler de mensagens existente

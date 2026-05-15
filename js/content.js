@@ -26,6 +26,21 @@
   const WS_CHANNELS = new Set(['betboom-platform', 'evo-game', 'evo-chat', 'evo-video', 'other']);
   const WS_DIRECTIONS = new Set(['open', 'close', 'sent', 'received']);
   const ALLOWED_RESULTS = new Set(['Player', 'Banker', 'Tie']);
+  // [R6-SECURITY] Allowlist de origens legítimas para postMessage 'bb-click-result-hardware'.
+  // Vetor de ataque: scripts de terceiros (ads, captcha, extensões) podem injetar postMessage
+  // com {source: 'bb-click-result-hardware', x: N, y: M} e disparar CDP click em coords arbitrárias.
+  // Mitigação: aceitar somente se event.source ∈ iframes filhos OU event.origin termina em
+  // um dos hosts conhecidos da cadeia Evolution/Betboom.
+  const HARDWARE_CLICK_ORIGIN_ALLOWLIST = [
+    'evo-games.com',
+    'billing-boom.com',
+    'evolution.com',
+    'evobetting.com',
+    'egcvi.com'
+  ];
+  // Janela de dedup para mitigar replay (msgs idênticas em rápida sucessão).
+  const HARDWARE_CLICK_DEDUP_WINDOW_MS = 100;
+  const __bbHardwareClickDedup = { ts: 0, x: null, y: null };
   const NON_BLOCKING_RUNTIME_ERRORS = [
     /receiving end does not exist/i,
     /message port closed/i,
@@ -1410,6 +1425,68 @@
     }, 100); // Delay inicial para garantir que o frame processou o sinal
   }
 
+  /**
+   * [R6-SECURITY] Valida se um postMessage 'bb-click-result-hardware' veio de fonte legítima.
+   * Aceita se:
+   *   (a) event.source é o contentWindow de um <iframe> filho direto deste documento, OU
+   *   (b) event.origin termina em algum host da HARDWARE_CLICK_ORIGIN_ALLOWLIST.
+   * Também aplica dedup por (x,y) dentro de HARDWARE_CLICK_DEDUP_WINDOW_MS para mitigar replay.
+   * Retorna true se a mensagem é confiável; false caso contrário (com log de rejeição).
+   */
+  function isHardwareClickEventTrusted(event) {
+    const origin = event?.origin || '';
+    const source = event?.source || null;
+    let sourceIsChildIframe = false;
+    try {
+      const iframes = Array.from(document.querySelectorAll('iframe'));
+      sourceIsChildIframe = iframes.some((f) => f.contentWindow === source);
+    } catch (_) {
+      sourceIsChildIframe = false;
+    }
+
+    let originAllowed = false;
+    if (typeof origin === 'string' && origin) {
+      try {
+        const host = new URL(origin).hostname || '';
+        originAllowed = HARDWARE_CLICK_ORIGIN_ALLOWLIST.some(
+          (dom) => host === dom || host.endsWith('.' + dom)
+        );
+      } catch (_) {
+        originAllowed = false;
+      }
+    }
+
+    if (!sourceIsChildIframe && !originAllowed) {
+      const sourceLabel = source === window ? 'self' : (source ? 'foreign-window' : 'null');
+      console.warn(
+        `[BB-SECURITY] ❌ postMessage 'bb-click-result-hardware' rejeitado | origin=${origin || '<empty>'} source=${sourceLabel}`
+      );
+      return false;
+    }
+
+    // Dedup: ignora msgs idênticas (mesmo x,y) chegando em <HARDWARE_CLICK_DEDUP_WINDOW_MS.
+    const x = event?.data?.x;
+    const y = event?.data?.y;
+    if (typeof x === 'number' && typeof y === 'number') {
+      const now = Date.now();
+      if (
+        __bbHardwareClickDedup.x === x &&
+        __bbHardwareClickDedup.y === y &&
+        (now - __bbHardwareClickDedup.ts) < HARDWARE_CLICK_DEDUP_WINDOW_MS
+      ) {
+        console.warn(
+          `[BB-SECURITY] ❌ postMessage 'bb-click-result-hardware' rejeitado | origin=${origin || '<empty>'} source=dedup-replay`
+        );
+        return false;
+      }
+      __bbHardwareClickDedup.ts = now;
+      __bbHardwareClickDedup.x = x;
+      __bbHardwareClickDedup.y = y;
+    }
+
+    return true;
+  }
+
   async function tratarMensagemWindow(event) {
     // Comando de clique vindo do frame pai → executar no iframe
     if (!IS_TOP_FRAME && event.data?.source === 'bb-click-cmd') {
@@ -1422,6 +1499,12 @@
     // Cada frame na cadeia tem acesso ao DOM dos próprios filhos (mesmo cross-origin),
     // então essa acumulação consegue chegar até o top com coordenadas absolutas corretas.
     if (!IS_TOP_FRAME && event.data?.source === 'bb-click-result-hardware') {
+      // [R6-SECURITY] Mesmo no relay subframe→parent, só repassamos se o emissor for legítimo.
+      // Aqui o filtro é mais relaxado: como vamos repassar (não disparar CDP), basta que a
+      // mensagem venha de um iframe filho desta janela OU de origem da allowlist.
+      if (!isHardwareClickEventTrusted(event)) {
+        return;
+      }
       try {
         const iframes = Array.from(document.querySelectorAll('iframe'));
         const childFrame = iframes.find((f) => f.contentWindow === event.source);
@@ -1440,6 +1523,13 @@
 
     // Resultado de clique vindo do iframe → repassar para o overlay E disparar hardware click
     if (IS_TOP_FRAME && (event.data?.source === 'bb-click-result' || event.data?.source === 'bb-click-result-hardware')) {
+      // [R6-SECURITY] No top frame, antes de QUALQUER processamento de 'bb-click-result-hardware'
+      // (especialmente o disparo CDP em enviarCoordenadaSoberana), validar origem+source.
+      // 'bb-click-result' (sem hardware) não dispara CDP, mas o bloco abaixo trata ambos
+      // — aplicamos o guard somente quando a variante 'hardware' está presente.
+      if (event.data?.source === 'bb-click-result-hardware' && !isHardwareClickEventTrusted(event)) {
+        return;
+      }
       const r = event.data;
       
       // 1. Log no Overlay
