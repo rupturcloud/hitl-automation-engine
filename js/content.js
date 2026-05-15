@@ -954,6 +954,8 @@
   // data-role/data-element/data-bet-type, aria-label PT/EN, classes parciais.
   const CLICK_CANDIDATES = {
     player: [
+      // PRIMEIRO: seletor REAL da Evolution (descoberto em outra extensão que funciona)
+      '[data-bet="player"]',
       // Legacy (mantidos por compatibilidade)
       '[data-betia-id="bet-player"]',
       '[data-automation-id="betting-grid-item-player"]',
@@ -977,6 +979,8 @@
       '[role="button"][aria-label*="Player" i]'
     ],
     banker: [
+      // PRIMEIRO: seletor REAL da Evolution
+      '[data-bet="banker"]',
       '[data-betia-id="bet-banker"]',
       '[data-automation-id="betting-grid-item-banker"]',
       '[data-role="banker-bet-spot"]',
@@ -996,6 +1000,8 @@
       '[role="button"][aria-label*="Banker" i]'
     ],
     tie: [
+      // PRIMEIRO: seletor REAL da Evolution
+      '[data-bet="tie"]',
       '[data-betia-id="bet-tie"]',
       '[data-automation-id="betting-grid-item-tie"]',
       '[data-role="tie-bet-spot"]',
@@ -1079,14 +1085,27 @@
   }
 
   function encontrarElemento(lista) {
+    // Coleta docs: documento atual + todos os iframes filhos same-origin acessíveis.
+    // Igual ao approach da extensão Will Dados Pro que funciona — Evolution às vezes
+    // renderiza os spots de aposta em iframe interno que conseguimos atravessar.
+    const docs = [document];
+    try {
+      document.querySelectorAll('iframe').forEach((iframe) => {
+        try {
+          if (iframe.contentDocument) docs.push(iframe.contentDocument);
+        } catch (_) { /* cross-origin, ignora */ }
+      });
+    } catch (_) {}
+
     for (const sel of lista) {
-      try {
-        const nodes = document.querySelectorAll(sel);
-        if (!nodes.length) continue;
-        // Se for seletor amplo (>1 match), escolher o melhor candidato; senão usar o único.
-        const el = nodes.length === 1 ? nodes[0] : pickBestCandidate(nodes);
-        if (el && el.getBoundingClientRect().width > 0) return { el, sel };
-      } catch (_) { }
+      for (const doc of docs) {
+        try {
+          const nodes = doc.querySelectorAll(sel);
+          if (!nodes.length) continue;
+          const el = nodes.length === 1 ? nodes[0] : pickBestCandidate(nodes);
+          if (el && el.getBoundingClientRect().width > 0) return { el, sel };
+        } catch (_) { }
+      }
     }
     return null;
   }
