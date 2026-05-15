@@ -2129,6 +2129,40 @@ const Overlay = (() => {
       }
     } catch (_) {}
 
+    // INDICADOR DE STOP WIN / STOP LOSS / TRAILING — quando DecisionEngine para
+    // por motivo de bankroll, mostra na tela o motivo claro pro operador.
+    try {
+      const dStatus = (typeof DecisionEngine !== 'undefined' && DecisionEngine.getStatus)
+        ? DecisionEngine.getStatus()
+        : null;
+      const motivo = dStatus?.motivoParada;
+      const isStop = motivo && /Stop Win|Stop Loss|Trailing/i.test(motivo);
+      if (isStop && !dStatus.isAtivo) {
+        let cor = '#fbbf24'; // amarelo padrão
+        let icone = '🛑';
+        if (/Stop Win/i.test(motivo)) { cor = '#16a34a'; icone = '🎯'; }
+        else if (/Stop Loss/i.test(motivo)) { cor = '#dc2626'; icone = '⛔'; }
+        else if (/Trailing/i.test(motivo)) { cor = '#f59e0b'; icone = '📉'; }
+        const banner = document.getElementById('bb-stop-banner') || (() => {
+          const el = document.createElement('div');
+          el.id = 'bb-stop-banner';
+          // Posiciona ABAIXO do banner degraded (offset 40px) caso ambos estejam visíveis
+          el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483644;padding:10px 16px;color:#fff;font:700 14px -apple-system,sans-serif;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.5);';
+          document.body.appendChild(el);
+          return el;
+        })();
+        banner.style.background = cor;
+        banner.textContent = `${icone} ROBÔ PARADO — ${motivo}`;
+        banner.style.display = 'block';
+        // Se degraded banner está visível, empurra stop banner pra baixo
+        const degBanner = document.getElementById('bb-degraded-banner');
+        banner.style.top = (degBanner && degBanner.style.display !== 'none') ? '40px' : '0';
+      } else {
+        const banner = document.getElementById('bb-stop-banner');
+        if (banner) banner.style.display = 'none';
+      }
+    } catch (_) {}
+
     // Ultimo Resultado com Transaction ID
     const txnEl = document.getElementById('bb-last-result');
     if (txnEl) {
