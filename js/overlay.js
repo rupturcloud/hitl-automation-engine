@@ -2104,6 +2104,31 @@ const Overlay = (() => {
       }
     }
 
+    // INDICADOR DE DEGRADAÇÃO — quando Collector road e HistoryStore divergem
+    // Sintoma: log mostra "road total=126" mas "historicoCompleto.length=131"
+    // Significa que o Collector pulou rodadas que o HistoryStore tem (ou vice-versa).
+    try {
+      const collectorTotal = (typeof Collector !== 'undefined' && Collector.getHistorico)
+        ? (Collector.getHistorico() || []).length
+        : null;
+      const hsTotal = historicoCompleto.length;
+      if (collectorTotal !== null && Math.abs(collectorTotal - hsTotal) >= 2) {
+        const banner = document.getElementById('bb-degraded-banner') || (() => {
+          const el = document.createElement('div');
+          el.id = 'bb-degraded-banner';
+          el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483645;padding:8px 14px;background:#dc2626;color:#fff;font:600 13px -apple-system,sans-serif;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);';
+          document.body.appendChild(el);
+          return el;
+        })();
+        const diff = hsTotal - collectorTotal;
+        banner.textContent = `⚠️ HISTÓRICO DEGRADADO — HistoryStore=${hsTotal} vs Collector=${collectorTotal} (diff ${diff > 0 ? '+' : ''}${diff}). Decisões podem usar dados defasados.`;
+        banner.style.display = 'block';
+      } else {
+        const banner = document.getElementById('bb-degraded-banner');
+        if (banner) banner.style.display = 'none';
+      }
+    } catch (_) {}
+
     // Ultimo Resultado com Transaction ID
     const txnEl = document.getElementById('bb-last-result');
     if (txnEl) {

@@ -1833,8 +1833,74 @@
       console.error('[BetBoom Auto] Erro na inicialização do top frame:', error);
     });
 
+    // ============================================================
+    // CDP DIRETO NO TOP FRAME — sem precisar do relay subframe
+    // ============================================================
+    // Top frame tem acesso ao iframe.getBoundingClientRect() do iframe Evolution
+    // (mesmo cross-origin). Isso dá o tamanho VISUAL REAL no viewport top, em
+    // vez do innerWidth interno reportado pelo subframe (que pode estar scaled).
+    // Conclusão: clica no PIXEL CERTO da tela, não em coords distorcidas.
+    function calcularCoordsTopFrame(alvo, chipValue) {
+      const iframes = Array.from(document.querySelectorAll('iframe'));
+      const evoFrame = iframes.find((f) =>
+        f.src && (f.src.includes('evo-games.com') || f.src.includes('billing-boom.com'))
+      );
+      if (!evoFrame) return null;
+      const rect = evoFrame.getBoundingClientRect();
+      if (rect.width < 100 || rect.height < 100) return null;
+
+      // Layout Bac Bo Evolution Mini (sobre o iframe REAL VISUAL):
+      // - PLAYER spot azul: ~28% horizontal, ~76% vertical
+      // - TIE spot verde: ~50%, ~64% (acima de player/banker)
+      // - BANKER spot vermelho: ~72%, ~76%
+      // - Fichas barra inferior: y=92%, x distribuído 0.18 a 0.78
+      const SPOT_FRAC = {
+        player: { x: 0.28, y: 0.76 },
+        tie:    { x: 0.50, y: 0.64 },
+        banker: { x: 0.72, y: 0.76 }
+      };
+      const CHIP_INDEX = { 5: 0, 10: 1, 25: 2, 125: 3, 500: 4, 2500: 5, 6000: 6, 10000: 7, 12000: 8 };
+      const sf = SPOT_FRAC[alvo];
+      if (!sf) return null;
+      const stake = Number(chipValue);
+      const idx = Number.isFinite(stake) && CHIP_INDEX[stake] != null ? CHIP_INDEX[stake] : 0;
+      const chipX = 0.18 + (idx * (0.60 / 8));
+      return {
+        chip: { x: rect.left + chipX * rect.width, y: rect.top + 0.92 * rect.height },
+        spot: { x: rect.left + sf.x * rect.width, y: rect.top + sf.y * rect.height },
+        rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+      };
+    }
+
+    function dispararCDPDireto(x, y, label) {
+      try {
+        chrome.runtime.sendMessage(
+          { type: 'BB_EXECUTE_HARDWARE_CLICK', x: Math.round(x), y: Math.round(y) },
+          (resp) => {
+            const ok = !!(resp && resp.ok);
+            console.log(`[BB-TOP-DIRECT] ${ok ? '✅' : '❌'} ${label} @ (${Math.round(x)}, ${Math.round(y)})`);
+          }
+        );
+      } catch (e) {
+        console.warn('[BB-TOP-DIRECT] falha:', e?.message);
+      }
+    }
+
     // Expor função global para disparar clique no iframe da Evolution
     window.BB_CLICK = function (alvo = 'player', valor = null) {
+      const PT_TO_EN = { 'azul': 'player', 'vermelho': 'banker', 'empate': 'tie' };
+      const alvoEN = PT_TO_EN[String(alvo).toLowerCase()] || String(alvo).toLowerCase();
+
+      // 1) Top-direct: calcula coords no iframe visual real e dispara CDP
+      const coords = calcularCoordsTopFrame(alvoEN, valor);
+      if (coords) {
+        console.log(`[BB_CLICK] 🎯 TOP-DIRECT mode | iframe rect: ${Math.round(coords.rect.left)},${Math.round(coords.rect.top)} ${Math.round(coords.rect.width)}x${Math.round(coords.rect.height)}`);
+        dispararCDPDireto(coords.chip.x, coords.chip.y, `chip-${valor || '5'}`);
+        setTimeout(() => dispararCDPDireto(coords.spot.x, coords.spot.y, alvoEN), 400);
+        return;
+      }
+
+      // 2) Fallback legado: postMessage pro subframe (relay com offsets)
       const iframes = Array.from(document.querySelectorAll('iframe'));
       const evoFrame = iframes.find(f =>
         f.src && (f.src.includes('evo-games.com') || f.src.includes('billing-boom.com'))
@@ -1846,7 +1912,7 @@
         }
         return;
       }
-      console.log(`[BB_CLICK] Enviando comando para iframe: ${alvo} | valor: ${valor}`);
+      console.log(`[BB_CLICK] (fallback) Enviando comando para iframe: ${alvo} | valor: ${valor}`);
       evoFrame.contentWindow.postMessage({ source: 'bb-click-cmd', alvo, valor }, '*');
     };
     console.log('[BetBoom Auto] BB_CLICK("player"/"banker"/"tie") disponível no console');
