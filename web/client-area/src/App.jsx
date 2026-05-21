@@ -44,13 +44,20 @@ import AppShellV2 from './v2/layout/AppShell.jsx';
 import LandingV2 from './v2/pages/Landing.jsx';
 import DashboardV2 from './v2/pages/Dashboard.jsx';
 import NumbersV2 from './v2/pages/Numbers.jsx';
+import AdminV2 from './v2/pages/Admin.jsx';
 import PlaceholderV2 from './v2/pages/Placeholder.jsx';
 
 const V2_PENDING = [
-  'personas', 'onboarding', 'pricing', 'leads', 'pipeline',
-  'accounts', 'inbox', 'campaigns', 'flows',
-  'playbooks', 'billing', 'insights', 'indicacoes', 'admin',
-  'sprints', 'founder',
+  // Operação
+  'pipeline', 'inbox', 'campaigns', 'grupos', 'outreach',
+  'remarketing', 'canais', 'aquecimento', 'rede-coletiva',
+  // Receita
+  'business', 'billing', 'growth', 'indicacoes', 'insights',
+  // Sistema
+  'webhooks',
+  // Misc
+  'personas', 'onboarding', 'pricing', 'leads',
+  'accounts', 'flows', 'playbooks', 'sprints', 'founder',
 ];
 
 // /demo -> Standalone Ruptur OS v3.9.1 (full mock do handoff, ex-/v0)
@@ -167,6 +174,7 @@ function App() {
                 <Route element={<AppShellV2 />}>
                   <Route path="dashboard" element={<DashboardV2 />} />
                   <Route path="numbers" element={<NumbersV2 />} />
+                  <Route path="admin" element={<AdminV2 />} />
                   {V2_PENDING.map(id => (
                     <Route key={id} path={id} element={<PlaceholderV2 name={id} />} />
                   ))}

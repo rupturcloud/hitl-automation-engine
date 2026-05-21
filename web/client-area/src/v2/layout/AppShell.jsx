@@ -3,23 +3,28 @@ import { Icon, Button, Avatar } from '../../ds/index.js';
 
 const NAV = [
   { section: 'Operação', items: [
-    { id: 'dashboard', label: 'Cockpit',    icon: 'dashboard' },
-    { id: 'inbox',     label: 'Inbox',      icon: 'wa', badge: 7, badgeTone: 'wa' },
-    { id: 'pipeline',  label: 'CRM',        icon: 'pipeline' },
-    { id: 'leads',     label: 'Leads',      icon: 'leads' },
-    { id: 'campaigns', label: 'Campanhas',  icon: 'broadcast' },
-    { id: 'flows',     label: 'Fluxos',     icon: 'flow' },
-    { id: 'numbers',   label: 'Números',    icon: 'fire' },
-    { id: 'playbooks', label: 'Playbooks',  icon: 'playbook' },
+    { id: 'dashboard',   label: 'Cockpit',       icon: 'dashboard' },
+    { id: 'inbox',       label: 'Inbox',         icon: 'wa', badge: 7, badgeTone: 'wa' },
+    { id: 'pipeline',    label: 'CRM',           icon: 'pipeline' },
+    { id: 'grupos',      label: 'Grupos',        icon: 'leads' },
+    { id: 'outreach',    label: 'Outreach X1',   icon: 'broadcast' },
+    { id: 'campaigns',   label: 'Campanhas',     icon: 'flag' },
+    { id: 'remarketing', label: 'Remarketing',   icon: 'sparkles' },
+    { id: 'canais',      label: 'Canais',        icon: 'wa' },
+    { id: 'numbers',     label: 'Números',       icon: 'fire' },
+    { id: 'aquecimento', label: 'Aquecimento',   icon: 'fire' },
+    { id: 'rede-coletiva', label: 'Rede Coletiva', icon: 'grid', badge: 'NOVO', badgeTone: 'brand' },
   ]},
   { section: 'Receita', items: [
+    { id: 'business',   label: 'Business',   icon: 'note' },
     { id: 'billing',    label: 'Receita',    icon: 'billing' },
+    { id: 'growth',     label: 'Growth OS',  icon: 'trendUp' },
     { id: 'indicacoes', label: 'Indicações', icon: 'star' },
     { id: 'insights',   label: 'Insights',   icon: 'sparkles' },
   ]},
-  { section: 'Admin', items: [
-    { id: 'sprints', label: 'Sprints',       icon: 'target' },
-    { id: 'admin',   label: 'Configurações', icon: 'settings' },
+  { section: 'Sistema', items: [
+    { id: 'webhooks', label: 'Webhooks',      icon: 'zap' },
+    { id: 'admin',    label: 'Configurações', icon: 'settings' },
   ]},
 ];
 
