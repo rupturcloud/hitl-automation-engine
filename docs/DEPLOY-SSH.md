@@ -1,108 +1,176 @@
-# Deploy SSH — Chave dedicada Ruptur Cloud (CI + local)
+# Deploy SSH — Ruptur Cloud
 
-Documento de **operação** sobre a chave SSH dedicada usada pelo `deploy-rsync.yml`
-do GitHub Actions e por deploys manuais via `infra/scripts/deploy-rsync.sh`.
+> ⚠️ **DOC ATUALIZADO 2026-05-21.** Versão anterior estava desatualizada — `deploy@ruptur.cloud:/app/ruptur-saas` NÃO funciona. Realidade está descrita abaixo.
 
-## Identificação
+## TL;DR — caminhos que funcionam HOJE
 
-- **Algoritmo:** ed25519 (sem passphrase, requerido pra automação CI)
-- **Comentário:** `ruptur-deploy-ci@github-actions`
-- **Fingerprint:** `SHA256:xAbRt27jfWqhh2+jQ1W4eLLft82HjLaQ4cLdMWrtBK8`
-- **Criada em:** 2026-05-21
-- **Uso exclusivo:** deploy rsync para `deploy@ruptur.cloud:/app/ruptur-saas`
+| Cenário | Comando |
+|---|---|
+| SSH na VM de prod (interativo) | `gcloud compute ssh ruptur-shipyard-01 --zone=southamerica-east1-b --tunnel-through-iap` |
+| Rodar comando único na VM | `gcloud compute ssh ruptur-shipyard-01 --zone=southamerica-east1-b --tunnel-through-iap --command="<cmd>"` |
+| Copiar arquivos pra VM | `gcloud compute scp --tunnel-through-iap --zone=southamerica-east1-b <local> ruptur-shipyard-01:<remote>` |
+| Onde o SaaS roda | `/opt/ruptur/saas` na VM |
 
-## Chave pública
+## Infraestrutura real (2026-05-21)
 
-```
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEbkvIuXzhMlyQ35VEOKzEneXq2rgjN8TSar3ZAkkDU8 ruptur-deploy-ci@github-actions
-```
-
-Plantada em `~/.ssh/authorized_keys` do usuário `deploy@ruptur.cloud`.
-
-## Chave privada — onde mora
-
-| Local | Caminho | Acesso |
+| Item | Valor real | O que o doc antigo dizia (errado) |
 |---|---|---|
-| Mac do Diego | `~/.ssh/ruptur_deploy_ci` | só dono (chmod 600) |
-| GitHub Actions | secret `DEPLOY_SSH_KEY` no repo `rupturcloud/hitl-automation-engine` | masked nos logs |
+| Hostname VM | `ruptur-shipyard-01` | (não citado) |
+| Projeto GCP | (descobrir com `gcloud config get project`) | — |
+| Zona | `southamerica-east1-b` | — |
+| Machine type | `e2-standard-4` | — |
+| IP externo | `34.39.196.137` | — |
+| IP interno | `10.42.0.2` | — |
+| SSH :22 do IP externo | ❌ **firewall bloqueia** | "funciona via ssh -i ..." (errado) |
+| DNS `ruptur.cloud` | resolve pro Cloudflare (`104.21.5.82`, `172.67.133.51`) | "aponta pro VPS" (errado — CF proxy) |
+| Path do SaaS na VM | `/opt/ruptur/saas` | `/app/ruptur-saas` (errado) |
+| User SSH (via IAP) | `diego` | `deploy` (não existe nesta VM) |
 
-**Nunca commitar** a chave privada. Nunca exportar. Se vazar, revogar imediatamente
-removendo a linha correspondente do `authorized_keys` no VPS e regerar nova chave.
+## Por que SSH direto :22 falha
 
-## Como usar
+`ruptur.cloud` está com **Cloudflare em modo proxy** (orange cloud) — todas as requests passam pelo CF, que não suporta SSH (porta 22). Conexão para o IP externo `34.39.196.137:22` também dá timeout porque o firewall da VM (Identity-Aware Proxy) só aceita conexões via Google IAP.
 
-### Local (deploy manual do Mac)
+A única forma de SSH é via `gcloud compute ssh --tunnel-through-iap`, que abre um tunnel TCP através do IAP do Google.
+
+## Pré-requisitos no Mac do Diego
 
 ```bash
-# Adicionar a chave ao agente SSH (opcional, simplifica)
-ssh-add ~/.ssh/ruptur_deploy_ci
+# Validar gcloud instalado e autenticado
+gcloud --version              # ≥ 565.0.0
+gcloud auth list              # ruptur.cloud@gmail.com ativo
+gcloud config get project     # confirmar projeto correto
 
-# Testar conexão
-ssh -i ~/.ssh/ruptur_deploy_ci -o ConnectTimeout=5 deploy@ruptur.cloud "echo OK"
+# Listar VMs ativas
+gcloud compute instances list
+# Deve mostrar:
+# ruptur-shipyard-01  southamerica-east1-b  RUNNING  34.39.196.137
+```
 
-# Deploy completo (do repo principal, com master atualizado)
+## SSH interativo na VM
+
+```bash
+gcloud compute ssh ruptur-shipyard-01 \
+  --zone=southamerica-east1-b \
+  --tunnel-through-iap
+```
+
+## Comando único
+
+```bash
+gcloud compute ssh ruptur-shipyard-01 \
+  --zone=southamerica-east1-b \
+  --tunnel-through-iap \
+  --command="cd /opt/ruptur/saas && git log -1 --oneline"
+```
+
+## Deploy manual (paliativo enquanto CI não é corrigido)
+
+```bash
+# 1) Build local
 cd /Users/diego/hitl/projects/tiatendeai/dev/x1-mercado-contingencia/saas
-git pull origin master
-ENVIRONMENT=production ./infra/scripts/deploy-rsync.sh
+npm --prefix web/client-area run build
+
+# 2) Empacotar
+tar czf /tmp/ruptur-saas-deploy.tar.gz \
+  --exclude=node_modules \
+  --exclude=.git \
+  --exclude=.env \
+  --exclude=dist \
+  --exclude=tmp \
+  --exclude=backups \
+  .
+
+# 3) Copiar via IAP tunnel
+gcloud compute scp \
+  --tunnel-through-iap \
+  --zone=southamerica-east1-b \
+  /tmp/ruptur-saas-deploy.tar.gz \
+  ruptur-shipyard-01:/tmp/
+
+# 4) Extrair e reiniciar na VM
+gcloud compute ssh ruptur-shipyard-01 \
+  --zone=southamerica-east1-b \
+  --tunnel-through-iap \
+  --command="
+    set -e
+    cd /opt/ruptur/saas
+    BACKUP=backups/backup-\$(date +%Y%m%d-%H%M%S)
+    mkdir -p backups && cp -r . \"\$BACKUP\" 2>/dev/null || true
+    tar xzf /tmp/ruptur-saas-deploy.tar.gz
+    npm ci --omit=dev
+    # restart conforme o método de execução em prod (pm2 / systemd / docker compose)
+  "
 ```
 
-### CI (GitHub Actions — automático no merge para master)
+> ⚠️ Antes de rodar o deploy manual em produção, confirme COMO o gateway está rodando em prod (pm2? systemd? docker compose? supervisord?). Sem isso, o restart do passo final é chute.
 
-O workflow `.github/workflows/deploy-rsync.yml` consome `secrets.DEPLOY_SSH_KEY`
-via `webfactory/ssh-agent@v0.8.0` no step "Setup SSH for deployment". Nada precisa
-ser feito além de manter o secret atualizado.
+## CI / GitHub Actions — status: **QUEBRADO**
 
-Pra re-disparar manualmente após config:
+O workflow `.github/workflows/deploy-rsync.yml` dispara em `push` para branch `main` e tenta:
 
 ```bash
-gh workflow run deploy-rsync.yml --ref master
-gh run watch  # acompanhar
+ssh deploy@ruptur.cloud "echo OK"   # ← timeout: CF bloqueia
+rsync ... deploy@ruptur.cloud:/app/ruptur-saas/   # ← mesmo problema
 ```
 
-## Como (re)configurar o secret no GitHub
+**Provavelmente está falhando há tempos.** Para corrigir:
+
+| Opção | Como | Esforço |
+|---|---|---|
+| A. Adaptar workflow pra IAP | Usar `google-github-actions/auth` + `gcloud compute scp --tunnel-through-iap` em vez de rsync direto | médio (~2h) |
+| B. Abrir firewall pra IPs do GitHub Actions | Whitelist em GCP firewall (mas IPs do GH mudam, manutenção alta) | baixo mas frágil |
+| C. Cloud Build trigger | Substituir workflow por Cloud Build (roda dentro do GCP, já tem permissão) | alto (~4h) |
+| D. Self-hosted runner na VM | Runner do GH dentro da VM, sem precisar SSH externo | médio (~3h), risco de segurança |
+
+Recomendação: **A** (adaptar workflow pra IAP).
+
+## Chave SSH `ruptur_deploy_ci`
+
+Mantida pra uso futuro quando o deploy CI for corrigido, OU pra eventual VM sem IAP. **Hoje não tem efeito prático.**
+
+- **Algoritmo:** ed25519 (sem passphrase)
+- **Fingerprint:** `SHA256:xAbRt27jfWqhh2+jQ1W4eLLft82HjLaQ4cLdMWrtBK8`
+- **Local:** `~/.ssh/ruptur_deploy_ci` (Mac do Diego) + secret `DEPLOY_SSH_KEY` no repo `rupturcloud/hitl-automation-engine`
+
+### Re-plantar chave pública num user `deploy` (quando criar)
 
 ```bash
-# A partir da chave privada local
-gh secret set DEPLOY_SSH_KEY \
-  --repo rupturcloud/hitl-automation-engine \
-  < ~/.ssh/ruptur_deploy_ci
+PUBKEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEbkvIuXzhMlyQ35VEOKzEneXq2rgjN8TSar3ZAkkDU8 ruptur-deploy-ci@github-actions"
 
-# Verificar que foi configurado (mostra só metadata, nunca o valor)
-gh secret list --repo rupturcloud/hitl-automation-engine
+gcloud compute ssh ruptur-shipyard-01 \
+  --zone=southamerica-east1-b \
+  --tunnel-through-iap \
+  --command="
+    sudo useradd -m -s /bin/bash deploy 2>/dev/null || true
+    sudo mkdir -p /home/deploy/.ssh
+    echo '$PUBKEY' | sudo tee -a /home/deploy/.ssh/authorized_keys
+    sudo chown -R deploy:deploy /home/deploy/.ssh
+    sudo chmod 700 /home/deploy/.ssh
+    sudo chmod 600 /home/deploy/.ssh/authorized_keys
+  "
 ```
 
-## Como (re)plantar a chave pública no VPS
+### Revogar (se vazar)
 
 ```bash
-cat <<'EOF' | ssh deploy@ruptur.cloud 'mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys'
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEbkvIuXzhMlyQ35VEOKzEneXq2rgjN8TSar3ZAkkDU8 ruptur-deploy-ci@github-actions
-EOF
-```
+# 1) Apagar a linha do authorized_keys
+gcloud compute ssh ruptur-shipyard-01 \
+  --zone=southamerica-east1-b --tunnel-through-iap \
+  --command="sudo sed -i.bak '/ruptur-deploy-ci@github-actions/d' /home/deploy/.ssh/authorized_keys"
 
-Se o usuário `deploy@` ainda não existe ou não permite login direto, acessar via
-sudo/root e adicionar manualmente em `/home/deploy/.ssh/authorized_keys`.
-
-## Como revogar (se chave vazar)
-
-```bash
-# 1) No VPS — remover a linha do authorized_keys
-ssh deploy@ruptur.cloud "sed -i.bak '/ruptur-deploy-ci@github-actions/d' ~/.ssh/authorized_keys"
-
-# 2) No GitHub — apagar o secret
+# 2) Apagar secret no GitHub
 gh secret delete DEPLOY_SSH_KEY --repo rupturcloud/hitl-automation-engine
 
-# 3) Local — apagar o par antigo
+# 3) Apagar local
 rm ~/.ssh/ruptur_deploy_ci ~/.ssh/ruptur_deploy_ci.pub
 
-# 4) Gerar nova chave e refazer todo o setup deste documento
+# 4) Gerar novo par
 ssh-keygen -t ed25519 -f ~/.ssh/ruptur_deploy_ci -N "" -C "ruptur-deploy-ci@github-actions"
 ```
 
-## Por que chave dedicada (não a pessoal)
+## Próximos passos recomendados
 
-- **Blast radius mínimo:** se a chave do CI vazar, revogamos só ela — chave
-  pessoal do Diego continua intacta pra acesso administrativo.
-- **Auditoria:** logs do `sshd` no VPS mostram qual chave abriu cada sessão.
-- **Sem passphrase é seguro nesse contexto:** a privada nunca sai do Mac
-  (autorizada pelo dono) nem do GitHub (secret encriptado). Tentativa de
-  passphrase quebraria a automação do CI sem ganho real de segurança.
+1. Confirmar como o gateway roda em prod (pm2/systemd/docker) — ler `/opt/ruptur/saas` na VM
+2. Decidir estratégia de deploy CI (recomendado: A — adaptar workflow pra IAP)
+3. Atualizar `infra/scripts/deploy-rsync.sh` pra usar `gcloud compute scp --tunnel-through-iap`
+4. Validar fluxo completo: build local → deploy → smoke test em `https://app.ruptur.cloud/api/local/health`
