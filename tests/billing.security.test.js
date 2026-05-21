@@ -1,310 +1,535 @@
 /**
- * Testes de Segurança: Billing Multi-Tenant — Semana 1
+ * Testes de Segurança: Billing Multi-Tenant — Unitários com Mocks
  *
- * Valida:
- * - RBAC: Membro não consegue comprar
- * - Auditoria: Cada operação é registrada
- * - Isolamento: Tenant A não vê dados de Tenant B
- * - Rate Limiting: Muitas requisições são bloqueadas
+ * Valida as regras de negócio de:
+ * - RBAC: Permissões por role (member/admin/owner)
+ * - Auditoria: Logging de operações
+ * - Isolamento: Validação de tenant_id
+ * - Limites de Compra: max_purchase_amount / require_approval_above
+ *
+ * Todos os testes são unitários (sem dependência de Supabase real).
  *
  * Uso: npm test -- tests/billing.security.test.js
  */
 
-import { describe, test, expect, beforeAll, afterAll } from '@jest/globals';
-import { createClient } from '@supabase/supabase-js';
+import { describe, test, expect, beforeEach, jest } from '@jest/globals';
+import { PermissionsService } from '../modules/billing/permissions.service.js';
+import { AuditService } from '../modules/billing/audit.service.js';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'http://localhost:54321';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+// ============================================================
+// Helpers de mock para o Supabase client
+// ============================================================
 
-describe('Segurança de Billing Multi-Tenant — Semana 1', () => {
-  let supabase;
-  let testTenantId;
-  let ownerUserId;
-  let memberUserId;
-  let adminUserId;
+/**
+ * Cria um mock de query chainável que resolve com `response` ao final.
+ */
+function buildQuery(response = { data: null, error: null }) {
+  const chain = {
+    select: jest.fn().mockReturnThis(),
+    insert: jest.fn().mockReturnThis(),
+    update: jest.fn().mockReturnThis(),
+    delete: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    in: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    gte: jest.fn().mockReturnThis(),
+    lte: jest.fn().mockReturnThis(),
+    maybeSingle: jest.fn().mockResolvedValue(response),
+    single: jest.fn().mockResolvedValue(response),
+    then: jest.fn((cb) => Promise.resolve(response).then(cb)),
+  };
+  return chain;
+}
 
-  beforeAll(async () => {
-    // Setup Supabase client
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    });
+/**
+ * Cria um Supabase client mock onde `from()` retorna o builder com a resposta desejada.
+ */
+function createMockSupabase(response = { data: null, error: null }) {
+  return {
+    from: jest.fn(() => buildQuery(response)),
+  };
+}
 
-    // TODO: Criar usuários de teste
-    // ownerUserId = ...
-    // memberUserId = ...
-    // testTenantId = ...
+// ============================================================
+// RBAC: Permissões de Billing
+// ============================================================
+
+describe('RBAC: Permissões de Billing', () => {
+  let permService;
+
+  beforeEach(() => {
+    permService = new PermissionsService(createMockSupabase());
   });
 
-  afterAll(async () => {
-    // Cleanup
+  test('member não tem permissão de purchase (retorna false)', async () => {
+    // Supabase retorna role=member e allowed_roles=['owner','admin']
+    const mockSupabase = {
+      from: jest.fn()
+        .mockReturnValueOnce(buildQuery({ data: { role: 'member' }, error: null }))
+        .mockReturnValueOnce(buildQuery({ data: { purchase_allowed_roles: ['owner', 'admin'] }, error: null })),
+    };
+
+    permService = new PermissionsService(mockSupabase);
+
+    const hasPermission = await permService.checkBillingPermission(
+      'user-member',
+      'tenant-123',
+      'purchase'
+    );
+
+    expect(hasPermission).toBe(false);
   });
 
-  // =========================================================================
-  // Testes de RBAC (Role-Based Access Control)
-  // =========================================================================
+  test('admin tem permissão de purchase (retorna true)', async () => {
+    const mockSupabase = {
+      from: jest.fn()
+        .mockReturnValueOnce(buildQuery({ data: { role: 'admin' }, error: null }))
+        .mockReturnValueOnce(buildQuery({ data: { purchase_allowed_roles: ['owner', 'admin'] }, error: null })),
+    };
 
-  describe('RBAC: Permissões de Billing', () => {
-    test('Member user não consegue comprar créditos (403)', async () => {
-      // Arrange: User com role 'member' tenta comprar
-      // Act: POST /api/billing/checkout como member
-      // Assert: Retorna 403 + audit_log com action='checkout_permission_denied'
+    permService = new PermissionsService(mockSupabase);
 
-      // expect(response.status).toBe(403);
-      // expect(response.body.error).toContain('não tem permissão');
-    });
+    const hasPermission = await permService.checkBillingPermission(
+      'user-admin',
+      'tenant-123',
+      'purchase'
+    );
 
-    test('Admin user consegue comprar créditos (200)', async () => {
-      // Arrange: User com role 'admin'
-      // Act: POST /api/billing/checkout como admin
-      // Assert: Retorna 200 + payment criado + audit_log com action='checkout_created'
-
-      // expect(response.status).toBe(200);
-      // expect(response.body.id).toBeDefined();
-    });
-
-    test('Owner consegue gerenciar assinatura', async () => {
-      // Arrange: User com role 'owner'
-      // Act: POST /api/billing/subscribe como owner
-      // Assert: Retorna 200 + subscription criado
-
-      // expect(response.status).toBe(200);
-    });
-
-    test('Member não consegue gerenciar assinatura (403)', async () => {
-      // Arrange: User com role 'member'
-      // Act: POST /api/billing/subscribe como member
-      // Assert: Retorna 403
-
-      // expect(response.status).toBe(403);
-    });
+    expect(hasPermission).toBe(true);
   });
 
-  // =========================================================================
-  // Testes de Auditoria
-  // =========================================================================
+  test('owner tem permissão de manage_subscription (retorna true)', async () => {
+    const mockSupabase = {
+      from: jest.fn()
+        .mockReturnValueOnce(buildQuery({ data: { role: 'owner' }, error: null }))
+        .mockReturnValueOnce(buildQuery({ data: { manage_subscription_allowed_roles: ['owner', 'admin'] }, error: null })),
+    };
 
-  describe('Auditoria: Logging de Operações', () => {
-    test('Compra de créditos cria audit_log', async () => {
-      // Arrange: Admin compra créditos
-      // Act: POST /api/billing/checkout
-      // Assert: audit_logs contém registro com:
-      //   - action: 'checkout_created'
-      //   - userId: usuario que fez a compra
-      //   - tenantId: tenant correto
-      //   - resourceType: 'payment'
-      //   - ipAddress: preenchido
-      //   - actingAsRole: 'admin'
+    permService = new PermissionsService(mockSupabase);
 
-      // const audit = await supabase
-      //   .from('audit_logs')
-      //   .select('*')
-      //   .eq('action', 'checkout_created')
-      //   .order('created_at', { ascending: false })
-      //   .limit(1)
-      //   .single();
+    const hasPermission = await permService.checkBillingPermission(
+      'user-owner',
+      'tenant-123',
+      'manage_subscription'
+    );
 
-      // expect(audit.data).toBeDefined();
-      // expect(audit.data.action).toBe('checkout_created');
-      // expect(audit.data.ip_address).toBeDefined();
-    });
-
-    test('Permissão negada cria audit_log', async () => {
-      // Arrange: Member tenta comprar
-      // Act: POST /api/billing/checkout como member
-      // Assert: audit_logs contém:
-      //   - action: 'checkout_permission_denied'
-      //   - userId: member
-      //   - metadata: { reason: ... }
-
-      // const audit = await supabase
-      //   .from('audit_logs')
-      //   .select('*')
-      //   .eq('action', 'checkout_permission_denied')
-      //   .order('created_at', { ascending: false })
-      //   .limit(1)
-      //   .single();
-
-      // expect(audit.data).toBeDefined();
-    });
-
-    test('Audit logs são imutáveis (append-only)', async () => {
-      // Arrange: Pega um audit_log
-      // Act: Tenta UPDATE/DELETE
-      // Assert: Retorna erro (RLS bloqueia)
-
-      // Não deveria ser possível deletar ou atualizar audit_logs
-      // const { error } = await supabase
-      //   .from('audit_logs')
-      //   .update({ action: 'MODIFIED' })
-      //   .eq('id', auditLogId);
-
-      // expect(error).toBeDefined();
-    });
+    expect(hasPermission).toBe(true);
   });
 
-  // =========================================================================
-  // Testes de Isolamento Multi-Tenant
-  // =========================================================================
+  test('member não tem permissão de manage_subscription (retorna false)', async () => {
+    const mockSupabase = {
+      from: jest.fn()
+        .mockReturnValueOnce(buildQuery({ data: { role: 'member' }, error: null }))
+        .mockReturnValueOnce(buildQuery({ data: { manage_subscription_allowed_roles: ['owner', 'admin'] }, error: null })),
+    };
 
-  describe('Isolamento: Tenant A não vê dados de Tenant B', () => {
-    test('User de Tenant A não consegue ver audit_logs de Tenant B', async () => {
-      // Arrange: User A do Tenant A
-      // Act: SELECT audit_logs WHERE tenant_id = TenantB
-      // Assert: Retorna vazio (RLS bloqueia)
+    permService = new PermissionsService(mockSupabase);
 
-      // expect(auditLogsOfTenantB.length).toBe(0);
-    });
+    const hasPermission = await permService.checkBillingPermission(
+      'user-member',
+      'tenant-123',
+      'manage_subscription'
+    );
 
-    test('User de Tenant A não consegue atualizar payment de Tenant B', async () => {
-      // Arrange: Payment de Tenant B
-      // Act: UPDATE payments SET status='...' WHERE id=PaymentB (como User de Tenant A)
-      // Assert: Retorna erro ou 0 rows updated
-
-      // expect(updateResult.rowCount).toBe(0);
-    });
-
-    test('Webhook de Tenant A não afeta dados de Tenant B', async () => {
-      // Arrange: 2 tenants com payments
-      // Act: Webhook para Tenant A
-      // Assert: Apenas payment de Tenant A é atualizado
-
-      // Validar que webhook só atualiza o payment do tenant certo
-      // (função handleGetnetWebhookWithAudit valida tenant_id)
-    });
+    expect(hasPermission).toBe(false);
   });
 
-  // =========================================================================
-  // Testes de Rate Limiting
-  // =========================================================================
+  test('requireBillingPermission lança ForbiddenError para member', async () => {
+    const mockSupabase = {
+      from: jest.fn()
+        .mockReturnValueOnce(buildQuery({ data: { role: 'member' }, error: null }))
+        .mockReturnValueOnce(buildQuery({ data: { purchase_allowed_roles: ['owner', 'admin'] }, error: null })),
+    };
 
-  describe('Rate Limiting por Tenant', () => {
-    test('Muitas requisições de compra são bloqueadas', async () => {
-      // Arrange: Tenant com max 10 requisições por minuto
-      // Act: Enviar 11 requisições de POST /api/billing/checkout
-      // Assert: 11ª requisição retorna 429
+    permService = new PermissionsService(mockSupabase);
 
-      // for (let i = 0; i < 11; i++) {
-      //   const response = await fetch('/api/billing/checkout', { ... });
-      //   if (i < 10) {
-      //     expect(response.status).toBe(200 ou 403 dependendo de permissão);
-      //   } else {
-      //     expect(response.status).toBe(429);
-      //   }
-      // }
-    });
-
-    test('Rate limit é por tenant, não global', async () => {
-      // Arrange: 2 tenants, cada um faz requisições
-      // Act: Tenant A faz 10 requisições, Tenant B faz 10 requisições
-      // Assert: Ambos conseguem fazer 10, rate limit não afeta um ao outro
-
-      // Tenant A: 10 requisições → bloqueadas na 11ª
-      // Tenant B: 10 requisições → bloqueadas na 11ª
-      // Se fosse global, apenas 10 total seriam permitidas
-    });
+    await expect(
+      permService.requireBillingPermission('user-member', 'tenant-123', 'purchase')
+    ).rejects.toThrow('not permitted to purchase');
   });
 
-  // =========================================================================
-  // Testes de Permissões por Limite
-  // =========================================================================
+  test('requireBillingPermission não lança para admin', async () => {
+    const mockSupabase = {
+      from: jest.fn()
+        .mockReturnValueOnce(buildQuery({ data: { role: 'admin' }, error: null }))
+        .mockReturnValueOnce(buildQuery({ data: { purchase_allowed_roles: ['owner', 'admin'] }, error: null })),
+    };
 
-  describe('Limites de Compra', () => {
-    test('Compra acima de max_purchase_amount é bloqueada', async () => {
-      // Arrange: Tenant com max_purchase_amount = 100 BRL
-      // Act: Tentar comprar pacote de 500 BRL
-      // Assert: Retorna 400 + error message
+    permService = new PermissionsService(mockSupabase);
 
-      // expect(response.status).toBe(400);
-      // expect(response.body.error).toContain('Limite de compra excedido');
-    });
-
-    test('Compra acima de require_approval_above precisa aprovação', async () => {
-      // Arrange: Tenant com require_approval_above = 1000 BRL
-      // Act: Tentar comprar pacote de 1500 BRL
-      // Assert: Retorna 400 com requiresApproval: true
-
-      // expect(response.body.requiresApproval).toBe(true);
-    });
+    await expect(
+      permService.requireBillingPermission('user-admin', 'tenant-123', 'purchase')
+    ).resolves.toBeUndefined();
   });
 
-  // =========================================================================
-  // Testes de Segurança do Webhook
-  // =========================================================================
+  test('action inválida lança erro', async () => {
+    const hasPermission = await permService.checkBillingPermission(
+      'user-123',
+      'tenant-123',
+      'acao_invalida'
+    );
 
-  describe('Webhook: Segurança', () => {
-    test('Webhook com assinatura inválida é rejeitado', async () => {
-      // Arrange: Webhook payload + assinatura inválida
-      // Act: POST /api/webhooks/getnet com x-getnet-signature inválida
-      // Assert: Retorna 401
-
-      // expect(response.status).toBe(401);
-    });
-
-    test('Webhook valida tenant_id antes de atualizar', async () => {
-      // Arrange: Webhook para transaction_id de Tenant A
-      // Arrange: Mas payload.tenant_id é Tenant B (simulando ataque)
-      // Act: POST /api/webhooks/getnet
-      // Assert: Apenas Tenant A é atualizado, Tenant B não é afetado
-
-      // Validar no DB que só o payment do Tenant A foi atualizado
-    });
-
-    test('Webhook duplicado é idempotente', async () => {
-      // Arrange: Webhook com transaction_id = 'tx123', status = 'APPROVED'
-      // Act: Enviar 2x o mesmo webhook
-      // Assert: Wallet de Tenant é creditado 1x, não 2x
-      // Assert: audit_logs contém 2 registros (uno "success", outro "idempotent_skip")
-
-      // Wallet balance não deve aumentar 2x
-      // audit_logs deve registrar ambas tentativas
-    });
+    // Retorna false (capturado no catch interno)
+    expect(hasPermission).toBe(false);
   });
 
-  // =========================================================================
-  // Testes de Context de Segurança
-  // =========================================================================
+  test('usuário sem role no tenant retorna false', async () => {
+    const mockSupabase = {
+      from: jest.fn()
+        .mockReturnValueOnce(buildQuery({ data: null, error: { message: 'not found' } })),
+    };
 
-  describe('Contexto de Segurança em Logs', () => {
-    test('Audit logs registram IP address', async () => {
-      // Arrange: User faz compra de um IP específico
-      // Act: POST /api/billing/checkout
-      // Assert: audit_logs.ip_address é preenchido corretamente
+    permService = new PermissionsService(mockSupabase);
 
-      // expect(auditLog.ip_address).toBe(expectedIP);
-    });
+    const hasPermission = await permService.checkBillingPermission(
+      'user-sem-role',
+      'tenant-123',
+      'purchase'
+    );
 
-    test('Audit logs registram user_agent', async () => {
-      // Arrange: User faz compra com User-Agent específico
-      // Act: POST /api/billing/checkout
-      // Assert: audit_logs.user_agent é preenchido
-
-      // expect(auditLog.user_agent).toContain('Mozilla');
-    });
-
-    test('Audit logs registram acting_as_role', async () => {
-      // Arrange: User com role 'admin' faz compra
-      // Act: POST /api/billing/checkout
-      // Assert: audit_logs.acting_as_role === 'admin'
-
-      // expect(auditLog.acting_as_role).toBe('admin');
-    });
+    expect(hasPermission).toBe(false);
   });
 });
 
-/**
- * TODO (Próximas Semanas)
- *
- * Semana 2: Idempotência + Lock Otimista
- * - Testes de race condition (2 transações simultâneas)
- * - Testes de idempotency_key
- * - Testes de version lock
- *
- * Semana 3: Webhook + Refunds
- * - Testes de chargeback reversal
- * - Testes de webhook error handling
- *
- * Semana 4: Testes completos + suite completa
- */
+// ============================================================
+// Auditoria: Logging de Operações
+// ============================================================
+
+describe('Auditoria: Logging de Operações', () => {
+  let auditService;
+  let mockFrom;
+
+  beforeEach(() => {
+    const mockInsertChain = {
+      insert: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: { id: 'audit-log-001' }, error: null }),
+    };
+
+    mockFrom = jest.fn(() => mockInsertChain);
+    auditService = new AuditService({ from: mockFrom });
+  });
+
+  test('log de compra retorna audit_log_id', async () => {
+    const auditId = await auditService.log({
+      tenantId: 'tenant-123',
+      userId: 'user-admin',
+      action: 'checkout_created',
+      resourceType: 'payment',
+      resourceId: 'pay-001',
+      ipAddress: '192.168.1.1',
+      userAgent: 'Mozilla/5.0',
+      actingAsRole: 'admin',
+    });
+
+    expect(auditId).toBe('audit-log-001');
+  });
+
+  test('log registra campos corretos no insert', async () => {
+    let capturedPayload = null;
+    const mockChain = {
+      insert: jest.fn((rows) => {
+        capturedPayload = rows[0];
+        return mockChain;
+      }),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: { id: 'audit-log-002' }, error: null }),
+    };
+
+    auditService = new AuditService({ from: jest.fn(() => mockChain) });
+
+    await auditService.log({
+      tenantId: 'tenant-123',
+      userId: 'user-admin',
+      action: 'checkout_created',
+      ipAddress: '10.0.0.1',
+      userAgent: 'TestAgent/1.0',
+      actingAsRole: 'admin',
+    });
+
+    expect(capturedPayload.action).toBe('checkout_created');
+    expect(capturedPayload.ip_address).toBe('10.0.0.1');
+    expect(capturedPayload.user_agent).toBe('TestAgent/1.0');
+    expect(capturedPayload.acting_as_role).toBe('admin');
+    expect(capturedPayload.tenant_id).toBe('tenant-123');
+    expect(capturedPayload.user_id).toBe('user-admin');
+  });
+
+  test('log de permissão negada registra action correta', async () => {
+    let capturedAction = null;
+    const mockChain = {
+      insert: jest.fn((rows) => {
+        capturedAction = rows[0].action;
+        return mockChain;
+      }),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: { id: 'audit-log-003' }, error: null }),
+    };
+
+    auditService = new AuditService({ from: jest.fn(() => mockChain) });
+
+    await auditService.log({
+      tenantId: 'tenant-123',
+      userId: 'user-member',
+      action: 'checkout_permission_denied',
+      actingAsRole: 'member',
+    });
+
+    expect(capturedAction).toBe('checkout_permission_denied');
+  });
+
+  test('log sem userId lança erro', async () => {
+    const auditId = await auditService.log({
+      tenantId: 'tenant-123',
+      action: 'checkout_created',
+      // userId ausente
+    });
+
+    // AuditService captura o erro internamente e retorna null
+    expect(auditId).toBeNull();
+  });
+
+  test('log sem action lança erro (retorna null)', async () => {
+    const auditId = await auditService.log({
+      tenantId: 'tenant-123',
+      userId: 'user-123',
+      // action ausente
+    });
+
+    expect(auditId).toBeNull();
+  });
+
+  test('getAuditHistory retorna array de logs do tenant', async () => {
+    const mockLogs = [
+      { id: '1', action: 'checkout_created', tenant_id: 'tenant-123' },
+      { id: '2', action: 'checkout_permission_denied', tenant_id: 'tenant-123' },
+    ];
+
+    const mockChain = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue({ data: mockLogs, error: null }),
+    };
+
+    auditService = new AuditService({ from: jest.fn(() => mockChain) });
+
+    const logs = await auditService.getAuditHistory('tenant-123');
+
+    expect(logs).toHaveLength(2);
+    expect(logs[0].action).toBe('checkout_created');
+  });
+});
+
+// ============================================================
+// Isolamento Multi-Tenant
+// ============================================================
+
+describe('Isolamento: Validação de tenant_id', () => {
+  let permService;
+
+  test('getUserRole retorna null para usuário de outro tenant', async () => {
+    // Supabase retorna null (RLS bloquearia em prod, aqui simulamos)
+    const mockSupabase = {
+      from: jest.fn(() => buildQuery({ data: null, error: { message: 'no rows' } })),
+    };
+
+    permService = new PermissionsService(mockSupabase);
+
+    const role = await permService.getUserRole('user-tenant-a', 'tenant-b');
+
+    expect(role).toBeNull();
+  });
+
+  test('getTenantBillingPermissions retorna defaults quando tenant não tem config', async () => {
+    const mockSupabase = {
+      from: jest.fn(() => buildQuery({ data: null, error: { message: 'not found' } })),
+    };
+
+    permService = new PermissionsService(mockSupabase);
+
+    const perms = await permService.getTenantBillingPermissions('tenant-sem-config');
+
+    expect(perms.purchase_allowed_roles).toContain('owner');
+    expect(perms.purchase_allowed_roles).toContain('admin');
+    expect(perms.view_billing_allowed_roles).toContain('member');
+  });
+
+  test('checkBillingPermission isola por tenant (user de outro tenant não tem acesso)', async () => {
+    // Role não encontrada porque tenant_id não bate
+    const mockSupabase = {
+      from: jest.fn(() => buildQuery({ data: null, error: { message: 'not found' } })),
+    };
+
+    permService = new PermissionsService(mockSupabase);
+
+    const hasPermission = await permService.checkBillingPermission(
+      'user-tenant-a',
+      'tenant-b',
+      'purchase'
+    );
+
+    expect(hasPermission).toBe(false);
+  });
+});
+
+// ============================================================
+// Limites de Compra
+// ============================================================
+
+describe('Limites de Compra', () => {
+  let permService;
+
+  test('compra acima de max_purchase_amount é bloqueada', async () => {
+    const mockSupabase = {
+      from: jest.fn(() =>
+        buildQuery({
+          data: {
+            max_purchase_amount: 100,
+            require_approval_above: null,
+          },
+          error: null,
+        })
+      ),
+    };
+
+    permService = new PermissionsService(mockSupabase);
+
+    // 500 BRL = 50000 centavos
+    const result = await permService.validatePurchaseLimit('tenant-123', 50000);
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('exceeds max');
+  });
+
+  test('compra dentro do limite é permitida', async () => {
+    const mockSupabase = {
+      from: jest.fn(() =>
+        buildQuery({
+          data: {
+            max_purchase_amount: 500,
+            require_approval_above: null,
+          },
+          error: null,
+        })
+      ),
+    };
+
+    permService = new PermissionsService(mockSupabase);
+
+    // 100 BRL = 10000 centavos
+    const result = await permService.validatePurchaseLimit('tenant-123', 10000);
+
+    expect(result.allowed).toBe(true);
+    expect(result.requiresApproval).toBeFalsy();
+  });
+
+  test('compra acima de require_approval_above precisa aprovação', async () => {
+    const mockSupabase = {
+      from: jest.fn(() =>
+        buildQuery({
+          data: {
+            max_purchase_amount: null,
+            require_approval_above: 1000,
+          },
+          error: null,
+        })
+      ),
+    };
+
+    permService = new PermissionsService(mockSupabase);
+
+    // 1500 BRL = 150000 centavos
+    const result = await permService.validatePurchaseLimit('tenant-123', 150000);
+
+    expect(result.allowed).toBe(true);
+    expect(result.requiresApproval).toBe(true);
+    expect(result.reason).toContain('approval threshold');
+  });
+
+  test('sem config de limite = permite compra sem aprovação', async () => {
+    const mockSupabase = {
+      from: jest.fn(() => buildQuery({ data: null, error: { message: 'not found' } })),
+    };
+
+    permService = new PermissionsService(mockSupabase);
+
+    const result = await permService.validatePurchaseLimit('tenant-sem-config', 99999999);
+
+    expect(result.allowed).toBe(true);
+    expect(result.requiresApproval).toBe(false);
+  });
+});
+
+// ============================================================
+// Contexto de Segurança em Logs
+// ============================================================
+
+describe('Contexto de Segurança em Logs', () => {
+  test('audit log registra ip_address, user_agent e acting_as_role', async () => {
+    let capturedRow = null;
+
+    const mockChain = {
+      insert: jest.fn((rows) => {
+        capturedRow = rows[0];
+        return mockChain;
+      }),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: { id: 'audit-ctx-001' }, error: null }),
+    };
+
+    const auditService = new AuditService({ from: jest.fn(() => mockChain) });
+
+    await auditService.log({
+      tenantId: 'tenant-123',
+      userId: 'user-admin',
+      action: 'checkout_created',
+      ipAddress: '203.0.113.5',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)',
+      actingAsRole: 'admin',
+    });
+
+    expect(capturedRow.ip_address).toBe('203.0.113.5');
+    expect(capturedRow.user_agent).toContain('Mozilla');
+    expect(capturedRow.acting_as_role).toBe('admin');
+  });
+
+  test('logPurchaseCredits usa action=purchase_credits e resourceType=payment', async () => {
+    let capturedRow = null;
+
+    const mockChain = {
+      insert: jest.fn((rows) => {
+        capturedRow = rows[0];
+        return mockChain;
+      }),
+      select: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: { id: 'audit-ctx-002' }, error: null }),
+    };
+
+    const auditService = new AuditService({ from: jest.fn(() => mockChain) });
+
+    await auditService.logPurchaseCredits({
+      tenantId: 'tenant-123',
+      userId: 'user-admin',
+      actingAsRole: 'admin',
+    });
+
+    expect(capturedRow.action).toBe('purchase_credits');
+    expect(capturedRow.resource_type).toBe('payment');
+  });
+
+  test('updateTenantBillingPermissions lança erro se usuário não é owner', async () => {
+    const mockSupabase = {
+      from: jest.fn(() => buildQuery({ data: { role: 'admin' }, error: null })),
+    };
+
+    const permService = new PermissionsService(mockSupabase);
+
+    await expect(
+      permService.updateTenantBillingPermissions('user-admin', 'tenant-123', {
+        purchase_allowed_roles: ['owner'],
+      })
+    ).rejects.toThrow('Only tenant owner can update billing permissions');
+  });
+});
