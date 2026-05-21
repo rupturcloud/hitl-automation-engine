@@ -43,11 +43,12 @@ import { ToastProvider as RupturToastProvider } from './ds/index.js';
 import AppShellV2 from './v2/layout/AppShell.jsx';
 import LandingV2 from './v2/pages/Landing.jsx';
 import DashboardV2 from './v2/pages/Dashboard.jsx';
+import NumbersV2 from './v2/pages/Numbers.jsx';
 import PlaceholderV2 from './v2/pages/Placeholder.jsx';
 
 const V2_PENDING = [
   'personas', 'onboarding', 'pricing', 'leads', 'pipeline',
-  'accounts', 'inbox', 'campaigns', 'flows', 'numbers',
+  'accounts', 'inbox', 'campaigns', 'flows',
   'playbooks', 'billing', 'insights', 'indicacoes', 'admin',
   'sprints', 'founder',
 ];
@@ -165,6 +166,7 @@ function App() {
                 <Route path="landing" element={<LandingV2 />} />
                 <Route element={<AppShellV2 />}>
                   <Route path="dashboard" element={<DashboardV2 />} />
+                  <Route path="numbers" element={<NumbersV2 />} />
                   {V2_PENDING.map(id => (
                     <Route key={id} path={id} element={<PlaceholderV2 name={id} />} />
                   ))}
