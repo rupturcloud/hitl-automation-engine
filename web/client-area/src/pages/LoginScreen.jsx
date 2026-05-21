@@ -27,7 +27,9 @@ const LoginScreen = () => {
     try {
       await signIn(email, password);
       const next = searchParams.get('next');
-      navigate(next || '/dashboard');
+      // D1 (sprint cliente pagante): redirect padrão vai pro dashboard novo /v0/dashboard.
+      // Quem precisa do dashboard antigo passa ?next=/dashboard explicitamente.
+      navigate(next || '/v0/dashboard');
     } catch (err) {
       if (err.message?.includes('Invalid login')) {
         setError('E-mail ou senha incorretos.');
