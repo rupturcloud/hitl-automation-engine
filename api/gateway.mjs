@@ -38,6 +38,7 @@ import * as bubbleRoutes from './routes-bubble.mjs';
 import { handleMessageRoutes } from './routes-messages.mjs';
 import TenantService from '../modules/tenants/service.js';
 import { extractAndValidateTenantId } from '../middleware/tenant-security.mjs';
+import { registerWhatsappRoutes } from '../modules/whatsapp/routes.js';
 import {
   BillingSchemas,
   ReferralSchemas,
@@ -642,7 +643,54 @@ async function handler(req, res) {
   const { pathname } = url;
 
   // ================================================================
-  //  API Routes
+  //  /api/v1/* — arquitetura nova (docs/ROUTING_API_ARCHITECTURE.md)
+  //  Não invasivo: se a rota não casar, continua para os endpoints legacy abaixo.
+  // ================================================================
+  if (pathname.startsWith('/api/v1/')) {
+    const user = await extractUser(req);
+    if (!user) {
+      return json(res, 401, {
+        ok: false, data: null, meta: {},
+        error: { code: 'ERR_UNAUTHENTICATED', message: 'Faça login para continuar.' },
+      }, req);
+    }
+    const tenantId = await extractAndValidateTenantId(url, req, user, supabase);
+    if (!tenantId) {
+      return json(res, 403, {
+        ok: false, data: null, meta: {},
+        error: { code: 'ERR_NO_TENANT', message: 'Sua conta não tem acesso a este workspace.' },
+      }, req);
+    }
+    // Parse JSON body para métodos com payload
+    if (['POST', 'PATCH', 'PUT'].includes(req.method) && !req.body) {
+      try { req.body = await parseBody(req); } catch { req.body = {}; }
+    }
+    req.tenantId = tenantId;
+    req.user = user;
+
+    const ctx = {
+      supabase,
+      tenantId,
+      user,
+      // Credenciais UAZAPI: por ora env var. Próximo passo: resolver via
+      // tenant_providers.credentials_ref (Supabase Vault).
+      uazapiCredentials: {
+        serverUrl:   process.env.UAZAPI_FREE_SERVER_URL  || 'https://free.uazapi.com',
+        adminToken:  process.env.UAZAPI_FREE_ADMIN_TOKEN || process.env.UAZAPI_ADMIN_TOKEN,
+      },
+    };
+
+    if (await registerWhatsappRoutes({ req, res, pathname, method: req.method, ctx })) return;
+
+    // Domínio /api/v1/ desconhecido
+    return json(res, 404, {
+      ok: false, data: null, meta: {},
+      error: { code: 'ERR_ROUTE_NOT_FOUND', message: 'Esse recurso não existe.' },
+    }, req);
+  }
+
+  // ================================================================
+  //  API Routes (legacy /api/*)
   // ================================================================
 
   // --- Health ---
