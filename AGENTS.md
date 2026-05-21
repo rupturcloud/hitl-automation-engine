@@ -44,7 +44,11 @@ docs/                                   Documentação operacional e arquitetura
 - `docs/UAZAPI_INTEGRATION_COVERAGE.md`: cobertura UAZAPI.
 - `docs/QUALITY_GATE.md`: validações de qualidade.
 - `docs/AGENT_UX_REVIEW_PROMPT.md`: prompt/runbook para agentes de code review, UX e jornadas.
-- `docs/DEPLOYMENT.md`: deploy.
+- `docs/DEPLOYMENT.md`: deploy (legado GCP/Compute Engine).
+- `docs/DEPLOY-SSH.md`: chave SSH dedicada `ruptur_deploy_ci` usada pelo `deploy-rsync.yml`
+  e por `infra/scripts/deploy-rsync.sh` (rsync para `deploy@ruptur.cloud:/app/ruptur-saas`).
+  Fingerprint: `SHA256:xAbRt27jfWqhh2+jQ1W4eLLft82HjLaQ4cLdMWrtBK8`. Privada em
+  `~/.ssh/ruptur_deploy_ci` e como secret `DEPLOY_SSH_KEY` no GitHub.
 - `DEPLOYMENT_STATUS.md`, `DEPLOYMENT_SUMMARY.md`, `DEPLOYMENT-FINAL-STATUS.md`: histórico/status operacional.
 - `migrations/014_integration_and_webhook_core.sql`: base agnóstica de integrações/webhooks.
 - `migrations/013_payment_gateway_accounts.sql`: gateways de pagamento legados/atuais.
