@@ -48,7 +48,7 @@ function Sidebar() {
             {g.items.map(it => (
               <NavLink
                 key={it.id}
-                to={`/v2/${it.id}`}
+                to={`/v0/${it.id}`}
                 className={({ isActive }) => `side-link ${isActive ? 'active' : ''}`}
               >
                 <Icon name={it.icon} size={15} />
@@ -69,7 +69,7 @@ function Sidebar() {
           <div className="side-user-role">Admin · SDR Lead</div>
         </div>
         <NavLink
-          to="/v2/landing"
+          to="/v0/landing"
           className="btn btn-ghost btn-icon"
           style={{ color: 'var(--side-mute)' }}
           title="Sair"
@@ -92,7 +92,7 @@ function Topbar() {
       <div className="topbar-actions">
         <Button variant="ghost" icon="bell" size="sm" />
         <button
-          onClick={() => navigate('/v2/founder')}
+          onClick={() => navigate('/v0/founder')}
           title="Founder Mode"
           style={{
             width: 32, height: 32, borderRadius: 8, border: '1px solid var(--ink-200)',
@@ -103,7 +103,7 @@ function Topbar() {
         >
           F
         </button>
-        <Button variant="primary" size="sm" icon="plus" onClick={() => navigate('/v2/leads?new=1')}>
+        <Button variant="primary" size="sm" icon="plus" onClick={() => navigate('/v0/leads?new=1')}>
           Novo lead
         </Button>
       </div>

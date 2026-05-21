@@ -16,7 +16,7 @@ export default function Placeholder({ name }) {
         icon="sparkles"
         title={`${label} — aguardando portagem`}
         text="Esta tela faz parte do handoff Ruptur SaaS — WhatsApp Sales OS. Ainda não foi recriada em React moderno; volte ao Cockpit ou siga a Landing enquanto isso."
-        action={<Button variant="primary" icon="arrowRight" onClick={() => navigate('/v2/dashboard')}>Ir pro Cockpit</Button>}
+        action={<Button variant="primary" icon="arrowRight" onClick={() => navigate('/v0/dashboard')}>Ir pro Cockpit</Button>}
       />
     </>
   );

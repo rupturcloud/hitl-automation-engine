@@ -167,7 +167,7 @@ function StageBars() {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const go = (r) => navigate(`/v2/${r}`);
+  const go = (r) => navigate(`/v0/${r}`);
   const toast = useToast();
 
   const [activation, setActivation] = useState(loadActivation);

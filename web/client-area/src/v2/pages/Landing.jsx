@@ -163,7 +163,7 @@ function FAQ() {
 
 export default function Landing() {
   const navigate = useNavigate();
-  const go = (r) => navigate(`/v2/${r}`);
+  const go = (r) => navigate(`/v0/${r}`);
   // Para o app real (Supabase auth + APIs reais): /login, /signup, /dashboard...
   const goReal = (r) => navigate(r.startsWith('/') ? r : `/${r}`);
   return (
