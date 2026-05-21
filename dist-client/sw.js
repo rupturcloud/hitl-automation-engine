@@ -7,8 +7,8 @@
  */
 
 // Versão do SW (increment para force update)
-const SW_VERSION = "1.0.0";
-const CACHE_NAME = `jarvis-phase7-${SW_VERSION}`;
+const SW_VERSION = "2.0.0-ruptur-os";
+const CACHE_NAME = `ruptur-os-${SW_VERSION}`;
 
 console.log(`✓ Service Worker v${SW_VERSION} loaded`);
 

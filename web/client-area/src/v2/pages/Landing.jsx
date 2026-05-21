@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon, Button, SocialProofToasts } from '../../ds/index.js';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LANDING_CSS = `
   .lp { background: var(--ink-0); min-height: 100vh; color: var(--ink-900); }
@@ -187,9 +188,17 @@ function FAQ() {
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const go = (r) => navigate(`/v0/${r}`);
   // Para o app real (Supabase auth + APIs reais): /login, /signup, /dashboard...
   const goReal = (r) => navigate(r.startsWith('/') ? r : `/${r}`);
+
+  // Usuário já autenticado → redireciona para o dashboard automaticamente
+  useEffect(() => {
+    if (session) {
+      navigate('/v0/dashboard', { replace: true });
+    }
+  }, [session, navigate]);
   return (
     <div className="lp">
       <style>{LANDING_CSS}</style>
