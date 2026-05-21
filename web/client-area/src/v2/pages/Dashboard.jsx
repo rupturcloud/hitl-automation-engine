@@ -61,6 +61,27 @@ const DASH_CSS = `
   .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
   @media (max-width: 1100px) { .dash-grid { grid-template-columns: 1fr; } }
 
+  /* Anti-overflow: filhos de grid/flex respeitam pai */
+  .dash-grid > *, .act-row > *, .hoje-row > * { min-width: 0; }
+
+  .cock-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
+  .cock-header-text { flex: 1 1 auto; min-width: 0; }
+  .cock-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  @media (max-width: 640px) {
+    .act { padding: 16px; }
+    .act-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .act-bar { max-width: 100%; }
+    .act-checkpoints { gap: 6px; }
+    .hoje-stats { margin-left: 0; gap: 16px; }
+    .funnel-row { grid-template-columns: 1fr 60px 50px; gap: 8px; font-size: 12px; }
+    .cock-chips { width: 100%; }
+  }
+
+  @media (max-width: 480px) {
+    .act-checkpoints { gap: 4px; }
+  }
+
   .alert-list { display: flex; flex-direction: column; gap: 8px; }
   .alert-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px; border: 1px solid var(--ink-150); border-radius: 8px; }
   .alert-row .ic { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -249,12 +270,12 @@ export default function Dashboard() {
       <style>{DASH_CSS}</style>
 
       <div className="cock-crumbs">Cockpit</div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-        <div>
+      <div className="cock-header">
+        <div className="cock-header-text">
           <h1 className="cock-title">Bom trabalho, Diego.</h1>
           <p className="cock-sub">17/mai/2026 · plano <b style={{ color: 'var(--brand-500)' }}>{(activation.plan || 'growth').toUpperCase()}</b> · cockpit ao vivo</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="cock-chips">
           <AIChip text="IA respondeu 14 conversas hoje" tone="wa" />
           <AIChip text="3 leads qualificados auto" tone="purple" />
         </div>
