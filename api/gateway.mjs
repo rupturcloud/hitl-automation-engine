@@ -600,7 +600,12 @@ async function serveStatic(res, pathname, req) {
   const ext = path.extname(filePath);
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-  res.writeHead(200, { 'Content-Type': contentType });
+  // sw.js e index.html nunca devem ser cacheados por CDN/browser —
+  // o SW precisa ser verificado a cada visita pra detectar atualizações.
+  const isNoCacheAsset = filePath.endsWith('sw.js') || filePath.endsWith('index.html');
+  const cacheControl = isNoCacheAsset ? 'no-store, no-cache, must-revalidate' : 'public, max-age=31536000, immutable';
+
+  res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': cacheControl });
   createReadStream(filePath).pipe(res);
 }
 
