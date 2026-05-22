@@ -24,9 +24,12 @@ export class UazapiWhatsappAdapter {
     };
   }
 
-  /** Inicia conexão e devolve QR + pairing code padronizado. */
-  async startSession(providerId) {
-    const res = await this._client.connectInstance(providerId);
+  /** Inicia conexão e devolve QR + pairing code padronizado.
+   * @param {string} providerId
+   * @param {{ phone?: string }} opts — phone no formato internacional → pairing code; omitido → QR code
+   */
+  async startSession(providerId, { phone } = {}) {
+    const res = await this._client.connectInstance(providerId, phone ? { phone } : {});
     return {
       qrCode: res?.qrcode || res?.qr || null,
       pairingCode: res?.pairingCode || res?.paircode || null,

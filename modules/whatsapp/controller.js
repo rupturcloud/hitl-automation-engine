@@ -35,7 +35,10 @@ export class WhatsappController {
     return this._handle(res, async () => {
       const tenantId = req.tenantId;
       const { id } = req.params;
-      const data = await this.service.connect({ tenantId, id });
+      // phone = número no formato internacional (ex: 5511999999999)
+      // quando presente → pairing code; ausente → QR code
+      const phone = req.body?.phone || null;
+      const data = await this.service.connect({ tenantId, id, phone });
       return { data };
     });
   }
@@ -44,7 +47,8 @@ export class WhatsappController {
     return this._handle(res, async () => {
       const tenantId = req.tenantId;
       const { id } = req.params;
-      const data = await this.service.reconnect({ tenantId, id });
+      const phone = req.body?.phone || null;
+      const data = await this.service.reconnect({ tenantId, id, phone });
       return { data };
     });
   }

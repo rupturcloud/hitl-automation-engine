@@ -103,16 +103,7 @@ function UsersTab() {
 
 // ─── Aba: Conectores ──────────────────────────────────────────────────────────
 
-const CONNECTORS = [
-  {
-    id: 'uazapi',
-    name: 'UAZAPI',
-    desc: 'Provedor de instâncias WhatsApp — free e pago. Gerencie suas contas na aba "Instâncias uazapi".',
-    icon: 'wa',
-    connected: true,
-    badge: 'Ativo',
-    badgeColor: '#22c55e',
-  },
+const STATIC_CONNECTORS = [
   {
     id: 'getnet',
     name: 'Getnet',
@@ -151,10 +142,157 @@ const CONNECTORS = [
   },
 ];
 
+function UazapiConnectorCard({ accounts, loading, onAdd, onSync }) {
+  const { toast } = useToast();
+  const [testing, setTesting] = useState(null); // id da conta sendo testada
+
+  const totalInstances = accounts.reduce((s, a) => s + (a.used_instances || 0), 0);
+  const isConnected = accounts.length > 0;
+
+  async function handleTest(account) {
+    setTesting(account.id);
+    try {
+      await providerApi.syncAccount(account.id);
+      toast({ type: 'success', title: `UAZAPI "${account.label}" — conexão OK ✓` });
+      onSync?.();
+    } catch (e) {
+      toast({ type: 'error', title: `Falha na conexão: ${e.message}` });
+    } finally {
+      setTesting(null);
+    }
+  }
+
+  return (
+    <div style={{
+      border: '1px solid var(--ink-150)', borderRadius: 10,
+      background: 'var(--ink-0)',
+    }}>
+      {/* Cabeçalho do conector */}
+      <div style={{
+        padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16,
+        borderBottom: isConnected && accounts.length > 0 ? '1px solid var(--ink-100)' : 'none',
+      }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 10,
+          background: isConnected ? 'var(--brand-50)' : 'var(--ink-100)',
+          color: isConnected ? 'var(--brand-500)' : 'var(--ink-400)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>
+          <Icon name="wa" size={20} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+            <span style={{ fontWeight: 600, color: 'var(--ink-900)', fontSize: 14 }}>UAZAPI</span>
+            {loading ? (
+              <span style={{ fontSize: 11, color: 'var(--ink-400)' }}>Carregando…</span>
+            ) : (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+                background: isConnected ? '#dcfce7' : 'var(--ink-100)',
+                color: isConnected ? '#22c55e' : '#6b7280',
+              }}>
+                {dot(isConnected ? '#22c55e' : '#6b7280')}
+                {isConnected ? `${accounts.length} conta${accounts.length > 1 ? 's' : ''} · ${totalInstances} instância${totalInstances !== 1 ? 's' : ''}` : 'Não configurado'}
+              </span>
+            )}
+          </div>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-500)' }}>
+            Provedor de instâncias WhatsApp — free (1h) e pagas (persistentes). Suporte a múltiplas contas por tenant.
+          </p>
+        </div>
+        <Button variant="primary" size="sm" icon="plus" onClick={onAdd}>
+          Adicionar conta
+        </Button>
+      </div>
+
+      {/* Lista de contas existentes */}
+      {!loading && accounts.length > 0 && (
+        <div style={{ padding: '12px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {accounts.map(acc => {
+            const statusColor = STATUS_COLOR[acc.status] || '#6b7280';
+            return (
+              <div key={acc.id} style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '10px 14px', borderRadius: 8,
+                background: 'var(--ink-50)', border: '1px solid var(--ink-100)',
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink-900)' }}>{acc.label}</span>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10,
+                      background: acc.account_kind === 'free' ? 'var(--ink-100)' : 'var(--brand-50)',
+                      color: acc.account_kind === 'free' ? 'var(--ink-500)' : 'var(--brand-600)',
+                    }}>
+                      {KIND_LABEL[acc.account_kind] || acc.account_kind}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--ink-400)', marginTop: 2, fontFamily: 'monospace' }}>
+                    {acc.server_url}
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', color: statusColor }}>
+                  {dot(statusColor)}{acc.used_instances || 0}/{acc.capacity_instances > 0 ? acc.capacity_instances : '∞'} inst.
+                </div>
+                <Button
+                  variant="ghost" size="sm"
+                  onClick={() => handleTest(acc)}
+                  disabled={testing === acc.id}
+                >
+                  {testing === acc.id ? 'Testando…' : 'Testar'}
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Estado vazio */}
+      {!loading && accounts.length === 0 && (
+        <div style={{ padding: '20px', textAlign: 'center', color: 'var(--ink-400)', fontSize: 13 }}>
+          Nenhuma conta UAZAPI configurada. Clique em "Adicionar conta" para começar.
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ConnectorsTab() {
+  const { toast } = useToast();
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [addOpen, setAddOpen] = useState(false);
+
+  const loadAccounts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await providerApi.listAccounts();
+      setAccounts(result.accounts || []);
+    } catch (e) {
+      if (e.status !== 401 && e.status !== 403) {
+        toast({ type: 'error', title: e.message || 'Erro ao carregar contas UAZAPI.' });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { loadAccounts(); }, [loadAccounts]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {CONNECTORS.map(c => (
+      {/* UAZAPI — card dinâmico com dados reais */}
+      <UazapiConnectorCard
+        accounts={accounts}
+        loading={loading}
+        onAdd={() => setAddOpen(true)}
+        onSync={loadAccounts}
+      />
+
+      {/* Demais conectores — estáticos por ora */}
+      {STATIC_CONNECTORS.map(c => (
         <div key={c.id} style={{
           border: '1px solid var(--ink-150)', borderRadius: 10,
           padding: '16px 20px',
@@ -190,6 +328,10 @@ function ConnectorsTab() {
           )}
         </div>
       ))}
+
+      {addOpen && (
+        <AddAccountModal onClose={() => setAddOpen(false)} onSaved={loadAccounts} />
+      )}
     </div>
   );
 }

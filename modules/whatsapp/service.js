@@ -27,7 +27,7 @@ export class WhatsappService {
     return toNumberDTO(dbRow);
   }
 
-  async connect({ tenantId, id }) {
+  async connect({ tenantId, id, phone = null }) {
     const row = await this.repo.findById({ tenantId, id });
     if (!row) throw new BusinessError('ERR_NOT_FOUND', 'Número não encontrado.', 404);
 
@@ -39,18 +39,20 @@ export class WhatsappService {
       await this.repo.updateStatus({ id, status: 'connecting', remoteInstanceId: remoteId });
     }
 
-    const session = await this.adapter.startSession(remoteId);
+    // phone → pairing code; sem phone → QR code
+    const session = await this.adapter.startSession(remoteId, { phone });
     await this.repo.updateStatus({ id, status: session.status?.toLowerCase() || 'connecting' });
     return {
       id,
       status: session.status,
       qrCode: session.qrCode,
       pairingCode: session.pairingCode,
+      mode: phone ? 'pairing_code' : 'qr',
     };
   }
 
-  async reconnect({ tenantId, id }) {
-    return this.connect({ tenantId, id });
+  async reconnect({ tenantId, id, phone = null }) {
+    return this.connect({ tenantId, id, phone });
   }
 
   async getStatus({ tenantId, id }) {

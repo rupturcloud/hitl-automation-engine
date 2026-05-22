@@ -190,57 +190,89 @@ function QRSvgPattern({ qrBase64 }) {
 // Modal QR Connect — busca QR real do UAZAPI e faz polling de status
 // ---------------------------------------------------------------------------
 function QRConnectModal({ inst, onClose }) {
-  const [qrCode, setQrCode] = useState(null);     // base64 ou string da API
-  const [pairingCode, setPairingCode] = useState(null);
+  // 'qr' | 'code'
+  const [mode, setMode] = useState('qr');
+
+  // ── modo QR ──
+  const [qrCode, setQrCode] = useState(null);
   const [countdown, setCountdown] = useState(60);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loadingQR, setLoadingQR] = useState(true);
+  const [errorQR, setErrorQR] = useState(null);
   const pollRef = useRef(null);
 
+  // ── modo Código ──
+  const [phone, setPhone] = useState('');
+  const [pairingCode, setPairingCode] = useState(null);
+  const [loadingCode, setLoadingCode] = useState(false);
+  const [errorCode, setErrorCode] = useState(null);
+
+  // ── buscar QR ──
   const fetchQR = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+    setLoadingQR(true);
+    setErrorQR(null);
     try {
       const res = await whatsappApi.connect(inst.id);
-      // res = { id, status, qrCode, pairingCode }
       setQrCode(res?.data?.qrCode || res?.qrCode || null);
-      setPairingCode(res?.data?.pairingCode || res?.pairingCode || null);
       setCountdown(60);
     } catch (e) {
-      setError(e?.message || 'Erro ao obter QR Code.');
+      setErrorQR(e?.message || 'Erro ao obter QR Code.');
     } finally {
-      setLoading(false);
+      setLoadingQR(false);
     }
   }, [inst.id]);
 
-  // Carregar QR na abertura
+  // Carregar QR na abertura (só se modo=qr)
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { fetchQR(); }, [fetchQR]);
+  useEffect(() => { if (mode === 'qr') fetchQR(); }, [fetchQR, mode]);
 
-  // Countdown e polling de status
+  // Countdown e polling de status (modo QR)
   useEffect(() => {
-    if (loading) return;
-    const tick = setInterval(async () => {
+    if (mode !== 'qr' || loadingQR) return;
+    const tick = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) { fetchQR(); return 60; }
         return c - 1;
       });
     }, 1000);
-
-    // Polling de status a cada 3s para detectar conexão
     pollRef.current = setInterval(async () => {
       try {
         const res = await whatsappApi.status(inst.id);
         const st = (res?.data?.status || res?.status || '').toLowerCase();
-        if (st === 'connected') {
-          clearInterval(pollRef.current);
-          onClose(true);
-        }
+        if (st === 'connected') { clearInterval(pollRef.current); onClose(true); }
       } catch { /* ignora */ }
     }, 3000);
-
     return () => { clearInterval(tick); clearInterval(pollRef.current); };
-  }, [loading, fetchQR, inst.id, onClose]);
+  }, [mode, loadingQR, fetchQR, inst.id, onClose]);
+
+  // ── gerar pairing code ──
+  async function handleGenerateCode() {
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length < 10) { setErrorCode('Informe o número com DDD e código do país (ex: 5511999999999).'); return; }
+    setLoadingCode(true);
+    setErrorCode(null);
+    setPairingCode(null);
+    try {
+      const res = await whatsappApi.connectWithPhone(inst.id, cleaned);
+      const code = res?.data?.pairingCode || res?.pairingCode || null;
+      if (!code) throw new Error('UAZAPI não retornou o código. Tente pelo QR.');
+      setPairingCode(code);
+      // Polling para detectar conexão
+      pollRef.current = setInterval(async () => {
+        try {
+          const sr = await whatsappApi.status(inst.id);
+          const st = (sr?.data?.status || sr?.status || '').toLowerCase();
+          if (st === 'connected') { clearInterval(pollRef.current); onClose(true); }
+        } catch { /* ignora */ }
+      }, 3000);
+    } catch (e) {
+      setErrorCode(e?.message || 'Erro ao gerar código.');
+    } finally {
+      setLoadingCode(false);
+    }
+  }
+
+  // Limpar polling ao desmontar
+  useEffect(() => () => { clearInterval(pollRef.current); }, []);
 
   const mm = String(Math.floor(countdown / 60)).padStart(1, '0');
   const ss = String(countdown % 60).padStart(2, '0');
@@ -249,43 +281,128 @@ function QRConnectModal({ inst, onClose }) {
     <div className="modal-overlay" onClick={() => onClose(false)}>
       <div className="qr-modal-shell" onClick={e => e.stopPropagation()}>
         <h3 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700 }}>Conectar WhatsApp</h3>
-        <p style={{ margin: 0, fontSize: 12.5, color: 'var(--ink-600)' }}>
-          Aponte a câmera do seu celular pro QR Code abaixo
-        </p>
 
-        <div className="qr-frame" key={pairingCode}>
-          {loading ? (
-            <div style={{ color: 'var(--ink-400)', fontSize: 12 }}>Gerando QR…</div>
-          ) : error ? (
-            <div style={{ color: 'var(--danger,#DC2626)', fontSize: 12, padding: 12 }}>{error}</div>
-          ) : (
-            <>
-              <QRSvgPattern qrBase64={qrCode} />
-              {!qrCode && <div className="qr-scan" />}
-            </>
-          )}
+        {/* Seletor de modo */}
+        <div style={{
+          display: 'flex', gap: 4, margin: '12px 0 16px',
+          background: 'var(--ink-100)', borderRadius: 8, padding: 3,
+        }}>
+          {[{ id: 'qr', label: '📷 QR Code' }, { id: 'code', label: '🔢 Código' }].map(m => (
+            <button
+              key={m.id}
+              onClick={() => { setMode(m.id); setPairingCode(null); setErrorCode(null); }}
+              style={{
+                flex: 1, padding: '6px 0', borderRadius: 6, border: 'none', cursor: 'pointer',
+                fontWeight: 600, fontSize: 12.5,
+                background: mode === m.id ? 'var(--ink-0)' : 'transparent',
+                color: mode === m.id ? 'var(--ink-900)' : 'var(--ink-500)',
+                boxShadow: mode === m.id ? '0 1px 3px rgba(0,0,0,.08)' : 'none',
+                transition: 'all .15s',
+              }}
+            >
+              {m.label}
+            </button>
+          ))}
         </div>
 
-        {pairingCode && (
-          <div className="qr-code-text" style={{ marginBottom: 8 }}>
-            Código de emparelhamento: <b>{pairingCode}</b>
+        {/* ── Modo QR ── */}
+        {mode === 'qr' && (
+          <>
+            <p style={{ margin: '0 0 12px', fontSize: 12.5, color: 'var(--ink-600)' }}>
+              Aponte a câmera do WhatsApp pro código abaixo
+            </p>
+            <div className="qr-frame">
+              {loadingQR ? (
+                <div style={{ color: 'var(--ink-400)', fontSize: 12 }}>Gerando QR…</div>
+              ) : errorQR ? (
+                <div style={{ color: 'var(--danger,#DC2626)', fontSize: 12, padding: 12 }}>{errorQR}</div>
+              ) : (
+                <>
+                  <QRSvgPattern qrBase64={qrCode} />
+                  {!qrCode && <div className="qr-scan" />}
+                </>
+              )}
+            </div>
+            {!loadingQR && !errorQR && (
+              <div className="qr-countdown">Expira em <b>{mm}:{ss}</b></div>
+            )}
+            <div style={{ display: 'flex', gap: 8, marginTop: 14, justifyContent: 'center' }}>
+              <Button variant="secondary" size="sm" onClick={fetchQR} disabled={loadingQR}>
+                ↻ Novo QR
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* ── Modo Código de pareamento ── */}
+        {mode === 'code' && (
+          <div style={{ textAlign: 'left' }}>
+            <p style={{ margin: '0 0 12px', fontSize: 12.5, color: 'var(--ink-600)' }}>
+              Insira o número do celular que vai conectar.<br />
+              O WhatsApp mostrará um código de 8 letras para digitar no app.
+            </p>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 5 }}>
+                NÚMERO (com DDI + DDD)
+              </label>
+              <input
+                type="tel"
+                placeholder="Ex: 5511999999999"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleGenerateCode(); }}
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  padding: '9px 12px', borderRadius: 8,
+                  border: '1px solid var(--ink-200)',
+                  fontSize: 15, fontFamily: 'ui-monospace, monospace',
+                  background: 'var(--ink-0)', color: 'var(--ink-900)',
+                  outline: 'none',
+                }}
+              />
+            </div>
+            {errorCode && (
+              <div style={{ fontSize: 12, color: '#DC2626', marginBottom: 10 }}>{errorCode}</div>
+            )}
+            {pairingCode ? (
+              <div style={{
+                textAlign: 'center', padding: '20px 16px',
+                background: 'var(--brand-50)', borderRadius: 12,
+                border: '1px solid var(--brand-200)',
+                marginBottom: 12,
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--brand-600)', letterSpacing: '.06em', marginBottom: 8 }}>
+                  CÓDIGO DE PAREAMENTO
+                </div>
+                <div style={{
+                  fontSize: 32, fontWeight: 800, letterSpacing: '.12em',
+                  color: 'var(--brand-700)', fontFamily: 'ui-monospace, monospace',
+                }}>
+                  {pairingCode}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--ink-500)', marginTop: 8 }}>
+                  Abra o WhatsApp → Configurações → Dispositivos vinculados → Vincular dispositivo → Usar código
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--ink-400)', marginTop: 6 }}>
+                  Aguardando confirmação…
+                </div>
+              </div>
+            ) : (
+              <Button
+                variant="primary"
+                onClick={handleGenerateCode}
+                disabled={loadingCode}
+                style={{ width: '100%' }}
+              >
+                {loadingCode ? 'Gerando código…' : 'Gerar código de pareamento'}
+              </Button>
+            )}
           </div>
         )}
 
-        {!loading && !error && (
-          <div className="qr-countdown">
-            Expira em <b>{mm}:{ss}</b>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', gap: 8, marginTop: 14, justifyContent: 'center' }}>
-          <Button variant="secondary" size="sm" onClick={fetchQR} disabled={loading}>
-            ↻ Novo QR
-          </Button>
-        </div>
         <button
           onClick={() => onClose(false)}
-          style={{ marginTop: 12, background: 'transparent', border: 'none', color: 'var(--ink-500)', fontSize: 12.5, cursor: 'pointer' }}
+          style={{ marginTop: 12, background: 'transparent', border: 'none', color: 'var(--ink-500)', fontSize: 12.5, cursor: 'pointer', width: '100%' }}
         >
           Cancelar
         </button>

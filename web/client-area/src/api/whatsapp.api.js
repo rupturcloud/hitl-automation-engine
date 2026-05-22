@@ -20,9 +20,14 @@ export const whatsappApi = {
     return http.post('/whatsapp/numbers', { body: { name, label } });
   },
 
-  /** Inicia conexão (gera QR / pairing code). */
+  /** Inicia conexão QR code (sem phone). */
   connect(id) {
     return http.post('/whatsapp/numbers/:id/connect', { params: { id } });
+  },
+
+  /** Inicia conexão por pairing code — phone no formato internacional ex: 5511999999999. */
+  connectWithPhone(id, phone) {
+    return http.post('/whatsapp/numbers/:id/connect', { params: { id }, body: { phone } });
   },
 
   /** Força reconexão (sessão dropou). */
