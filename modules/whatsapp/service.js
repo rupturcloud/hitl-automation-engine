@@ -35,8 +35,16 @@ export class WhatsappService {
     let remoteId = row.remote_instance_id;
     if (!remoteId || remoteId.startsWith('pending-')) {
       const created = await this.adapter.createInstance({ name: row.instance_name });
+      // providerId === instanceToken (o campo `token` retornado pela UAZAPI)
+      // É o valor usado como header `token:` em todas as chamadas subsequentes.
       remoteId = created.providerId;
-      await this.repo.updateStatus({ id, status: 'connecting', remoteInstanceId: remoteId });
+      await this.repo.updateStatus({
+        id,
+        status: 'connecting',
+        remoteInstanceId: remoteId,
+        // Salva UUID interno no metadata para auditoria/debug
+        metadata: { ...(row.metadata || {}), provider: { internalId: created.internalId } },
+      });
     }
 
     // phone → pairing code; sem phone → QR code
@@ -63,10 +71,13 @@ export class WhatsappService {
     }
     const remote = await this.adapter.getStatus(row.remote_instance_id);
     const normalized = (remote.status || '').toLowerCase();
-    if (normalized && normalized !== row.status) {
-      await this.repo.updateStatus({ id, status: normalized });
+    // Atualiza status E número de telefone quando conectado
+    if (normalized && (normalized !== row.status || (remote.phone && remote.phone !== row.instance_number))) {
+      const statusPatch = { id, status: normalized };
+      if (remote.phone) statusPatch.instanceNumber = remote.phone;
+      await this.repo.updateStatus(statusPatch);
     }
-    return { id, status: remote.status, lastSeen: remote.lastSeen };
+    return { id, status: remote.status, phone: remote.phone || null, lastSeen: remote.lastSeen };
   }
 
   async getHealth({ tenantId, id }) {

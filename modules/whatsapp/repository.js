@@ -89,10 +89,11 @@ export class WhatsappRepository {
     return data;
   }
 
-  async updateStatus({ id, status, remoteInstanceId, metadata }) {
+  async updateStatus({ id, status, remoteInstanceId, instanceNumber, metadata }) {
     const patch = { status, updated_at: new Date().toISOString(), last_seen_at: new Date().toISOString() };
     if (remoteInstanceId) patch.remote_instance_id = remoteInstanceId;
-    if (metadata) patch.metadata = metadata;
+    if (instanceNumber)   patch.instance_number    = instanceNumber;
+    if (metadata)         patch.metadata           = metadata;
     const { data, error } = await this.db
       .from('instance_registry')
       .update(patch)
