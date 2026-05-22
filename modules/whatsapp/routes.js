@@ -38,15 +38,19 @@ export async function registerWhatsappRoutes({ req, res, pathname, method, ctx }
     return true;
   }
 
-  // /api/v1/whatsapp/numbers/:id/(connect|reconnect|status|health)
-  const m = pathname.match(/^\/api\/v1\/whatsapp\/numbers\/([^/]+)\/(connect|reconnect|status|health)$/);
+  // /api/v1/whatsapp/numbers/:id/(connect|reconnect|status|health|warmup)
+  const m = pathname.match(/^\/api\/v1\/whatsapp\/numbers\/([^/]+)\/(connect|reconnect|status|health|warmup)$/);
   if (m) {
     req.params = { id: m[1] };
     const action = m[2];
-    if (action === 'connect'   && method === 'POST') { await controller.connect(req, res);   return true; }
-    if (action === 'reconnect' && method === 'POST') { await controller.reconnect(req, res); return true; }
-    if (action === 'status'    && method === 'GET')  { await controller.getStatus(req, res); return true; }
-    if (action === 'health'    && method === 'GET')  { await controller.getHealth(req, res); return true; }
+    if (action === 'connect'   && method === 'POST')   { await controller.connect(req, res);           return true; }
+    if (action === 'reconnect' && method === 'POST')   { await controller.reconnect(req, res);          return true; }
+    if (action === 'status'    && method === 'GET')    { await controller.getStatus(req, res);          return true; }
+    if (action === 'health'    && method === 'GET')    { await controller.getHealth(req, res);          return true; }
+    if (action === 'warmup'    && method === 'GET')    { await controller.getWarmupStatus(req, res);    return true; }
+    if (action === 'warmup'    && method === 'POST')   { await controller.startWarmup(req, res);        return true; }
+    if (action === 'warmup'    && method === 'DELETE') { await controller.stopWarmup(req, res);         return true; }
+    if (action === 'warmup'    && method === 'PATCH')  { await controller.updateWarmupConfig(req, res); return true; }
   }
 
   return false;

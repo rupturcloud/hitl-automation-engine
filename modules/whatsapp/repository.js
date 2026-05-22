@@ -102,6 +102,31 @@ export class WhatsappRepository {
     if (error) throw error;
     return data;
   }
+
+  /**
+   * Faz merge parcial em metadata (JSON) sem sobrescrever outros campos.
+   * @param {string} id
+   * @param {object} patch — chaves do nível raiz do metadata a mesclar
+   */
+  async mergeMetadata({ id, patch }) {
+    // Lê o metadata atual primeiro
+    const { data: row, error: e1 } = await this.db
+      .from('instance_registry')
+      .select('metadata')
+      .eq('id', id)
+      .maybeSingle();
+    if (e1) throw e1;
+    const current = row?.metadata || {};
+    const merged = { ...current, ...patch };
+    const { data, error: e2 } = await this.db
+      .from('instance_registry')
+      .update({ metadata: merged, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (e2) throw e2;
+    return data;
+  }
 }
 
 export default WhatsappRepository;

@@ -71,6 +71,44 @@ export class WhatsappController {
     });
   }
 
+  async getWarmupStatus(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.getWarmupStatus({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async startWarmup(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const config = req.body?.config || {};
+      const data = await this.service.startWarmup({ tenantId, id, config });
+      return { data };
+    });
+  }
+
+  async stopWarmup(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.stopWarmup({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async updateWarmupConfig(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const config = req.body?.config || {};
+      const data = await this.service.updateWarmupConfig({ tenantId, id, config });
+      return { data };
+    });
+  }
+
   async _handle(res, fn) {
     try {
       const { data, meta = {}, status = 200 } = await fn();

@@ -44,6 +44,34 @@ export const whatsappApi = {
   health(id) {
     return http.get('/whatsapp/numbers/:id/health', { params: { id } });
   },
+
+  /** Estado atual do aquecimento. */
+  getWarmupStatus(id) {
+    return http.get('/whatsapp/numbers/:id/warmup', { params: { id } });
+  },
+
+  /**
+   * Inicia aquecimento.
+   * @param {string} id
+   * @param {object} config — { msgsDay, startH, endH, content, speed }
+   */
+  startWarmup(id, config = {}) {
+    return http.post('/whatsapp/numbers/:id/warmup', { params: { id }, body: { config } });
+  },
+
+  /** Para o aquecimento (pausa, mantém progresso). */
+  stopWarmup(id) {
+    return http.delete('/whatsapp/numbers/:id/warmup', { params: { id } });
+  },
+
+  /**
+   * Atualiza só a config do aquecimento (não altera enabled/pct/score).
+   * @param {string} id
+   * @param {object} config
+   */
+  updateWarmupConfig(id, config) {
+    return http.patch('/whatsapp/numbers/:id/warmup', { params: { id }, body: { config } });
+  },
 };
 
 export default whatsappApi;

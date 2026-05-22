@@ -582,12 +582,41 @@ function WarmupChart() {
   );
 }
 
-function WarmupSettings() {
-  const [msgsDay, setMsgsDay] = useState(120);
-  const [startH, setStartH] = useState('08:00');
-  const [endH, setEndH] = useState('18:00');
-  const [content, setContent] = useState({ text: true, image: true, audio: false, doc: false });
-  const [speed, setSpeed] = useState('moderado');
+function WarmupSettings({ instId, initialConfig, onSaved }) {
+  const [msgsDay, setMsgsDay] = useState(initialConfig?.msgsDay ?? 120);
+  const [startH, setStartH] = useState(initialConfig?.startH ?? '08:00');
+  const [endH, setEndH] = useState(initialConfig?.endH ?? '18:00');
+  const [content, setContent] = useState({
+    text:  (initialConfig?.content ?? ['text', 'image']).includes('text'),
+    image: (initialConfig?.content ?? ['text', 'image']).includes('image'),
+    audio: (initialConfig?.content ?? []).includes('audio'),
+    doc:   (initialConfig?.content ?? []).includes('doc'),
+  });
+  const [speed, setSpeed] = useState(initialConfig?.speed ?? 'moderado');
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast?.() ?? { toast: () => {} };
+
+  async function handleSave() {
+    if (!instId) return;
+    setSaving(true);
+    const cfg = {
+      msgsDay,
+      startH,
+      endH,
+      content: Object.entries(content).filter(([, v]) => v).map(([k]) => k),
+      speed,
+    };
+    try {
+      await whatsappApi.updateWarmupConfig(instId, cfg);
+      toast?.('✅ Configuração de aquecimento salva!');
+      onSaved?.(cfg);
+    } catch (e) {
+      toast?.('❌ Erro ao salvar configuração: ' + (e?.message || 'Tente novamente.'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div>
@@ -632,6 +661,11 @@ function WarmupSettings() {
           ))}
         </div>
       </div>
+      {instId && (
+        <Button variant="primary" size="sm" onClick={handleSave} disabled={saving}>
+          {saving ? 'Salvando…' : 'Salvar configuração'}
+        </Button>
+      )}
     </div>
   );
 }
@@ -650,32 +684,121 @@ function CircleScore({ value }) {
   );
 }
 
-function WarmupDashboard({ instances }) {
-  const inWarmup = instances.filter(i => i._warmup !== 'hot');
+function WarmupDashboard({ instances, onWarmupChange }) {
+  const [busy, setBusy] = useState({}); // id → 'starting' | 'stopping'
+  const [selected, setSelected] = useState(null); // inst selecionada para config
+  const { toast } = useToast?.() ?? { toast: () => {} };
+
+  // Só instâncias conectadas aparecem na lista de aquecimento
+  const connected = instances.filter(i => i._state === 'connected');
+  const hot = connected.filter(i => i.warmup?.enabled && (i.warmup?.pct ?? 0) >= 100);
+
+  // Seleciona a primeira por padrão quando a lista muda
+  const firstConnected = connected[0] || null;
+  const activeConfig = selected
+    ? instances.find(i => i.id === selected.id)
+    : firstConnected;
+
+  async function handleStart(inst) {
+    setBusy(b => ({ ...b, [inst.id]: 'starting' }));
+    try {
+      const config = inst.warmup?.config || {};
+      const res = await whatsappApi.startWarmup(inst.id, config);
+      toast?.('🔥 Aquecimento iniciado para ' + inst.name + '!');
+      onWarmupChange?.(inst.id, res?.data?.warmup || { enabled: true, pct: inst.warmup?.pct ?? 0 });
+    } catch (e) {
+      toast?.('❌ ' + (e?.message || 'Erro ao iniciar aquecimento.'));
+    } finally {
+      setBusy(b => ({ ...b, [inst.id]: undefined }));
+    }
+  }
+
+  async function handleStop(inst) {
+    setBusy(b => ({ ...b, [inst.id]: 'stopping' }));
+    try {
+      const res = await whatsappApi.stopWarmup(inst.id);
+      toast?.('⏸ Aquecimento pausado para ' + inst.name + '.');
+      onWarmupChange?.(inst.id, res?.data?.warmup || { enabled: false, pct: inst.warmup?.pct ?? 0 });
+    } catch (e) {
+      toast?.('❌ ' + (e?.message || 'Erro ao parar aquecimento.'));
+    } finally {
+      setBusy(b => ({ ...b, [inst.id]: undefined }));
+    }
+  }
+
   return (
     <div>
       <div className="wu-grid">
+        {/* Coluna principal: lista + gráfico */}
         <div>
-          <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700 }}>Números em aquecimento</h3>
-          <div className="wu-list">
-            {inWarmup.length === 0 && (
-              <EmptyState icon="check" title="Tudo aquecido" text="Nenhum número precisa de warmup agora." />
+          <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700 }}>
+            Números em aquecimento
+            {hot.length > 0 && (
+              <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: '#25D366', background: '#DCFCE7', padding: '2px 8px', borderRadius: 999 }}>
+                {hot.length} pronto{hot.length > 1 ? 's' : ''}
+              </span>
             )}
-            {inWarmup.map(inst => (
-              <div key={inst.id} className="wu-item">
-                <div className="wu-item-info">
-                  <div className="wu-item-name">{inst.name}</div>
-                  <div className="wu-item-phone">{inst.phone || 'sem número'}</div>
-                  <div className="wu-item-bar"><i style={{ width: (inst._warmupPct || 0) + '%' }} /></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: 'var(--ink-500)', marginTop: 4 }}>
-                    <span>{inst._warmupPct || 0}% aquecido</span>
+          </h3>
+
+          {connected.length === 0 && (
+            <EmptyState icon="phone" title="Nenhum número conectado" text="Conecte uma instância WhatsApp primeiro para iniciar o aquecimento." />
+          )}
+
+          {connected.length > 0 && (
+            <div className="wu-list">
+              {connected.map(inst => {
+                const pct = inst.warmup?.pct ?? 0;
+                const enabled = inst.warmup?.enabled ?? false;
+                const score = inst.warmup?.score ?? 32;
+                const isBusy = !!busy[inst.id];
+                const isSelected = activeConfig?.id === inst.id;
+                return (
+                  <div
+                    key={inst.id}
+                    className="wu-item"
+                    style={{ cursor: 'pointer', outline: isSelected ? '2px solid var(--brand-400)' : 'none', outlineOffset: 2 }}
+                    onClick={() => setSelected(inst)}
+                  >
+                    <div className="wu-item-info">
+                      <div className="wu-item-name">{inst.name}</div>
+                      <div className="wu-item-phone">{inst.phone || 'sem número'}</div>
+                      <div className="wu-item-bar">
+                        <i style={{ width: pct + '%', background: pct >= 100 ? '#25D366' : 'linear-gradient(90deg, var(--brand-500), #FF8866)' }} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: 'var(--ink-500)', marginTop: 4 }}>
+                        <span>{pct}% aquecido</span>
+                        {enabled
+                          ? <span style={{ color: '#25D366', fontWeight: 700 }}>● Aquecendo</span>
+                          : <span style={{ color: 'var(--ink-400)' }}>● Pausado</span>
+                        }
+                      </div>
+                    </div>
+                    <CircleScore value={score} />
+                    {enabled ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={e => { e.stopPropagation(); handleStop(inst); }}
+                        disabled={isBusy}
+                      >
+                        {isBusy ? '…' : '⏸ Pausar'}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={e => { e.stopPropagation(); handleStart(inst); }}
+                        disabled={isBusy}
+                      >
+                        {isBusy ? '…' : '🔥 Aquecer'}
+                      </Button>
+                    )}
                   </div>
-                </div>
-                <CircleScore value={inst._health || 32} />
-                <Button variant="primary" size="sm" onClick={() => {}}>Iniciar aquecimento</Button>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
+
           <div className="wu-chart-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
               <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>Evolução do score · últimos 14 dias</h4>
@@ -684,11 +807,29 @@ function WarmupDashboard({ instances }) {
             <WarmupChart />
           </div>
         </div>
+
+        {/* Coluna lateral: simulação + config */}
         <div>
           <WarmupSim />
           <div className="wu-chart-card" style={{ marginTop: 14 }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700 }}>Configuração de aquecimento</h4>
-            <WarmupSettings />
+            <h4 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700 }}>Configuração de aquecimento</h4>
+            {activeConfig ? (
+              <>
+                <p style={{ margin: '0 0 12px', fontSize: 11.5, color: 'var(--ink-500)' }}>
+                  Editando: <b>{activeConfig.name}</b>
+                  {connected.length > 1 && <span style={{ color: 'var(--ink-400)' }}> · clique num número ao lado para trocar</span>}
+                </p>
+                <WarmupSettings
+                  instId={activeConfig.id}
+                  initialConfig={activeConfig.warmup?.config}
+                  onSaved={(cfg) => onWarmupChange?.(activeConfig.id, { ...activeConfig.warmup, config: cfg })}
+                />
+              </>
+            ) : (
+              <p style={{ fontSize: 12, color: 'var(--ink-500)', margin: 0 }}>
+                Conecte um número para configurar o aquecimento.
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -749,14 +890,20 @@ export default function Numbers() {
   const [newModal, setNewModal] = useState(false);
   const { toast } = useToast?.() ?? { toast: () => {} };
 
-  // Enriquece com campos UI locais (_state, _warmup, _warmupPct, _health)
-  const enrich = useCallback((raw) => ({
-    ...raw,
-    _state: normalizeState(raw.status),
-    _warmup: raw._warmup || 'cold',
-    _warmupPct: raw._warmupPct ?? 0,
-    _health: raw._health ?? 32,
-  }), []);
+  // Enriquece com campos UI locais derivados do DTO
+  const enrich = useCallback((raw) => {
+    const warmup = raw.warmup || { enabled: false, pct: 0, score: 32, config: null };
+    const pct = warmup.pct ?? 0;
+    return {
+      ...raw,
+      warmup,
+      _state: normalizeState(raw.status),
+      // _warmup / _warmupPct / _health: aliases para o InstanceCard (legado)
+      _warmup: warmup.enabled ? (pct >= 100 ? 'hot' : 'warming') : 'cold',
+      _warmupPct: pct,
+      _health: warmup.score ?? 32,
+    };
+  }, []);
 
   // Carregar lista inicial
   const loadNumbers = useCallback(async () => {
@@ -795,6 +942,22 @@ export default function Numbers() {
     setNewModal(false);
     setQrModal(enriched);
   }, [enrich]);
+
+  // Atualiza estado de warmup de uma instância no state local
+  const handleWarmupChange = useCallback((id, warmupPatch) => {
+    setInstances(prev => prev.map(x => {
+      if (x.id !== id) return x;
+      const newWarmup = { ...(x.warmup || {}), ...warmupPatch };
+      const pct = newWarmup.pct ?? 0;
+      return {
+        ...x,
+        warmup: newWarmup,
+        _warmup: newWarmup.enabled ? (pct >= 100 ? 'hot' : 'warming') : 'cold',
+        _warmupPct: pct,
+        _health: newWarmup.score ?? x._health ?? 32,
+      };
+    }));
+  }, []);
 
   // Salvar config
   const handleSaveConfig = useCallback((updated) => {
@@ -879,7 +1042,7 @@ export default function Numbers() {
         </>
       )}
 
-      {tab === 'warmup' && <WarmupDashboard instances={instances} />}
+      {tab === 'warmup' && <WarmupDashboard instances={instances} onWarmupChange={handleWarmupChange} />}
 
       {/* Modal: criar novo número */}
       {newModal && <NewNumberModal onClose={() => setNewModal(false)} onCreate={handleNewNumber} />}

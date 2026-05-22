@@ -77,6 +77,80 @@ export class WhatsappService {
     }
     return { id, ...(await this.adapter.getHealth(row.remote_instance_id)) };
   }
+
+  /**
+   * Inicia aquecimento de uma instância.
+   * Salva config e estado no metadata da instância (sem depender do warmup-core externo).
+   *
+   * @param {object} opts
+   * @param {string} opts.tenantId
+   * @param {string} opts.id
+   * @param {object} opts.config — { msgsDay, startH, endH, content, speed }
+   */
+  async startWarmup({ tenantId, id, config = {} }) {
+    const row = await this.repo.findById({ tenantId, id });
+    if (!row) throw new BusinessError('ERR_NOT_FOUND', 'Número não encontrado.', 404);
+    if (row.status !== 'connected') {
+      throw new BusinessError('ERR_NOT_CONNECTED', 'O número precisa estar conectado para iniciar o aquecimento.', 400);
+    }
+
+    const current = row.metadata?.warmup || {};
+    const warmupState = {
+      enabled: true,
+      startedAt: current.startedAt || new Date().toISOString(),
+      config: {
+        msgsDay: config.msgsDay ?? current.config?.msgsDay ?? 120,
+        startH: config.startH ?? current.config?.startH ?? '08:00',
+        endH: config.endH ?? current.config?.endH ?? '18:00',
+        content: config.content ?? current.config?.content ?? ['text', 'image'],
+        speed: config.speed ?? current.config?.speed ?? 'moderado',
+      },
+      pct: current.pct ?? 0,
+      score: current.score ?? 32,
+    };
+
+    await this.repo.mergeMetadata({ id, patch: { warmup: warmupState } });
+    return { id, warmup: warmupState };
+  }
+
+  /**
+   * Para o aquecimento (pausa — mantém histórico de progresso).
+   */
+  async stopWarmup({ tenantId, id }) {
+    const row = await this.repo.findById({ tenantId, id });
+    if (!row) throw new BusinessError('ERR_NOT_FOUND', 'Número não encontrado.', 404);
+
+    const current = row.metadata?.warmup || {};
+    const warmupState = { ...current, enabled: false, stoppedAt: new Date().toISOString() };
+    await this.repo.mergeMetadata({ id, patch: { warmup: warmupState } });
+    return { id, warmup: warmupState };
+  }
+
+  /**
+   * Retorna estado atual do aquecimento de uma instância.
+   */
+  async getWarmupStatus({ tenantId, id }) {
+    const row = await this.repo.findById({ tenantId, id });
+    if (!row) throw new BusinessError('ERR_NOT_FOUND', 'Número não encontrado.', 404);
+    const warmup = row.metadata?.warmup || { enabled: false, pct: 0, score: 32 };
+    return { id, warmup };
+  }
+
+  /**
+   * Atualiza apenas a config do aquecimento sem alterar enabled/pct/score.
+   */
+  async updateWarmupConfig({ tenantId, id, config }) {
+    const row = await this.repo.findById({ tenantId, id });
+    if (!row) throw new BusinessError('ERR_NOT_FOUND', 'Número não encontrado.', 404);
+
+    const current = row.metadata?.warmup || {};
+    const warmupState = {
+      ...current,
+      config: { ...(current.config || {}), ...config },
+    };
+    await this.repo.mergeMetadata({ id, patch: { warmup: warmupState } });
+    return { id, warmup: warmupState };
+  }
 }
 
 export class BusinessError extends Error {
@@ -89,6 +163,7 @@ export class BusinessError extends Error {
 }
 
 function toNumberDTO(row) {
+  const warmupMeta = row.metadata?.warmup || {};
   return {
     id: row.id,
     name: row.instance_name || row.name,
@@ -98,6 +173,13 @@ function toNumberDTO(row) {
     platform: row.platform || null,
     lastSeenAt: row.last_seen_at,
     updatedAt: row.updated_at,
+    warmup: {
+      enabled: warmupMeta.enabled || false,
+      pct: warmupMeta.pct ?? 0,
+      score: warmupMeta.score ?? 32,
+      config: warmupMeta.config || null,
+      startedAt: warmupMeta.startedAt || null,
+    },
   };
 }
 
