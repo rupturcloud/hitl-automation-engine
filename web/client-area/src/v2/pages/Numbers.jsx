@@ -491,12 +491,33 @@ function InstanceCard({ inst, health, onConnect, onReconnect, onConfig, onDiscon
 // ---------------------------------------------------------------------------
 function InstanceConfigDrawer({ inst, onClose, onSave }) {
   const [draft, setDraft] = useState({ ...inst, webhookUrl: inst.webhookUrl || '', delay: inst.delay || 3, dailyLimit: inst.dailyLimit || 500 });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await whatsappApi.updateNumber(inst.id, {
+        name: draft.name,
+        webhookUrl: draft.webhookUrl,
+        delay: draft.delay,
+        dailyLimit: draft.dailyLimit,
+      });
+      onSave(res?.data || draft);
+    } catch (e) {
+      setError(e?.message || 'Erro ao salvar.');
+      setSaving(false);
+    }
+  }
 
   return (
     <Drawer title={`Config · ${inst.name}`} onClose={onClose} footer={
       <>
         <Button variant="ghost" onClick={onClose}>Cancelar</Button>
-        <Button variant="primary" onClick={() => onSave(draft)}>Salvar</Button>
+        <Button variant="primary" onClick={handleSave} disabled={saving}>
+          {saving ? 'Salvando…' : 'Salvar'}
+        </Button>
       </>
     }>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -509,6 +530,11 @@ function InstanceConfigDrawer({ inst, onClose, onSave }) {
           <input type="range" min="1" max="10" value={draft.delay} onChange={e => setDraft({ ...draft, delay: +e.target.value })} style={{ width: '100%' }} />
         </div>
         <Input label="Limite diário (mensagens)" type="number" value={draft.dailyLimit} onChange={e => setDraft({ ...draft, dailyLimit: +e.target.value })} />
+        {error && (
+          <div style={{ fontSize: 12.5, color: 'var(--danger,#DC2626)', padding: '8px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8 }}>
+            {error}
+          </div>
+        )}
         <div style={{ padding: 12, background: 'var(--brand-50,#FFF4F1)', border: '1px solid var(--brand-100,#FFD9CC)', borderRadius: 8, fontSize: 12.5, color: 'var(--ink-700)' }}>
           <b style={{ color: 'var(--brand-500)' }}>⚠️ Proteção anti-ban:</b> intervalo mínimo 2s, kill switch automático se taxa de bloqueio &gt; 8%.
         </div>
@@ -882,7 +908,7 @@ function NewNumberModal({ onClose, onCreate }) {
 export default function Numbers() {
   const [tab, setTab] = useState('instances');
   const [instances, setInstances] = useState([]);
-  const [healthMap] = useState({});   // id → { msgsToday, deliveryRate, uptime, sparkline } — populado por polling futuro
+  const [healthMap, setHealthMap] = useState({});   // id → { msgsToday, deliveryRate, uptime, sparkline }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [qrModal, setQrModal] = useState(null);     // inst | null
@@ -905,6 +931,21 @@ export default function Numbers() {
     };
   }, []);
 
+  // Busca métricas de saúde das instâncias conectadas
+  const loadHealth = useCallback(async (currentInstances) => {
+    const connected = currentInstances.filter(i => i._state === 'connected');
+    if (connected.length === 0) return;
+    const results = await Promise.allSettled(connected.map(async inst => {
+      try {
+        const res = await whatsappApi.health(inst.id);
+        return { id: inst.id, data: res?.data || {} };
+      } catch { return { id: inst.id, data: {} }; }
+    }));
+    const map = {};
+    results.forEach(r => { if (r.status === 'fulfilled' && r.value) map[r.value.id] = r.value.data; });
+    setHealthMap(prev => ({ ...prev, ...map }));
+  }, []);
+
   // Carregar lista inicial
   const loadNumbers = useCallback(async () => {
     setLoading(true);
@@ -912,16 +953,25 @@ export default function Numbers() {
     try {
       const res = await whatsappApi.listNumbers();
       const rows = res?.data || res || [];
-      setInstances(rows.map(enrich));
+      const enriched = rows.map(enrich);
+      setInstances(enriched);
+      loadHealth(enriched);
     } catch (e) {
       setError(e?.message || 'Erro ao carregar números.');
     } finally {
       setLoading(false);
     }
-  }, [enrich]);
+  }, [enrich, loadHealth]);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadNumbers(); }, [loadNumbers]);
+
+  // Polling de health a cada 30s
+  useEffect(() => {
+    if (instances.length === 0) return;
+    const tid = setInterval(() => loadHealth(instances), 30_000);
+    return () => clearInterval(tid);
+  }, [instances, loadHealth]);
 
   // Ao abrir modal QR (instância existe) — só exibe o modal, ele chama connect()
   const handleConnect = (inst) => setQrModal(inst);

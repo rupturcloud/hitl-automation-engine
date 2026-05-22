@@ -104,6 +104,50 @@ export class WhatsappRepository {
   }
 
   /**
+   * Atualiza campos de configuração de uma instância.
+   * - name → instance_name (campo direto)
+   * - webhookUrl, delay, dailyLimit → metadata.config (merge parcial)
+   *
+   * @param {string} id
+   * @param {object} patch — { name?, webhookUrl?, delay?, dailyLimit? }
+   */
+  async updateConfig({ id, patch }) {
+    // Lê estado atual para fazer merge seguro
+    const { data: row, error: e1 } = await this.db
+      .from('instance_registry')
+      .select('instance_name, metadata')
+      .eq('id', id)
+      .maybeSingle();
+    if (e1) throw e1;
+
+    const dbPatch = { updated_at: new Date().toISOString() };
+
+    // Atualiza instance_name diretamente se fornecido
+    if (patch.name != null) dbPatch.instance_name = patch.name;
+
+    // Faz merge em metadata.config para os demais campos
+    const current = row?.metadata || {};
+    const currentConfig = current.config || {};
+    const configPatch = {};
+    if (patch.webhookUrl != null) configPatch.webhookUrl = patch.webhookUrl;
+    if (patch.delay != null) configPatch.delay = patch.delay;
+    if (patch.dailyLimit != null) configPatch.dailyLimit = patch.dailyLimit;
+
+    if (Object.keys(configPatch).length > 0) {
+      dbPatch.metadata = { ...current, config: { ...currentConfig, ...configPatch } };
+    }
+
+    const { data, error: e2 } = await this.db
+      .from('instance_registry')
+      .update(dbPatch)
+      .eq('id', id)
+      .select()
+      .single();
+    if (e2) throw e2;
+    return data;
+  }
+
+  /**
    * Faz merge parcial em metadata (JSON) sem sobrescrever outros campos.
    * @param {string} id
    * @param {object} patch — chaves do nível raiz do metadata a mesclar

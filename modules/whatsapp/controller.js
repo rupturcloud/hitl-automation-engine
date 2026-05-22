@@ -99,6 +99,16 @@ export class WhatsappController {
     });
   }
 
+  async updateNumber(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const patch = req.body || {};
+      const data = await this.service.updateNumber({ tenantId, id, patch });
+      return { data };
+    });
+  }
+
   async updateWarmupConfig(req, res) {
     return this._handle(res, async () => {
       const tenantId = req.tenantId;

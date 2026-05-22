@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "client-area (Vite)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "web/client-area", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "saas gateway (API)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "saas:dev"],
+      "port": 3001
+    },
+    {
+      "name": "warmup runtime + frontlindona",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "port": 8787
+    }
+  ]
+}

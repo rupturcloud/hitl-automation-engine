@@ -137,6 +137,20 @@ export class WhatsappService {
   }
 
   /**
+   * Atualiza campos de configuração de um número (nome, webhook, delay, limite diário).
+   * @param {object} opts
+   * @param {string} opts.tenantId
+   * @param {string} opts.id
+   * @param {object} opts.patch — { name?, webhookUrl?, delay?, dailyLimit? }
+   */
+  async updateNumber({ tenantId, id, patch }) {
+    const row = await this.repo.findById({ tenantId, id });
+    if (!row) throw new BusinessError('ERR_NOT_FOUND', 'Número não encontrado.', 404);
+    const updated = await this.repo.updateConfig({ id, patch });
+    return toNumberDTO(updated);
+  }
+
+  /**
    * Atualiza apenas a config do aquecimento sem alterar enabled/pct/score.
    */
   async updateWarmupConfig({ tenantId, id, config }) {

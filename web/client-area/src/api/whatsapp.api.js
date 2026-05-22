@@ -65,6 +65,15 @@ export const whatsappApi = {
   },
 
   /**
+   * Atualiza campos de configuração de uma instância (nome, webhook, delay, limite diário).
+   * @param {string} id
+   * @param {object} patch — { name?, webhookUrl?, delay?, dailyLimit? }
+   */
+  updateNumber(id, patch) {
+    return http.patch('/whatsapp/numbers/:id', { params: { id }, body: patch });
+  },
+
+  /**
    * Atualiza só a config do aquecimento (não altera enabled/pct/score).
    * @param {string} id
    * @param {object} config

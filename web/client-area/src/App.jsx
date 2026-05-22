@@ -45,12 +45,13 @@ import LandingV2 from './v2/pages/Landing.jsx';
 import DashboardV2 from './v2/pages/Dashboard.jsx';
 import NumbersV2 from './v2/pages/Numbers.jsx';
 import AdminV2 from './v2/pages/Admin.jsx';
+import AquecimentoV2 from './v2/pages/Aquecimento.jsx';
 import PlaceholderV2 from './v2/pages/Placeholder.jsx';
 
 const V2_PENDING = [
   // Operação
   'pipeline', 'inbox', 'campaigns', 'grupos', 'outreach',
-  'remarketing', 'canais', 'aquecimento', 'rede-coletiva',
+  'remarketing', 'canais', 'rede-coletiva',
   // Receita
   'business', 'billing', 'growth', 'indicacoes', 'insights',
   // Sistema
@@ -174,6 +175,7 @@ function App() {
                 <Route element={<AppShellV2 />}>
                   <Route path="dashboard" element={<DashboardV2 />} />
                   <Route path="numbers" element={<NumbersV2 />} />
+                  <Route path="aquecimento" element={<AquecimentoV2 />} />
                   <Route path="admin" element={<AdminV2 />} />
                   {V2_PENDING.map(id => (
                     <Route key={id} path={id} element={<PlaceholderV2 name={id} />} />
