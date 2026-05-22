@@ -47,6 +47,22 @@ export async function registerWhatsappRoutes({ req, res, pathname, method, ctx }
   }
 
   // /api/v1/whatsapp/numbers/:id/(connect|reconnect|status|health|warmup)
+  // POST /api/v1/whatsapp/numbers/:id/disconnect
+  const mDisc = pathname.match(/^\/api\/v1\/whatsapp\/numbers\/([^/]+)\/disconnect$/);
+  if (mDisc && method === 'POST') {
+    req.params = { id: mDisc[1] };
+    await controller.disconnect(req, res);
+    return true;
+  }
+
+  // GET|POST /api/v1/whatsapp/numbers/:id/webhook
+  const mWh = pathname.match(/^\/api\/v1\/whatsapp\/numbers\/([^/]+)\/webhook$/);
+  if (mWh) {
+    req.params = { id: mWh[1] };
+    if (method === 'GET')  { await controller.getWebhook(req, res); return true; }
+    if (method === 'POST') { await controller.setWebhook(req, res);  return true; }
+  }
+
   const m = pathname.match(/^\/api\/v1\/whatsapp\/numbers\/([^/]+)\/(connect|reconnect|status|health|warmup)$/);
   if (m) {
     req.params = { id: m[1] };

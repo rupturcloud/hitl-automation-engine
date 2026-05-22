@@ -119,6 +119,34 @@ export class WhatsappController {
     });
   }
 
+  async disconnect(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.disconnect({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async getWebhook(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.getWebhook({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async setWebhook(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const config = req.body?.config ?? req.body ?? {};
+      const data = await this.service.setWebhook({ tenantId, id, config });
+      return { data };
+    });
+  }
+
   async _handle(res, fn) {
     try {
       const { data, meta = {}, status = 200 } = await fn();

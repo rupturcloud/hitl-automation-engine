@@ -81,6 +81,31 @@ export const whatsappApi = {
   updateWarmupConfig(id, config) {
     return http.patch('/whatsapp/numbers/:id/warmup', { params: { id }, body: { config } });
   },
+
+  /**
+   * Desconecta a instância do provider WhatsApp.
+   * @param {string} id
+   */
+  disconnect(id) {
+    return http.post('/whatsapp/numbers/:id/disconnect', { params: { id } });
+  },
+
+  /**
+   * Retorna a configuração de webhook da instância.
+   * @param {string} id
+   */
+  getWebhook(id) {
+    return http.get('/whatsapp/numbers/:id/webhook', { params: { id } });
+  },
+
+  /**
+   * Configura o webhook da instância no padrão UAZAPI.
+   * @param {string} id
+   * @param {object} config — { url, enabled, events, addUrlEvents, addUrlTypeMessages }
+   */
+  setWebhook(id, config) {
+    return http.post('/whatsapp/numbers/:id/webhook', { params: { id }, body: { config } });
+  },
 };
 
 export default whatsappApi;

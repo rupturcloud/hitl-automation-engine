@@ -92,14 +92,25 @@ export class UazapiWhatsappAdapter {
   }
 
   /**
-   * Configura webhook da instância.
+   * Retorna configuração atual do webhook da instância.
    * @param {string} instanceToken
-   * @param {object} config — { url, events? }
    */
-  async setWebhook(instanceToken, { url, events } = {}) {
+  async getWebhook(instanceToken) {
+    return this._client.getWebhook(instanceToken);
+  }
+
+  /**
+   * Configura webhook da instância no padrão UAZAPI.
+   * @param {string} instanceToken
+   * @param {object} config — { url, enabled, events, addUrlEvents, addUrlTypeMessages }
+   */
+  async setWebhook(instanceToken, config = {}) {
     return this._client.updateWebhook(instanceToken, {
-      url,
-      ...(events ? { events } : {}),
+      url:                config.url                ?? '',
+      enabled:            config.enabled            ?? true,
+      events:             config.events             ?? ['messages_update'],
+      addUrlEvents:       config.addUrlEvents       ?? false,
+      addUrlTypeMessages: config.addUrlTypeMessages ?? false,
     });
   }
 

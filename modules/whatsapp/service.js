@@ -176,6 +176,82 @@ export class WhatsappService {
     await this.repo.mergeMetadata({ id, patch: { warmup: warmupState } });
     return { id, warmup: warmupState };
   }
+
+  /**
+   * Desconecta a instância do provider UAZAPI.
+   * Atualiza o status local para 'disconnected'.
+   */
+  async disconnect({ tenantId, id }) {
+    const row = await this.repo.findById({ tenantId, id });
+    if (!row) throw new BusinessError('ERR_NOT_FOUND', 'Número não encontrado.', 404);
+    if (!row.remote_instance_id || row.remote_instance_id.startsWith('pending-')) {
+      // Sem remote — apenas marca como desconectado localmente
+      await this.repo.updateStatus({ id, status: 'disconnected' });
+      return { id, status: 'disconnected' };
+    }
+    try {
+      await this.adapter.disconnect(row.remote_instance_id);
+    } catch (e) {
+      // Ignora erros do provider (pode já estar desconectado) e continua com atualização local
+      console.warn('[whatsapp.service] disconnect provider error (ignorado):', e?.message);
+    }
+    await this.repo.updateStatus({ id, status: 'disconnected' });
+    return { id, status: 'disconnected' };
+  }
+
+  /**
+   * Retorna a configuração de webhook da instância.
+   * Combina: config salva localmente no metadata + dados do provider (se disponível).
+   */
+  async getWebhook({ tenantId, id }) {
+    const row = await this.repo.findById({ tenantId, id });
+    if (!row) throw new BusinessError('ERR_NOT_FOUND', 'Número não encontrado.', 404);
+    const localWebhook = row.metadata?.webhook || null;
+    if (!row.remote_instance_id || row.remote_instance_id.startsWith('pending-')) {
+      return { id, webhook: localWebhook };
+    }
+    try {
+      const remote = await this.adapter.getWebhook(row.remote_instance_id);
+      return { id, webhook: remote ?? localWebhook };
+    } catch {
+      return { id, webhook: localWebhook };
+    }
+  }
+
+  /**
+   * Configura webhook da instância.
+   * Salva no metadata local + aplica no provider UAZAPI se já conectado.
+   *
+   * @param {object} config — { url, enabled, events, addUrlEvents, addUrlTypeMessages }
+   */
+  async setWebhook({ tenantId, id, config }) {
+    const row = await this.repo.findById({ tenantId, id });
+    if (!row) throw new BusinessError('ERR_NOT_FOUND', 'Número não encontrado.', 404);
+
+    // Normaliza config seguindo padrão UAZAPI
+    const webhookConfig = {
+      url:                config.url             ?? '',
+      enabled:            config.enabled         ?? true,
+      events:             config.events          ?? ['messages_update'],
+      addUrlEvents:       config.addUrlEvents    ?? false,
+      addUrlTypeMessages: config.addUrlTypeMessages ?? false,
+    };
+
+    // Persiste localmente
+    await this.repo.mergeMetadata({ id, patch: { webhook: webhookConfig } });
+
+    // Aplica no provider se já tem remote_instance_id
+    if (row.remote_instance_id && !row.remote_instance_id.startsWith('pending-')) {
+      try {
+        await this.adapter.setWebhook(row.remote_instance_id, webhookConfig);
+      } catch (e) {
+        console.warn('[whatsapp.service] setWebhook provider error:', e?.message);
+        // Não falha — config salva localmente, será aplicada na próxima reconexão
+      }
+    }
+
+    return { id, webhook: webhookConfig };
+  }
 }
 
 export class BusinessError extends Error {

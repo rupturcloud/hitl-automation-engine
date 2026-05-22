@@ -489,20 +489,56 @@ function InstanceCard({ inst, health, onConnect, onReconnect, onConfig, onDiscon
 // ---------------------------------------------------------------------------
 // Config Drawer
 // ---------------------------------------------------------------------------
+// Eventos UAZAPI disponíveis para escuta no webhook
+const WEBHOOK_EVENTS = [
+  { id: 'messages_update', label: 'messages_update', desc: 'Status de entrega / leitura' },
+  { id: 'messages_upsert', label: 'messages_upsert', desc: 'Novas mensagens recebidas' },
+  { id: 'qr-code-updated', label: 'qr-code-updated', desc: 'QR Code atualizado' },
+  { id: 'connection-update', label: 'connection-update', desc: 'Estado da sessão' },
+];
+
 function InstanceConfigDrawer({ inst, onClose, onSave }) {
-  const [draft, setDraft] = useState({ ...inst, webhookUrl: inst.webhookUrl || '', delay: inst.delay || 3, dailyLimit: inst.dailyLimit || 500 });
+  const wh = inst.metadata?.webhook || {};
+  const [draft, setDraft] = useState({
+    name:               inst.name         || '',
+    webhookUrl:         inst.webhookUrl   || wh.url      || '',
+    webhookEnabled:     wh.enabled        ?? true,
+    webhookEvents:      wh.events         ?? ['messages_update'],
+    addUrlEvents:       wh.addUrlEvents   ?? false,
+    addUrlTypeMessages: wh.addUrlTypeMessages ?? false,
+    delay:              inst.delay        ?? 3,
+    dailyLimit:         inst.dailyLimit   ?? 500,
+  });
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError]   = useState(null);
+
+  function toggleEvent(ev) {
+    setDraft(d => ({
+      ...d,
+      webhookEvents: d.webhookEvents.includes(ev)
+        ? d.webhookEvents.filter(e => e !== ev)
+        : [...d.webhookEvents, ev],
+    }));
+  }
 
   async function handleSave() {
     setSaving(true);
     setError(null);
     try {
+      // 1. Salva config geral (nome, delay, limite)
       const res = await whatsappApi.updateNumber(inst.id, {
-        name: draft.name,
+        name:       draft.name,
         webhookUrl: draft.webhookUrl,
-        delay: draft.delay,
+        delay:      draft.delay,
         dailyLimit: draft.dailyLimit,
+      });
+      // 2. Salva config de webhook completa no padrão UAZAPI
+      await whatsappApi.setWebhook(inst.id, {
+        url:                draft.webhookUrl,
+        enabled:            draft.webhookEnabled,
+        events:             draft.webhookEvents,
+        addUrlEvents:       draft.addUrlEvents,
+        addUrlTypeMessages: draft.addUrlTypeMessages,
       });
       onSave(res?.data || draft);
     } catch (e) {
@@ -521,23 +557,89 @@ function InstanceConfigDrawer({ inst, onClose, onSave }) {
       </>
     }>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <Input label="Nome da instância" value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} />
-        <Input label="Webhook URL" value={draft.webhookUrl} onChange={e => setDraft({ ...draft, webhookUrl: e.target.value })} />
+
+        {/* — Dados da instância — */}
+        <Input label="Nome da instância" value={draft.name}
+          onChange={e => setDraft({ ...draft, name: e.target.value })} />
+
+        {/* — Webhook — seguindo padrão UazapiGO — */}
+        <div style={{ border: '1px solid var(--ink-200)', borderRadius: 10, overflow: 'hidden' }}>
+          {/* Header com toggle habilitado */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--ink-50)', borderBottom: '1px solid var(--ink-200)' }}>
+            <span style={{ fontWeight: 700, fontSize: 12.5 }}>🔗 Webhook</span>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12 }}>
+              <input type="checkbox" checked={draft.webhookEnabled}
+                onChange={e => setDraft({ ...draft, webhookEnabled: e.target.checked })} />
+              Habilitado
+            </label>
+          </div>
+
+          <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Input label="URL do webhook" value={draft.webhookUrl}
+              onChange={e => setDraft({ ...draft, webhookUrl: e.target.value })}
+              placeholder="https://sua-api.com/webhook" />
+
+            {/* Opções de URL */}
+            <div style={{ display: 'flex', gap: 16 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, cursor: 'pointer' }}>
+                <input type="checkbox" checked={draft.addUrlEvents}
+                  onChange={e => setDraft({ ...draft, addUrlEvents: e.target.checked })} />
+                addUrlEvents
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, cursor: 'pointer' }}>
+                <input type="checkbox" checked={draft.addUrlTypeMessages}
+                  onChange={e => setDraft({ ...draft, addUrlTypeMessages: e.target.checked })} />
+                addUrlTypeMessages
+              </label>
+            </div>
+
+            {/* Eventos para escutar */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-500)', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 8 }}>
+                Escutar eventos
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {WEBHOOK_EVENTS.map(ev => (
+                  <label key={ev.id} title={ev.desc}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+                      padding: '4px 10px', borderRadius: 999,
+                      background: draft.webhookEvents.includes(ev.id) ? 'var(--brand-50,#FFF4F1)' : 'var(--ink-100)',
+                      border: `1px solid ${draft.webhookEvents.includes(ev.id) ? 'var(--brand-200,#FFD5C5)' : 'transparent'}`,
+                      fontSize: 11.5, fontWeight: 600 }}>
+                    <input type="checkbox" style={{ display: 'none' }}
+                      checked={draft.webhookEvents.includes(ev.id)}
+                      onChange={() => toggleEvent(ev.id)} />
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: draft.webhookEvents.includes(ev.id) ? 'var(--brand-500)' : 'var(--ink-400)', flexShrink: 0 }} />
+                    {ev.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* — Limites de envio — */}
         <div>
           <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--ink-600)', marginBottom: 6 }}>
             Delay entre mensagens · {draft.delay}s
           </label>
-          <input type="range" min="1" max="10" value={draft.delay} onChange={e => setDraft({ ...draft, delay: +e.target.value })} style={{ width: '100%' }} />
+          <input type="range" min="1" max="10" value={draft.delay}
+            onChange={e => setDraft({ ...draft, delay: +e.target.value })}
+            style={{ width: '100%' }} />
         </div>
-        <Input label="Limite diário (mensagens)" type="number" value={draft.dailyLimit} onChange={e => setDraft({ ...draft, dailyLimit: +e.target.value })} />
+        <Input label="Limite diário (mensagens)" type="number" value={draft.dailyLimit}
+          onChange={e => setDraft({ ...draft, dailyLimit: +e.target.value })} />
+
         {error && (
           <div style={{ fontSize: 12.5, color: 'var(--danger,#DC2626)', padding: '8px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8 }}>
             {error}
           </div>
         )}
+
         <div style={{ padding: 12, background: 'var(--brand-50,#FFF4F1)', border: '1px solid var(--brand-100,#FFD9CC)', borderRadius: 8, fontSize: 12.5, color: 'var(--ink-700)' }}>
           <b style={{ color: 'var(--brand-500)' }}>⚠️ Proteção anti-ban:</b> intervalo mínimo 2s, kill switch automático se taxa de bloqueio &gt; 8%.
         </div>
+
         <div style={{ borderTop: '1px solid var(--ink-150,#ECEEF1)', paddingTop: 14 }}>
           <button
             onClick={() => { if (window.confirm(`Excluir instância "${inst.name}"? Esta ação é irreversível.`)) onSave({ __delete: true, id: inst.id }); }}
@@ -1080,9 +1182,17 @@ export default function Numbers() {
                   onConnect={() => handleConnect(inst)}
                   onReconnect={() => handleConnect(inst)}
                   onConfig={() => setConfigDrawer(inst)}
-                  onDisconnect={() => {
+                  onDisconnect={async () => {
                     if (window.confirm(`Desconectar ${inst.name}?`)) {
-                      setInstances(prev => prev.map(x => x.id === inst.id ? { ...x, _state: 'disconnected', status: 'disconnected' } : x));
+                      // Otimista: atualiza local imediatamente
+                      setInstances(prev => prev.map(x => x.id === inst.id
+                        ? { ...x, _state: 'disconnected', status: 'disconnected' }
+                        : x));
+                      try {
+                        await whatsappApi.disconnect(inst.id);
+                      } catch (e) {
+                        toast?.('⚠️ Erro ao desconectar: ' + (e?.message || 'tente novamente'));
+                      }
                     }
                   }}
                 />
