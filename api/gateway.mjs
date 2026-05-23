@@ -1556,6 +1556,35 @@ async function handler(req, res) {
     }
   }
 
+  // PATCH /api/admin/provider-accounts/:id — editar label, serverUrl, accountKind, capacity, etc.
+  // DELETE /api/admin/provider-accounts/:id — excluir conta (bloqueia se tiver instâncias ativas)
+  const providerItemMatch = pathname.match(/^\/api\/admin\/provider-accounts\/([^/]+)$/);
+  if (providerItemMatch && req.method === 'PATCH') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    if (!uazapiAccountService) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    try {
+      const body = await parseBody(req);
+      const account = await uazapiAccountService.updateAccount(providerItemMatch[1], body, adminUser.id);
+      return json(res, 200, { account }, req);
+    } catch (e) {
+      const migrationError = providerMigrationError(e);
+      return json(res, migrationError ? 503 : (e.status || 400), { error: migrationError || e.message }, req);
+    }
+  }
+  if (providerItemMatch && req.method === 'DELETE') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    if (!uazapiAccountService) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    try {
+      const result = await uazapiAccountService.deleteAccount(providerItemMatch[1], adminUser.id);
+      return json(res, 200, result, req);
+    } catch (e) {
+      const migrationError = providerMigrationError(e);
+      return json(res, migrationError ? 503 : (e.status || 400), { error: migrationError || e.message }, req);
+    }
+  }
+
   // --- Admin: Presets de integrações conhecidas ---
   if (pathname === '/api/admin/integration-presets' && req.method === 'GET') {
     const adminUser = await requirePlatformAdmin(req, res);

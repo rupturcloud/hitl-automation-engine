@@ -18,7 +18,6 @@ import { providerApi } from '../../api/admin.api.js';
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 const KIND_LABEL = { free: 'Free', paid: 'Pago', dedicated: 'Dedicado', internal: 'Interno' };
-const KIND_TONE  = { free: 'wa', paid: 'brand', dedicated: 'brand', internal: 'muted' };
 const STATUS_LABEL = { active: 'Ativo', capacity_full: 'Capacidade cheia', draining: 'Drenando', disabled: 'Desabilitado', expired: 'Expirado' };
 const STATUS_COLOR = { active: '#22c55e', capacity_full: '#f59e0b', draining: '#f59e0b', disabled: '#6b7280', expired: '#ef4444' };
 
@@ -142,122 +141,6 @@ const STATIC_CONNECTORS = [
   },
 ];
 
-function UazapiConnectorCard({ accounts, loading, onAdd, onSync }) {
-  const { toast } = useToast();
-  const [testing, setTesting] = useState(null); // id da conta sendo testada
-
-  const totalInstances = accounts.reduce((s, a) => s + (a.used_instances || 0), 0);
-  const isConnected = accounts.length > 0;
-
-  async function handleTest(account) {
-    setTesting(account.id);
-    try {
-      await providerApi.syncAccount(account.id);
-      toast({ type: 'success', title: `UAZAPI "${account.label}" — conexão OK ✓` });
-      onSync?.();
-    } catch (e) {
-      toast({ type: 'error', title: `Falha na conexão: ${e.message}` });
-    } finally {
-      setTesting(null);
-    }
-  }
-
-  return (
-    <div style={{
-      border: '1px solid var(--ink-150)', borderRadius: 10,
-      background: 'var(--ink-0)',
-    }}>
-      {/* Cabeçalho do conector */}
-      <div style={{
-        padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16,
-        borderBottom: isConnected && accounts.length > 0 ? '1px solid var(--ink-100)' : 'none',
-      }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: 10,
-          background: isConnected ? 'var(--brand-50)' : 'var(--ink-100)',
-          color: isConnected ? 'var(--brand-500)' : 'var(--ink-400)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        }}>
-          <Icon name="wa" size={20} />
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-            <span style={{ fontWeight: 600, color: 'var(--ink-900)', fontSize: 14 }}>UAZAPI</span>
-            {loading ? (
-              <span style={{ fontSize: 11, color: 'var(--ink-400)' }}>Carregando…</span>
-            ) : (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
-                background: isConnected ? '#dcfce7' : 'var(--ink-100)',
-                color: isConnected ? '#22c55e' : '#6b7280',
-              }}>
-                {dot(isConnected ? '#22c55e' : '#6b7280')}
-                {isConnected ? `${accounts.length} conta${accounts.length > 1 ? 's' : ''} · ${totalInstances} instância${totalInstances !== 1 ? 's' : ''}` : 'Não configurado'}
-              </span>
-            )}
-          </div>
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-500)' }}>
-            Provedor de instâncias WhatsApp — free (1h) e pagas (persistentes). Suporte a múltiplas contas por tenant.
-          </p>
-        </div>
-        <Button variant="primary" size="sm" icon="plus" onClick={onAdd}>
-          Adicionar conta
-        </Button>
-      </div>
-
-      {/* Lista de contas existentes */}
-      {!loading && accounts.length > 0 && (
-        <div style={{ padding: '12px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {accounts.map(acc => {
-            const statusColor = STATUS_COLOR[acc.status] || '#6b7280';
-            return (
-              <div key={acc.id} style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '10px 14px', borderRadius: 8,
-                background: 'var(--ink-50)', border: '1px solid var(--ink-100)',
-              }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink-900)' }}>{acc.label}</span>
-                    <span style={{
-                      fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10,
-                      background: acc.account_kind === 'free' ? 'var(--ink-100)' : 'var(--brand-50)',
-                      color: acc.account_kind === 'free' ? 'var(--ink-500)' : 'var(--brand-600)',
-                    }}>
-                      {KIND_LABEL[acc.account_kind] || acc.account_kind}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--ink-400)', marginTop: 2, fontFamily: 'monospace' }}>
-                    {acc.server_url}
-                  </div>
-                </div>
-                <div style={{ fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', color: statusColor }}>
-                  {dot(statusColor)}{acc.used_instances || 0}/{acc.capacity_instances > 0 ? acc.capacity_instances : '∞'} inst.
-                </div>
-                <Button
-                  variant="ghost" size="sm"
-                  onClick={() => handleTest(acc)}
-                  disabled={testing === acc.id}
-                >
-                  {testing === acc.id ? 'Testando…' : 'Testar'}
-                </Button>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Estado vazio */}
-      {!loading && accounts.length === 0 && (
-        <div style={{ padding: '20px', textAlign: 'center', color: 'var(--ink-400)', fontSize: 13 }}>
-          Nenhuma conta UAZAPI configurada. Clique em "Adicionar conta" para começar.
-        </div>
-      )}
-    </div>
-  );
-}
-
 function ConnectorsTab() {
   const { toast } = useToast();
   const [accounts, setAccounts] = useState([]);
@@ -281,53 +164,149 @@ function ConnectorsTab() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadAccounts(); }, [loadAccounts]);
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {/* UAZAPI — card dinâmico com dados reais */}
-      <UazapiConnectorCard
-        accounts={accounts}
-        loading={loading}
-        onAdd={() => setAddOpen(true)}
-        onSync={loadAccounts}
-      />
+  const totalInstances = accounts.reduce((s, a) => s + Number(a.used_instances || 0), 0);
+  const freeAccounts   = accounts.filter(a => a.account_kind === 'free');
+  const paidAccounts   = accounts.filter(a => ['paid', 'dedicated'].includes(a.account_kind));
 
-      {/* Demais conectores — estáticos por ora */}
-      {STATIC_CONNECTORS.map(c => (
-        <div key={c.id} style={{
-          border: '1px solid var(--ink-150)', borderRadius: 10,
-          padding: '16px 20px',
-          display: 'flex', alignItems: 'center', gap: 16,
-          background: c.connected ? 'var(--ink-0)' : 'var(--ink-25, #fafafa)',
-        }}>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+      {/* ── Seção UAZAPI WhatsApp ─────────────────────────────────────────── */}
+      <div>
+        {/* Cabeçalho da seção */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
           <div style={{
-            width: 40, height: 40, borderRadius: 10,
-            background: c.connected ? 'var(--brand-50)' : 'var(--ink-100)',
-            color: c.connected ? 'var(--brand-500)' : 'var(--ink-400)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+            background: accounts.length > 0 ? 'var(--brand-50)' : 'var(--ink-100)',
+            color: accounts.length > 0 ? 'var(--brand-500)' : 'var(--ink-400)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Icon name={c.icon} size={20} />
+            <Icon name="wa" size={22} />
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-              <span style={{ fontWeight: 600, color: 'var(--ink-900)', fontSize: 14 }}>{c.name}</span>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
-                background: c.connected ? '#dcfce7' : 'var(--ink-100)',
-                color: c.badgeColor,
-              }}>
-                {dot(c.badgeColor)}{c.badge}
-              </span>
+              <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-900)' }}>UAZAPI WhatsApp</span>
+              {!loading && accounts.length > 0 && (
+                <span style={{
+                  fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
+                  background: '#dcfce7', color: '#16a34a',
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                }}>
+                  {dot('#22c55e')}
+                  {accounts.length} conta{accounts.length > 1 ? 's' : ''} · {totalInstances} instância{totalInstances !== 1 ? 's' : ''}
+                  {freeAccounts.length > 0 && paidAccounts.length > 0 && ` · Free + Pago`}
+                </span>
+              )}
+              {!loading && accounts.length === 0 && (
+                <span style={{
+                  fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
+                  background: 'var(--ink-100)', color: 'var(--ink-500)',
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                }}>
+                  {dot('#6b7280')}Não configurado
+                </span>
+              )}
             </div>
-            <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-500)' }}>{c.desc}</p>
+            <div style={{ fontSize: 13, color: 'var(--ink-500)' }}>
+              API WhatsApp multi-conta — free (1h) e pago (persistente). Rotação automática entre contas.
+            </div>
           </div>
-          {c.connected ? (
-            <Button variant="ghost" size="sm">Configurar</Button>
-          ) : (
-            <Button variant="secondary" size="sm" icon="plus">Conectar</Button>
-          )}
+          <Button variant="primary" size="sm" icon="plus" onClick={() => setAddOpen(true)}>
+            Adicionar conta
+          </Button>
         </div>
-      ))}
+
+        {/* Lista de contas com CRUD completo */}
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {[1, 2].map(i => (
+              <div key={i} style={{
+                height: 140, border: '1px solid var(--ink-150)', borderRadius: 12,
+                background: 'var(--ink-50)', animation: 'pulse 1.4s infinite',
+              }} />
+            ))}
+          </div>
+        ) : accounts.length === 0 ? (
+          <div style={{
+            textAlign: 'center', padding: '32px 20px',
+            border: '1px dashed var(--ink-200)', borderRadius: 12,
+            color: 'var(--ink-400)',
+          }}>
+            <Icon name="wa" size={28} />
+            <div style={{ marginTop: 10, fontWeight: 600, color: 'var(--ink-600)' }}>
+              Nenhuma conta UAZAPI configurada
+            </div>
+            <div style={{ fontSize: 13, marginTop: 4, marginBottom: 16 }}>
+              Adicione uma conta free ou paga para conectar números WhatsApp.
+            </div>
+            <Button variant="primary" icon="plus" size="sm" onClick={() => setAddOpen(true)}>
+              Adicionar conta
+            </Button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {accounts.map(a => (
+              <AccountCard key={a.id} account={a} onRefresh={loadAccounts} />
+            ))}
+          </div>
+        )}
+
+        {/* Info box multi-conta */}
+        {accounts.length > 0 && (
+          <div style={{
+            marginTop: 14, padding: '12px 16px', borderRadius: 10,
+            background: 'var(--brand-25, #fff7f4)', border: '1px solid var(--brand-100)',
+            fontSize: 12, color: 'var(--ink-600)', lineHeight: 1.6,
+          }}>
+            <strong>Rotação multi-conta:</strong> Ao criar uma instância, o sistema escolhe automaticamente a conta com menor uso e com capacidade disponível — free ou pago conforme o tipo selecionado. Você pode ter N contas simultâneas de cada tipo.
+          </div>
+        )}
+      </div>
+
+      {/* ── Demais conectores ─────────────────────────────────────────────── */}
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-500)', marginBottom: 10, letterSpacing: '.04em' }}>
+          OUTROS CONECTORES
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {STATIC_CONNECTORS.map(c => (
+            <div key={c.id} style={{
+              border: '1px solid var(--ink-150)', borderRadius: 10,
+              padding: '14px 18px',
+              display: 'flex', alignItems: 'center', gap: 16,
+              background: c.connected ? 'var(--ink-0)' : 'var(--ink-25, #fafafa)',
+            }}>
+              <div style={{
+                width: 38, height: 38, borderRadius: 10,
+                background: c.connected ? 'var(--brand-50)' : 'var(--ink-100)',
+                color: c.connected ? 'var(--brand-500)' : 'var(--ink-400)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <Icon name={c.icon} size={18} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                  <span style={{ fontWeight: 600, color: 'var(--ink-900)', fontSize: 14 }}>{c.name}</span>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                    fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+                    background: c.connected ? '#dcfce7' : 'var(--ink-100)',
+                    color: c.badgeColor,
+                  }}>
+                    {dot(c.badgeColor)}{c.badge}
+                  </span>
+                </div>
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-500)' }}>{c.desc}</p>
+              </div>
+              {c.connected ? (
+                <Button variant="ghost" size="sm">Configurar</Button>
+              ) : (
+                <Button variant="secondary" size="sm" icon="plus">Conectar</Button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {addOpen && (
         <AddAccountModal onClose={() => setAddOpen(false)} onSaved={loadAccounts} />
@@ -462,9 +441,127 @@ function AddAccountModal({ onClose, onSaved }) {
   );
 }
 
-function AccountCard({ account, onSync, onDisable }) {
+// ─── Modal: Editar conta UAZAPI ───────────────────────────────────────────────
+
+function EditAccountModal({ account, onClose, onSaved }) {
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    label: account.label || '',
+    serverUrl: account.server_url || 'https://free.uazapi.com',
+    accountKind: account.account_kind || 'free',
+    capacityInstances: String(account.capacity_instances ?? 1),
+  });
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  async function handleSave() {
+    if (!form.label.trim()) { toast({ type: 'error', title: 'Informe um nome para a conta.' }); return; }
+    setSaving(true);
+    try {
+      await providerApi.updateAccount(account.id, {
+        label: form.label.trim(),
+        serverUrl: form.serverUrl.trim() || 'https://free.uazapi.com',
+        accountKind: form.accountKind,
+        capacityInstances: Number(form.capacityInstances) || 1,
+      });
+      toast({ type: 'success', title: 'Conta atualizada.' });
+      onSaved?.();
+      onClose();
+    } catch (e) {
+      toast({ type: 'error', title: e.message || 'Erro ao salvar.' });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal title="Editar conta UAZAPI" onClose={onClose} size="md">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <Input label="Nome / label" value={form.label} onChange={e => set('label', e.target.value)} placeholder="Ex: UAZAPI Free Principal" />
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-700)', marginBottom: 8 }}>Tipo</div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {Object.entries(KIND_LABEL).map(([k, label]) => (
+              <button key={k} type="button" onClick={() => set('accountKind', k)} style={{
+                padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                border: `1px solid ${form.accountKind === k ? 'var(--brand-500)' : 'var(--ink-150)'}`,
+                background: form.accountKind === k ? 'var(--brand-50)' : 'var(--ink-0)',
+                color: form.accountKind === k ? 'var(--brand-600)' : 'var(--ink-600)',
+              }}>{label}</button>
+            ))}
+          </div>
+        </div>
+        <Input label="Server URL" value={form.serverUrl} onChange={e => set('serverUrl', e.target.value)} placeholder="https://free.uazapi.com" />
+        <Input label="Capacidade (instâncias)" type="number" min={1} value={form.capacityInstances} onChange={e => set('capacityInstances', e.target.value)} placeholder="1" />
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={saving}>Cancelar</Button>
+          <Button variant="primary" size="sm" onClick={handleSave} disabled={saving}>
+            {saving ? 'Salvando…' : 'Salvar alterações'}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── Modal: Rotacionar token ──────────────────────────────────────────────────
+
+function RotateTokenModal({ account, onClose, onSaved }) {
+  const { toast } = useToast();
+  const [token, setToken] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  async function handleSave() {
+    if (!token.trim()) { toast({ type: 'error', title: 'Informe o novo admin token.' }); return; }
+    setSaving(true);
+    try {
+      await providerApi.rotateToken(account.id, token.trim());
+      toast({ type: 'success', title: 'Token rotacionado com sucesso.' });
+      onSaved?.();
+      onClose();
+    } catch (e) {
+      toast({ type: 'error', title: e.message || 'Erro ao rotacionar token.' });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal title="Rotacionar admin token" onClose={onClose} size="sm">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{
+          padding: '10px 14px', borderRadius: 8, background: 'var(--brand-25, #fff7f4)',
+          border: '1px solid var(--brand-100)', fontSize: 13, color: 'var(--ink-700)',
+        }}>
+          Token atual: <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>···· {account.admin_token_last4 || '????'}</span>
+        </div>
+        <Input
+          label="Novo admin token"
+          type="password"
+          value={token}
+          onChange={e => setToken(e.target.value)}
+          placeholder="Cole o novo token aqui"
+          autoComplete="off"
+        />
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={saving}>Cancelar</Button>
+          <Button variant="primary" size="sm" onClick={handleSave} disabled={saving}>
+            {saving ? 'Salvando…' : 'Confirmar rotação'}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── AccountCard com CRUD completo ───────────────────────────────────────────
+
+function AccountCard({ account, onRefresh }) {
   const { toast } = useToast();
   const [syncing, setSyncing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [rotateOpen, setRotateOpen] = useState(false);
 
   const usedPct = account.capacity_instances > 0
     ? Math.min(100, Math.round((account.used_instances / account.capacity_instances) * 100))
@@ -475,7 +572,7 @@ function AccountCard({ account, onSync, onDisable }) {
     try {
       const result = await providerApi.syncAccount(account.id);
       toast({ type: 'success', title: `Sync OK — ${result.upserted ?? '?'} instâncias sincronizadas.` });
-      onSync?.();
+      onRefresh?.();
     } catch (e) {
       toast({ type: 'error', title: e.message || 'Erro ao sincronizar.' });
     } finally {
@@ -488,64 +585,89 @@ function AccountCard({ account, onSync, onDisable }) {
     try {
       await providerApi.updateStatus(account.id, next);
       toast({ type: 'success', title: `Conta ${next === 'active' ? 'ativada' : 'desabilitada'}.` });
-      onDisable?.();
+      onRefresh?.();
     } catch (e) {
       toast({ type: 'error', title: e.message || 'Erro ao atualizar status.' });
     }
   }
 
+  async function handleDelete() {
+    if (!window.confirm(`Excluir a conta "${account.label}"?\n\nEssa ação é irreversível. Certifique-se de que não há instâncias ativas.`)) return;
+    setDeleting(true);
+    try {
+      await providerApi.deleteAccount(account.id);
+      toast({ type: 'success', title: `Conta "${account.label}" excluída.` });
+      onRefresh?.();
+    } catch (e) {
+      toast({ type: 'error', title: e.message || 'Erro ao excluir.' });
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   const statusColor = STATUS_COLOR[account.status] || '#6b7280';
+  const kindIsPaid = ['paid', 'dedicated'].includes(account.account_kind);
 
   return (
     <div style={{
       border: '1px solid var(--ink-150)', borderRadius: 12, padding: '18px 20px',
       display: 'flex', flexDirection: 'column', gap: 14,
+      background: account.status === 'disabled' ? 'var(--ink-25, #fafafa)' : 'var(--ink-0)',
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
         <div style={{
           width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-          background: 'var(--brand-50)', color: 'var(--brand-500)',
+          background: kindIsPaid ? 'var(--brand-50)' : 'var(--ink-100)',
+          color: kindIsPaid ? 'var(--brand-500)' : 'var(--ink-500)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <Icon name="wa" size={20} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ fontWeight: 700, color: 'var(--ink-900)', fontSize: 14 }}>{account.label}</span>
             <span style={{
               fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
-              background: KIND_TONE[account.account_kind] === 'brand' ? 'var(--brand-50)' : 'var(--ink-100)',
-              color: KIND_TONE[account.account_kind] === 'brand' ? 'var(--brand-600)' : 'var(--ink-500)',
+              background: kindIsPaid ? 'var(--brand-50)' : 'var(--ink-100)',
+              color: kindIsPaid ? 'var(--brand-600)' : 'var(--ink-500)',
             }}>
               {KIND_LABEL[account.account_kind] || account.account_kind}
             </span>
           </div>
-          <div style={{ fontSize: 12, color: 'var(--ink-500)', marginTop: 2 }}>{account.server_url}</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-400)', marginTop: 2 }}>{account.server_url}</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: statusColor }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: statusColor, flexShrink: 0 }}>
           {dot(statusColor)}{STATUS_LABEL[account.status] || account.status}
         </div>
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'flex', gap: 20, fontSize: 13 }}>
+      <div style={{ display: 'flex', gap: 24, fontSize: 13, flexWrap: 'wrap' }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-500)', marginBottom: 2 }}>INSTÂNCIAS</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-400)', marginBottom: 2 }}>INSTÂNCIAS</div>
           <div style={{ fontWeight: 700, color: 'var(--ink-900)' }}>
             {account.used_instances} / {account.capacity_instances > 0 ? account.capacity_instances : '∞'}
           </div>
         </div>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-500)', marginBottom: 2 }}>TOKEN</div>
-          <div style={{ fontWeight: 500, color: 'var(--ink-700)', fontFamily: 'monospace' }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-400)', marginBottom: 2 }}>ADMIN TOKEN</div>
+          <div style={{ fontWeight: 500, color: 'var(--ink-600)', fontFamily: 'monospace', fontSize: 13 }}>
             ···· {account.admin_token_last4 || '????'}
+          </div>
+        </div>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-400)', marginBottom: 2 }}>ROTAÇÃO</div>
+          <div style={{ fontWeight: 500, color: 'var(--ink-600)', fontSize: 13 }}>
+            {account.rotation_policy?.mode === 'manual' ? 'Manual' :
+              account.rotation_policy?.mode === 'round_robin' ? 'Round-robin' :
+              account.rotation_policy?.mode || 'Manual'}
           </div>
         </div>
         {account.expires_at && (
           <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-500)', marginBottom: 2 }}>EXPIRA</div>
-            <div style={{ fontWeight: 500, color: 'var(--ink-700)' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-400)', marginBottom: 2 }}>EXPIRA</div>
+            <div style={{ fontWeight: 500, color: '#f59e0b', fontSize: 13 }}>
               {new Date(account.expires_at).toLocaleDateString('pt-BR')}
             </div>
           </div>
@@ -555,30 +677,48 @@ function AccountCard({ account, onSync, onDisable }) {
       {/* Capacity bar */}
       {account.capacity_instances > 0 && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--ink-500)', marginBottom: 4 }}>
-            <span>Uso de capacidade</span>
-            <span>{usedPct}%</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--ink-400)', marginBottom: 4 }}>
+            <span>Capacidade utilizada</span>
+            <span style={{ fontWeight: 600, color: usedPct > 90 ? '#ef4444' : usedPct > 70 ? '#f59e0b' : 'var(--ink-500)' }}>{usedPct}%</span>
           </div>
-          <div style={{ height: 4, background: 'var(--ink-100)', borderRadius: 4, overflow: 'hidden' }}>
+          <div style={{ height: 5, background: 'var(--ink-100)', borderRadius: 4, overflow: 'hidden' }}>
             <div style={{
               height: '100%', borderRadius: 4,
               width: `${usedPct}%`,
               background: usedPct > 90 ? '#ef4444' : usedPct > 70 ? '#f59e0b' : 'var(--brand-500)',
-              transition: 'width .3s',
+              transition: 'width .4s',
             }} />
           </div>
         </div>
       )}
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
         <Button variant="secondary" size="sm" icon="sparkles" onClick={handleSync} disabled={syncing}>
           {syncing ? 'Sincronizando…' : 'Sincronizar'}
         </Button>
+        <Button variant="ghost" size="sm" onClick={() => setEditOpen(true)}>Editar</Button>
+        <Button variant="ghost" size="sm" onClick={() => setRotateOpen(true)}>Rotacionar token</Button>
         <Button variant="ghost" size="sm" onClick={handleToggle}>
           {account.status === 'active' ? 'Desabilitar' : 'Ativar'}
         </Button>
+        {/* Excluir — alinhado à direita */}
+        <div style={{ marginLeft: 'auto' }}>
+          <Button
+            variant="ghost" size="sm" onClick={handleDelete} disabled={deleting}
+            style={{ color: '#ef4444' }}
+          >
+            {deleting ? 'Excluindo…' : 'Excluir'}
+          </Button>
+        </div>
       </div>
+
+      {editOpen && (
+        <EditAccountModal account={account} onClose={() => setEditOpen(false)} onSaved={onRefresh} />
+      )}
+      {rotateOpen && (
+        <RotateTokenModal account={account} onClose={() => setRotateOpen(false)} onSaved={onRefresh} />
+      )}
     </div>
   );
 }
@@ -654,7 +794,7 @@ function UazapiTab() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {accounts.map(a => (
-            <AccountCard key={a.id} account={a} onSync={load} onDisable={load} />
+            <AccountCard key={a.id} account={a} onRefresh={load} />
           ))}
         </div>
       )}

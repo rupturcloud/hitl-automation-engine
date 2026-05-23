@@ -259,6 +259,66 @@ export class UazapiAccountService {
     return { accountId: account.id, remoteInstances: instances.length, upserted, status: nextStatus };
   }
 
+  /**
+   * Atualiza campos editáveis de uma conta (label, serverUrl, accountKind, capacity, rotationPolicy).
+   * Nunca altera admin_token_enc — use rotateAccount para isso.
+   */
+  async updateAccount(id, patch, actorUserId) {
+    const allowed = ['label', 'serverUrl', 'server_url', 'accountKind', 'account_kind',
+      'capacityInstances', 'capacity_instances', 'planLabel', 'plan_label',
+      'rotationPolicy', 'rotation_policy', 'expiresAt', 'expires_at', 'metadata'];
+    const updates = {};
+    if (patch.label !== undefined)             updates.label = String(patch.label).trim();
+    if (patch.serverUrl ?? patch.server_url)   updates.server_url = normalizeServerUrl(patch.serverUrl ?? patch.server_url);
+    if (patch.accountKind ?? patch.account_kind) updates.account_kind = patch.accountKind ?? patch.account_kind;
+    if (patch.capacityInstances ?? patch.capacity_instances)
+      updates.capacity_instances = Number(patch.capacityInstances ?? patch.capacity_instances);
+    if (patch.planLabel ?? patch.plan_label)   updates.plan_label = patch.planLabel ?? patch.plan_label;
+    if (patch.rotationPolicy ?? patch.rotation_policy)
+      updates.rotation_policy = patch.rotationPolicy ?? patch.rotation_policy;
+    if (patch.expiresAt ?? patch.expires_at)   updates.expires_at = patch.expiresAt ?? patch.expires_at;
+    if (patch.metadata !== undefined)          updates.metadata = patch.metadata;
+    updates.updated_at = new Date().toISOString();
+
+    const { data, error } = await this.supabase
+      .from('provider_accounts')
+      .update(updates)
+      .eq('id', id)
+      .select('id, provider, label, server_url, account_kind, plan_label, capacity_instances, used_instances, status, admin_token_last4, expires_at, rotation_policy, metadata, created_at, updated_at')
+      .single();
+    if (error) throw error;
+    await this.recordEvent(id, 'account_updated', { actorUserId, fields: Object.keys(updates) });
+    return data;
+  }
+
+  /**
+   * Exclui uma conta do banco.
+   * Bloqueia se a conta tiver instâncias ativas (used_instances > 0).
+   * Faça sync antes de excluir para garantir contagem correta.
+   */
+  async deleteAccount(id, actorUserId) {
+    const { data: account, error: readErr } = await this.supabase
+      .from('provider_accounts')
+      .select('id, label, used_instances')
+      .eq('id', id)
+      .single();
+    if (readErr) throw readErr;
+    if (!account) throw Object.assign(new Error('Conta não encontrada.'), { status: 404 });
+    if (Number(account.used_instances || 0) > 0) {
+      throw Object.assign(
+        new Error(`Conta "${account.label}" tem ${account.used_instances} instância(s) ativa(s). Sincronize e aguarde todas desconectarem antes de excluir.`),
+        { status: 409 },
+      );
+    }
+    await this.recordEvent(id, 'account_deleted', { actorUserId, label: account.label });
+    const { error: delErr } = await this.supabase
+      .from('provider_accounts')
+      .delete()
+      .eq('id', id);
+    if (delErr) throw delErr;
+    return { deleted: true, id, label: account.label };
+  }
+
   async pickAccount({ accountKind = 'free', providerAccountId } = {}) {
     if (providerAccountId) return this.getAccount(providerAccountId);
 

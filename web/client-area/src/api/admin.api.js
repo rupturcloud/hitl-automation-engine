@@ -75,6 +75,16 @@ export const providerApi = {
     return adminRequest('POST', '/provider-accounts', { body: payload });
   },
 
+  /** Edita campos de uma conta (label, serverUrl, accountKind, capacityInstances, rotationPolicy) */
+  updateAccount(id, patch) {
+    return adminRequest('PATCH', `/provider-accounts/${id}`, { body: patch });
+  },
+
+  /** Exclui uma conta (bloqueia se houver instâncias ativas) */
+  deleteAccount(id) {
+    return adminRequest('DELETE', `/provider-accounts/${id}`);
+  },
+
   /** Rotaciona o admin token de uma conta */
   rotateToken(id, adminToken) {
     return adminRequest('POST', `/provider-accounts/${id}/rotate`, { body: { adminToken } });
