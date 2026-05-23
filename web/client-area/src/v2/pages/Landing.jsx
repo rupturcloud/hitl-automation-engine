@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon, Button, SocialProofToasts } from '../../ds/index.js';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LANDING_CSS = `
   .lp { background: var(--ink-0); min-height: 100vh; color: var(--ink-900); }
@@ -122,7 +123,13 @@ const LANDING_CSS = `
   .lp-footer a:hover { color: var(--brand-500); }
   .lp-footer-bottom { display: flex; justify-content: space-between; padding-top: 20px; color: var(--ink-500); font-size: 12.5px; }
 
+  /* Anti-overflow em grid items: força min-width:0 nos filhos do grid hero
+     pra impedir que .lp-hero-visual (aspect-ratio 5/4) estoure a coluna. */
+  .lp-hero-inner > * { min-width: 0; }
+  .lp-hero-visual { max-width: 100%; }
+
   @media (max-width: 880px) {
+    .lp-hero { padding: 48px 20px 40px; }
     .lp-hero-inner { grid-template-columns: 1fr; gap: 36px; }
     .lp-h1 { font-size: 36px; }
     .pillars, .price-grid { grid-template-columns: 1fr; }
@@ -131,6 +138,24 @@ const LANDING_CSS = `
     .lp-section { padding: 56px 20px; }
     .lp-h2 { font-size: 28px; }
     .price-card.featured { transform: none; }
+  }
+
+  @media (max-width: 480px) {
+    .lp-hero { padding: 36px 16px 32px; }
+    .lp-h1 { font-size: 30px; }
+    .lp-sub { font-size: 15px; }
+    .lp-cta-row { flex-direction: column; align-items: stretch; }
+    .lp-cta-row button { width: 100%; }
+    .lp-trust { flex-wrap: wrap; gap: 8px; }
+    .lp-section { padding: 40px 16px; }
+    .lp-h2 { font-size: 24px; }
+    .lp-cta-band { padding: 48px 16px; }
+    .lp-cta-band h2 { font-size: 26px; }
+    .lp-footer { padding: 36px 16px 20px; }
+    .lp-footer-grid { grid-template-columns: 1fr; gap: 24px; }
+    .lp-footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+    .lp-logos { padding: 20px 16px; }
+    .lp-logos-inner { gap: 20px; }
   }
 `;
 
@@ -163,9 +188,17 @@ function FAQ() {
 
 export default function Landing() {
   const navigate = useNavigate();
-  const go = (r) => navigate(`/v2/${r}`);
+  const { session } = useAuth();
+  const go = (r) => navigate(`/v0/${r}`);
   // Para o app real (Supabase auth + APIs reais): /login, /signup, /dashboard...
   const goReal = (r) => navigate(r.startsWith('/') ? r : `/${r}`);
+
+  // Usuário já autenticado → redireciona para o dashboard automaticamente
+  useEffect(() => {
+    if (session) {
+      navigate('/v0/dashboard', { replace: true });
+    }
+  }, [session, navigate]);
   return (
     <div className="lp">
       <style>{LANDING_CSS}</style>

@@ -41,7 +41,7 @@ export default function AccessDenied() {
           Sua sessão está ativa, mas seu usuário não tem permissão para acessar esta área.
         </p>
 
-        <Link to="/dashboard" style={{
+        <Link to="/v0/dashboard" style={{
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',

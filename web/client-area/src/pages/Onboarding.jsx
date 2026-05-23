@@ -68,7 +68,7 @@ export default function Onboarding() {
 
   const nextStep = () => { setError(''); setStep(s => s + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const prevStep = () => { setError(''); setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  const finish = () => navigate('/dashboard');
+  const finish = () => navigate('/v0/dashboard'); // D1 sprint: cliente cai no cockpit novo
 
   const handlePlanConfirm = useCallback(async () => {
     if (selectedPlan === 'trial') {

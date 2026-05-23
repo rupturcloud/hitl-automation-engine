@@ -43,30 +43,39 @@ import { ToastProvider as RupturToastProvider } from './ds/index.js';
 import AppShellV2 from './v2/layout/AppShell.jsx';
 import LandingV2 from './v2/pages/Landing.jsx';
 import DashboardV2 from './v2/pages/Dashboard.jsx';
+import NumbersV2 from './v2/pages/Numbers.jsx';
+import AdminV2 from './v2/pages/Admin.jsx';
+import AquecimentoV2 from './v2/pages/Aquecimento.jsx';
 import PlaceholderV2 from './v2/pages/Placeholder.jsx';
 
 const V2_PENDING = [
-  'personas', 'onboarding', 'pricing', 'leads', 'pipeline',
-  'accounts', 'inbox', 'campaigns', 'flows', 'numbers',
-  'playbooks', 'billing', 'insights', 'indicacoes', 'admin',
-  'sprints', 'founder',
+  // Operação
+  'pipeline', 'inbox', 'campaigns', 'grupos', 'outreach',
+  'remarketing', 'canais', 'rede-coletiva',
+  // Receita
+  'business', 'billing', 'growth', 'indicacoes', 'insights',
+  // Sistema
+  'webhooks',
+  // Misc
+  'personas', 'onboarding', 'pricing', 'leads',
+  'accounts', 'flows', 'playbooks', 'sprints', 'founder',
 ];
 
-// / e /v0 -> Standalone Ruptur OS v3.9.1 (full mock do handoff)
-// O HTML auto-contido vive em public/v0/index.html e é servido pelo Vite/web
+// /demo -> Standalone Ruptur OS v3.9.1 (full mock do handoff, ex-/v0)
+// O HTML auto-contido vive em public/demo/index.html e é servido pelo Vite/web
 // como estático. React Router só faz o redirect — fora do SPA.
-function RedirectToV0() {
+function RedirectToDemo() {
   useEffect(() => {
     // Apontar direto para o asset estático evita o SPA fallback do Vite/dev
-// reescrever /v0/ -> index.html do React Router.
-window.location.replace('/v0/index.html');
+    // reescrever /demo/ -> index.html do React Router.
+    window.location.replace('/demo/index.html');
   }, []);
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: '#0E1116', color: '#9aa3b2', fontFamily: 'Inter, sans-serif',
     }}>
-      Abrindo Ruptur OS…
+      Abrindo Ruptur OS (demo)…
     </div>
   );
 }
@@ -111,11 +120,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Home pública (versão 02 — Ruptur OS v3.9.1 full mock):
-            serve o Standalone HTML em /v0/. A landing antiga (RUPTURCLOUD dark)
-            fica em /v1 (versão 01 — atual original com app Supabase real). */}
-        <Route path="/" element={<RedirectToV0 />} />
-        <Route path="/v0" element={<RedirectToV0 />} />
+        {/* Roteamento de versões:
+            /v0 = port React do handoff Ruptur OS v3.13, conectado às APIs reais.
+                  Só dados padrão do sistema (planos, packages, etc) — sem dados
+                  de usuário fake. Em construção (V2_PENDING).
+            /v1 = LandingPage original com Supabase (produto antigo).
+            /demo = HTML standalone v3.13 totalmente mockado (preview de design). */}
+        <Route path="/" element={<Navigate to="/v0" replace />} />
+        <Route path="/demo" element={<RedirectToDemo />} />
         <Route path="/v1" element={<LandingPage />} />
         {/* /v1/warmup -> redirect ao Warmup Manager (frontlindona) */}
         <Route path="/v1/warmup" element={<WarmupRedirect />} />
@@ -152,9 +164,9 @@ function App() {
           <Route path="/admin/superadmin" element={<SuperAdminDashboard />} />
         </Route>
 
-        {/* V2 — Ruptur SaaS · WhatsApp Sales OS (preview paralelo, sem auth) */}
+        {/* /v0 — Ruptur SaaS · WhatsApp Sales OS (port v3.13, sem auth ainda) */}
         <Route
-          path="/v2/*"
+          path="/v0/*"
           element={
             <RupturToastProvider>
               <Routes>
@@ -162,6 +174,9 @@ function App() {
                 <Route path="landing" element={<LandingV2 />} />
                 <Route element={<AppShellV2 />}>
                   <Route path="dashboard" element={<DashboardV2 />} />
+                  <Route path="numbers" element={<NumbersV2 />} />
+                  <Route path="aquecimento" element={<AquecimentoV2 />} />
+                  <Route path="admin" element={<AdminV2 />} />
                   {V2_PENDING.map(id => (
                     <Route key={id} path={id} element={<PlaceholderV2 name={id} />} />
                   ))}

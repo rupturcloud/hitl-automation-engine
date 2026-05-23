@@ -12,6 +12,10 @@ Resumo obrigatório:
 - Para arquitetura de integrações/webhooks, consultar `docs/INTEGRATIONS_AND_WEBHOOK_CORE.md`.
 - Para code review, UX e jornadas, consultar `docs/AGENT_UX_REVIEW_PROMPT.md`.
 - Para deploy, consultar `docs/DEPLOYMENT.md` e o runbook em `AGENTS.md`.
+- Para a chave SSH dedicada de deploy (CI + local rsync), consultar
+  `docs/DEPLOY-SSH.md`. Privada vive em `~/.ssh/ruptur_deploy_ci` e como secret
+  `DEPLOY_SSH_KEY` no repo `rupturcloud/hitl-automation-engine`. **Nunca commitar
+  a chave privada.** Pra deploy manual: `ENVIRONMENT=production ./infra/scripts/deploy-rsync.sh`.
 
 Se estiver tratando erro em produção, sempre informar:
 
