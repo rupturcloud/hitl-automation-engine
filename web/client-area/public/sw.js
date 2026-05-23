@@ -1,13 +1,18 @@
 /**
- * Service Worker para Jarvis Phase 7
+ * Service Worker — Ruptur OS
  * Handles:
  * - Push notifications
  * - Notification clicks
  * - Offline fallback
+ *
+ * Estratégia de cache:
+ *   /assets/**  → cache-first (URLs com hash imutável, seguro cachear para sempre)
+ *   index.html  → network-first (sempre busca versão fresh; fallback offline)
+ *   /api/**     → bypass (nunca intercepta chamadas de API)
  */
 
-// Versão do SW (increment para force update)
-const SW_VERSION = "2.0.0-ruptur-os";
+// Versão do SW (increment para force update e limpar cache antigo)
+const SW_VERSION = "2.1.0-ruptur-os";
 const CACHE_NAME = `ruptur-os-${SW_VERSION}`;
 
 console.log(`✓ Service Worker v${SW_VERSION} loaded`);
@@ -15,24 +20,10 @@ console.log(`✓ Service Worker v${SW_VERSION} loaded`);
 // ============ INSTALL EVENT ============
 self.addEventListener("install", (event) => {
   console.log(`🔧 Installing Service Worker ${SW_VERSION}`);
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log(`✓ Cache ${CACHE_NAME} aberto`);
-      // Cache de arquivos críticos (opcional)
-      return cache.addAll([
-        "/",
-        "/index.html",
-        "/manifest.json",
-        "/logo.png",
-        "/badge.png",
-      ]).catch((err) => {
-        console.warn("Alguns arquivos não conseguiram ser cacheados:", err);
-        // Não falhar se algum arquivo não existe
-        return Promise.resolve();
-      });
-    })
-  );
-  // Force this service worker to become active
+  // Não pré-cachea index.html: é network-first.
+  // Apenas garante que o cache existe.
+  event.waitUntil(caches.open(CACHE_NAME));
+  // Força ativação imediata sem esperar recarregamento
   self.skipWaiting();
 });
 
@@ -179,59 +170,67 @@ self.addEventListener("notificationclose", (event) => {
   // Opcionalmente: enviar evento ao servidor
 });
 
-// ============ FETCH EVENT (Cache First Strategy) ============
+// ============ FETCH EVENT ============
 self.addEventListener("fetch", (event) => {
-  // Apenas para GET requests
-  if (event.request.method !== "GET") {
+  // Apenas GET
+  if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+
+  // Nunca interceptar API, chrome-extension ou outras origens
+  if (
+    url.pathname.startsWith("/api/") ||
+    url.protocol === "chrome-extension:" ||
+    url.origin !== self.location.origin
+  ) {
     return;
   }
 
-  // Skip API calls - sempre fetch
-  if (event.request.url.includes("/api/")) {
-    return;
-  }
-
-  // Cache first strategy para assets estáticos
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          console.log(`📦 Cache hit: ${event.request.url}`);
-          return response;
+  // ── ASSETS com hash no nome → cache-first (imutáveis) ──────────────
+  // Ex: /assets/index-Dc65VI_s.js  /assets/index-RGn7YH-T.css
+  if (url.pathname.startsWith("/assets/")) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) {
+          console.log(`📦 Cache hit (asset): ${url.pathname}`);
+          return cached;
         }
+        return fetch(event.request).then((res) => {
+          if (res.ok) {
+            caches.open(CACHE_NAME).then((c) => c.put(event.request, res.clone()));
+          }
+          return res;
+        });
+      })
+    );
+    return;
+  }
 
-        // Não em cache, fetch do servidor
-        return fetch(event.request)
-          .then((response) => {
-            // Não cachejar respostas de erro
-            if (!response || response.status !== 200) {
-              return response;
-            }
-
-            // Clonar resposta para cache
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-
-            return response;
-          })
-          .catch(() => {
-            // Offline: tentar resposta cached
-            return caches.match(event.request)
-              .then((cachedResponse) => {
-                if (cachedResponse) {
-                  console.log(`📦 Offline, usando cache: ${event.request.url}`);
-                  return cachedResponse;
-                }
-                // Não tem em cache e offline
-                console.warn(`❌ Offline e não em cache: ${event.request.url}`);
-                return new Response("Offline - página não disponível", {
-                  status: 503,
-                  statusText: "Service Unavailable",
-                });
-              });
+  // ── HTML / navegação → network-first (sempre fresh) ────────────────
+  // index.html muda a cada deploy (novo hash de bundle).
+  event.respondWith(
+    fetch(event.request)
+      .then((res) => {
+        // Cache manifest.json e logo (estáticos, mudam raramente)
+        if (res.ok && (url.pathname === "/manifest.json" || url.pathname.endsWith(".png"))) {
+          caches.open(CACHE_NAME).then((c) => c.put(event.request, res.clone()));
+        }
+        return res;
+      })
+      .catch(() => {
+        // Offline: tentar cache como fallback
+        return caches.match(event.request).then((cached) => {
+          if (cached) {
+            console.log(`📦 Offline fallback: ${url.pathname}`);
+            return cached;
+          }
+          console.warn(`❌ Offline sem cache: ${url.pathname}`);
+          return new Response("Offline — recarregue quando tiver conexão.", {
+            status: 503,
+            statusText: "Service Unavailable",
+            headers: { "Content-Type": "text/plain;charset=UTF-8" },
           });
+        });
       })
   );
 });
