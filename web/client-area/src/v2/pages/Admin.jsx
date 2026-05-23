@@ -8,7 +8,7 @@
  *   - Instâncias uazapi: CRUD de provider_accounts (/api/admin/provider-accounts)
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   PageHeader, Button, Modal, Input, Icon,
 } from '../../ds/index.js';
@@ -332,15 +332,15 @@ function AddAccountModal({ onClose, onSaved }) {
     if (!form.adminToken.trim()) { toast({ type: 'error', title: 'Token de admin obrigatório.' }); return; }
     setSaving(true);
     try {
-      await providerApi.createAccount({
+      const result = await providerApi.createAccount({
         label: form.label.trim(),
         serverUrl: form.serverUrl.trim() || 'https://free.uazapi.com',
         adminToken: form.adminToken.trim(),
         accountKind: form.accountKind,
         capacityInstances: Number(form.capacityInstances) || 1,
       });
-      toast({ type: 'success', title: 'Conta UAZAPI adicionada!' });
-      onSaved();
+      toast({ type: 'success', title: '✓ Conta UAZAPI adicionada!', message: 'Clique em Sincronizar para verificar a conexão.' });
+      onSaved(result?.account?.id);
       onClose();
     } catch (e) {
       toast({ type: 'error', title: e.message || 'Erro ao salvar conta.' });
@@ -556,7 +556,7 @@ function RotateTokenModal({ account, onClose, onSaved }) {
 
 // ─── AccountCard com CRUD completo ───────────────────────────────────────────
 
-function AccountCard({ account, onRefresh }) {
+function AccountCard({ account, onRefresh, highlight }) {
   const { toast } = useToast();
   const [syncing, setSyncing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -610,9 +610,12 @@ function AccountCard({ account, onRefresh }) {
 
   return (
     <div style={{
-      border: '1px solid var(--ink-150)', borderRadius: 12, padding: '18px 20px',
+      border: highlight ? '2px solid #22c55e' : '1px solid var(--ink-150)',
+      boxShadow: highlight ? '0 0 0 3px rgba(34,197,94,0.12)' : 'none',
+      borderRadius: 12, padding: '18px 20px',
       display: 'flex', flexDirection: 'column', gap: 14,
       background: account.status === 'disabled' ? 'var(--ink-25, #fafafa)' : 'var(--ink-0)',
+      transition: 'border-color .4s, box-shadow .4s',
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -728,6 +731,8 @@ function UazapiTab() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
+  const [lastAddedId, setLastAddedId] = useState(null);
+  const listRef = useRef(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -735,7 +740,6 @@ function UazapiTab() {
       const result = await providerApi.listAccounts();
       setAccounts(result.accounts || []);
     } catch (e) {
-      // Migração pendente ou sem permissão
       if (e.status === 503) {
         toast({ type: 'error', title: 'Migration pendente', message: e.message });
       } else if (e.status === 401 || e.status === 403) {
@@ -751,17 +755,45 @@ function UazapiTab() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
+  // Destaca o card recém-adicionado e rola até ele
+  function handleAdded(newId) {
+    load().then(() => {
+      if (newId) {
+        setLastAddedId(newId);
+        setTimeout(() => setLastAddedId(null), 4000);
+        // scroll suave até o novo card
+        requestAnimationFrame(() => {
+          const el = document.getElementById(`uazapi-card-${newId}`);
+          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      }
+    });
+  }
+
+  const hasAccounts = accounts.length > 0;
+
   return (
     <div>
+      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <div style={{ fontWeight: 600, color: 'var(--ink-900)', fontSize: 15 }}>Contas UAZAPI</div>
           <div style={{ fontSize: 13, color: 'var(--ink-500)', marginTop: 2 }}>
             Gerencie servidores WhatsApp — free (1h) e pagos (persistentes).
+            {hasAccounts && (
+              <span style={{ marginLeft: 8, fontWeight: 600, color: 'var(--brand-500)' }}>
+                {accounts.length} conta{accounts.length > 1 ? 's' : ''}
+              </span>
+            )}
           </div>
         </div>
-        <Button variant="primary" icon="plus" size="sm" onClick={() => setAddOpen(true)}>
-          Adicionar conta
+        <Button
+          variant={hasAccounts ? 'secondary' : 'primary'}
+          icon="plus"
+          size="sm"
+          onClick={() => setAddOpen(true)}
+        >
+          {hasAccounts ? 'Nova conta' : 'Adicionar conta'}
         </Button>
       </div>
 
@@ -783,7 +815,7 @@ function UazapiTab() {
           <Icon name="wa" size={32} />
           <div style={{ marginTop: 12, fontWeight: 600, color: 'var(--ink-600)' }}>Nenhuma conta UAZAPI</div>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Adicione uma conta para começar a gerenciar instâncias WhatsApp.
+            Adicione uma conta free ou paga para gerenciar números WhatsApp.
           </div>
           <div style={{ marginTop: 16 }}>
             <Button variant="primary" icon="plus" onClick={() => setAddOpen(true)}>
@@ -792,9 +824,11 @@ function UazapiTab() {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div ref={listRef} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {accounts.map(a => (
-            <AccountCard key={a.id} account={a} onRefresh={load} />
+            <div key={a.id} id={`uazapi-card-${a.id}`}>
+              <AccountCard account={a} onRefresh={load} highlight={lastAddedId === a.id} />
+            </div>
           ))}
         </div>
       )}
@@ -811,13 +845,16 @@ function UazapiTab() {
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.7 }}>
           <li>Cada conta pode servir N tenants (plataforma gerencia o roteamento).</li>
           <li>Um tenant pode ter múltiplas contas atribuídas (free + paid, por exemplo).</li>
-          <li>Free: instâncias expiram em 1h — ideal para testes. Paid: persistentes.</li>
-          <li>Token admin nunca é exibido no frontend — armazenado criptografado.</li>
+          <li>Free: instâncias expiram em 1h. Paid: persistentes.</li>
+          <li>Token admin nunca é exibido no frontend — armazenado criptografado (AES-256-GCM).</li>
         </ul>
       </div>
 
       {addOpen && (
-        <AddAccountModal onClose={() => setAddOpen(false)} onSaved={load} />
+        <AddAccountModal
+          onClose={() => setAddOpen(false)}
+          onSaved={handleAdded}
+        />
       )}
     </div>
   );
