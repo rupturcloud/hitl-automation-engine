@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Proposta Comercial · A Mais (A/C Nagila)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;550;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --brand-500:#FF6A3D; --brand-600:#F0531F; --brand-50:#FFF1EB; --brand-100:#FFE0D2;
+    --wa-500:#25D366; --wa-600:#1FAE57; --wa-50:#E8FBEF;
+    --ink-950:#0B0F14; --ink-900:#111827; --ink-800:#1F2937; --ink-700:#374151;
+    --ink-600:#4B5563; --ink-500:#6B7280; --ink-400:#9CA3AF; --ink-300:#D1D5DB;
+    --ink-200:#E5E7EB; --ink-150:#ECEEF1; --ink-100:#F3F4F6; --ink-50:#F9FAFB; --ink-0:#fff;
+    --success:#10B981; --r-md:8px; --r-lg:12px; --r-xl:16px;
+    --sh-sm:0 1px 2px rgba(15,23,42,.05);
+    --sh-md:0 4px 12px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+    --sh-lg:0 18px 48px rgba(15,23,42,.10), 0 2px 6px rgba(15,23,42,.05);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--ink-100);
+    color:var(--ink-900);
+    font-size:14px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    font-feature-settings:'cv11','ss01';
+  }
+
+  /* ============ Toolbar (não imprime) ============ */
+  .toolbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,15,20,.92); backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+    display:flex; align-items:center; gap:16px; padding:10px 24px;
+  }
+  .toolbar .brand{display:flex;align-items:center;gap:10px;color:white;font-weight:700;letter-spacing:-.01em}
+  .toolbar .brand .mark{
+    width:28px;height:28px;border-radius:7px;background:var(--brand-500);
+    display:grid;place-items:center;color:white;font-weight:900;font-size:17px;
+    letter-spacing:-1px;box-shadow:0 4px 12px rgba(255,106,61,.4)
+  }
+  .toolbar .sep{flex:1}
+  .toolbar .tabs{display:flex;background:rgba(255,255,255,.06);border-radius:8px;padding:3px;gap:2px}
+  .toolbar .tab{
+    appearance:none;border:0;background:transparent;color:#C9CFD8;
+    padding:7px 14px;border-radius:6px;font-size:12.5px;font-weight:600;
+    cursor:pointer;letter-spacing:.005em;
+  }
+  .toolbar .tab.active{background:white;color:var(--ink-900)}
+  .toolbar .print-btn{
+    appearance:none;border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04);
+    color:white; padding:7px 14px; border-radius:8px; font-size:12.5px; font-weight:600;
+    cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+  }
+  .toolbar .print-btn:hover{background:rgba(255,255,255,.08)}
+
+  /* ============ Page ============ */
+  .page{
+    max-width:920px; margin:32px auto; background:white;
+    border-radius:var(--r-xl); box-shadow:var(--sh-lg);
+    overflow:hidden;
+  }
+  .doc-hidden{display:none}
+
+  /* Header */
+  .doc-header{
+    background:
+      radial-gradient(900px 400px at 0% -10%, rgba(255,106,61,.28), transparent 60%),
+      radial-gradient(700px 300px at 100% 0%, rgba(255,106,61,.10), transparent 60%),
+      #0E1116;
+    color:white; padding:36px 48px 32px;
+    border-bottom:4px solid var(--brand-500);
+  }
+  .doc-header .top{display:flex; align-items:center; justify-content:space-between; gap:20px}
+  .doc-brand{display:flex;align-items:center;gap:14px}
+  .doc-brand .mark{
+    width:48px;height:48px;border-radius:11px;background:var(--brand-500);
+    display:grid;place-items:center;color:white;font-weight:900;font-size:30px;
+    letter-spacing:-2px;box-shadow:0 10px 28px rgba(255,106,61,.45)
+  }
+  .doc-brand .name{font-weight:800;letter-spacing:-.01em;font-size:17px;line-height:1.1}
+  .doc-brand .tag{color:#9AA2AE;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-top:3px}
+  .doc-meta{text-align:right;font-size:12px;color:#9AA2AE;line-height:1.6}
+  .doc-meta .num{color:white;font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.5px}
+  .doc-title{margin-top:30px}
+  .doc-title .kicker{font-size:11px; color:var(--brand-500); font-weight:700; letter-spacing:5px; text-transform:uppercase}
+  .doc-title h1{font-size:34px;font-weight:800;letter-spacing:-.025em;margin:8px 0 0;line-height:1.1}
+  .doc-title h1 em{font-style:normal;color:var(--brand-500)}
+  .doc-title .sub{color:#C9CFD8;font-size:14px;margin-top:10px;max-width:620px}
+
+  /* Section */
+  .section{padding:32px 48px}
+  .section + .section{border-top:1px solid var(--ink-150)}
+  .section-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:11px;font-weight:700;color:var(--brand-600);
+    letter-spacing:3px; text-transform:uppercase; margin-bottom:14px;
+  }
+  .section-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--brand-500)}
+  .section-title{font-size:20px;font-weight:700;letter-spacing:-.015em;margin:0 0 6px}
+  .section-lede{color:var(--ink-600);font-size:13.5px;margin:0 0 22px;max-width:680px}
+
+  /* Para / De cards */
+  .parties{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .party{
+    border:1px solid var(--ink-200); border-radius:var(--r-lg);
+    padding:18px 20px; background:var(--ink-50);
+  }
+  .party .label{font-size:10.5px;font-weight:700;color:var(--ink-500);letter-spacing:2px;text-transform:uppercase}
+  .party .name{font-size:16px;font-weight:700;margin-top:6px;letter-spacing:-.01em}
+  .party .who{font-size:12.5px;color:var(--ink-600);margin-top:4px;line-height:1.55}
+  .party.brand{background:var(--brand-50);border-color:var(--brand-100)}
+  .party.brand .label{color:var(--brand-600)}
+
+  /* Window callout */
+  .window{
+    display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
+    background:linear-gradient(180deg,#0E1116,#171C24);
+    color:white; padding:18px 22px; border-radius:var(--r-lg);
+    margin-top:16px;
+  }
+  .window .icon{
+    width:42px;height:42px;border-radius:10px;background:rgba(255,106,61,.16);
+    display:grid;place-items:center;color:var(--brand-500);font-weight:800
+  }
+  .window .txt .k{font-size:11px;font-weight:700;color:#9AA2AE;letter-spacing:2px;text-transform:uppercase}
+  .window .txt .v{font-size:15.5px;font-weight:600;margin-top:2px;font-family:'JetBrains Mono',monospace}
+  .window .pill{
+    background:rgba(255,106,61,.18); color:var(--brand-500);
+    padding:6px 12px; border-radius:999px; font-weight:700; font-size:12px;
+    border:1px solid rgba(255,106,61,.25); font-family:'JetBrains Mono',monospace;
+  }
+
+  /* Items table */
+  .items{
+    border:1px solid var(--ink-200); border-radius:var(--r-lg);
+    overflow:hidden;
+  }
+  .items table{width:100%;border-collapse:collapse}
+  .items thead th{
+    text-align:left; padding:12px 16px; font-size:11px; font-weight:700;
+    color:var(--ink-500); text-transform:uppercase; letter-spacing:.08em;
+    background:var(--ink-50); border-bottom:1px solid var(--ink-200);
+  }
+  .items thead th.r,.items tbody td.r{text-align:right;font-variant-numeric:tabular-nums}
+  .items tbody td{padding:14px 16px;border-bottom:1px solid var(--ink-150);font-size:13.5px;vertical-align:top}
+  .items tbody tr:last-child td{border-bottom:0}
+  .items tbody .item-title{font-weight:600;color:var(--ink-900)}
+  .items tbody .item-sub{color:var(--ink-500);font-size:12px;margin-top:3px}
+  .items tbody td.r .num{font-weight:600;color:var(--ink-900);font-family:'JetBrains Mono',monospace;font-size:13px}
+  .items tbody tr.group td{background:var(--ink-50);font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-500);font-weight:700;padding:8px 16px}
+  .items tbody tr.subtotal td{background:#FCFCFD;font-weight:600}
+  .items tbody tr.subtotal td.r .num{color:var(--ink-700)}
+
+  /* Total box */
+  .total-box{
+    margin-top:20px; padding:24px 28px; border-radius:var(--r-lg);
+    background:linear-gradient(135deg,#0E1116, #1C2230);
+    color:white; display:flex; align-items:center; justify-content:space-between;
+    box-shadow:0 18px 36px rgba(11,15,20,.18);
+    border:1px solid rgba(255,255,255,.05);
+    position:relative; overflow:hidden;
+  }
+  .total-box::before{
+    content:""; position:absolute; right:-60px; top:-60px;
+    width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,106,61,.35),transparent 65%);
+    pointer-events:none;
+  }
+  .total-box .lbl{font-size:11px;color:#9AA2AE;font-weight:700;letter-spacing:3px;text-transform:uppercase}
+  .total-box .desc{color:#C9CFD8;font-size:12.5px;margin-top:4px}
+  .total-box .val{font-size:34px;font-weight:800;letter-spacing:-.02em;font-family:'JetBrains Mono',monospace;position:relative;z-index:1}
+  .total-box .val small{font-size:14px;color:#9AA2AE;font-weight:600;letter-spacing:0;margin-right:6px}
+
+  /* Recurring summary */
+  .rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .rec-card{
+    border:1px solid var(--ink-200); border-radius:var(--r-lg);
+    padding:18px 20px; background:white;
+  }
+  .rec-card .lbl{font-size:10.5px;font-weight:700;color:var(--ink-500);letter-spacing:2px;text-transform:uppercase}
+  .rec-card .val{font-size:24px;font-weight:800;letter-spacing:-.015em;margin-top:6px;font-family:'JetBrains Mono',monospace}
+  .rec-card .sub{font-size:12px;color:var(--ink-500);margin-top:4px}
+  .rec-card.mrr{background:var(--brand-50);border-color:var(--brand-100)}
+  .rec-card.mrr .lbl{color:var(--brand-600)}
+  .rec-card.mrr .val{color:var(--brand-600)}
+
+  /* Includes */
+  .includes{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;margin-top:8px}
+  .inc{display:flex;gap:12px;align-items:flex-start}
+  .inc .chk{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%;
+    background:var(--brand-50); color:var(--brand-600);
+    display:grid; place-items:center; margin-top:1px;
+  }
+  .inc .chk svg{width:12px;height:12px}
+  .inc .t{font-weight:600;font-size:13.5px;color:var(--ink-900)}
+  .inc .d{color:var(--ink-600);font-size:12.5px;margin-top:2px;line-height:1.5}
+
+  /* Terms */
+  .terms{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 24px}
+  .term{border-left:2px solid var(--brand-500);padding:2px 0 2px 14px}
+  .term .t{font-weight:700;font-size:12.5px;color:var(--ink-900)}
+  .term .d{color:var(--ink-600);font-size:12.5px;margin-top:3px}
+
+  /* Pay CTA */
+  .pay-cta{
+    margin-top:24px;
+    border:1px solid var(--ink-200); border-radius:var(--r-xl);
+    padding:24px 28px; display:flex; align-items:center; justify-content:space-between; gap:24px;
+    background:
+      linear-gradient(180deg, #fff, #FFFAF7);
+  }
+  .pay-cta .copy h3{margin:0 0 4px;font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .pay-cta .copy p{margin:0;color:var(--ink-600);font-size:13px}
+  .pay-cta .actions{display:flex;gap:10px;align-items:center}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:0 18px;height:44px;
+    border-radius:10px;font-weight:600;font-size:14px;letter-spacing:-.005em;
+    text-decoration:none;border:1px solid transparent;cursor:pointer;
+  }
+  .btn-primary{background:var(--brand-500);color:white;box-shadow:0 6px 18px rgba(255,106,61,.32)}
+  .btn-primary:hover{background:var(--brand-600)}
+  .btn-wa{background:var(--wa-500);color:white}
+  .btn-wa:hover{background:var(--wa-600)}
+  .btn-ghost{background:white;color:var(--ink-700);border-color:var(--ink-200)}
+  .btn-ghost:hover{background:var(--ink-50)}
+
+  /* Footer */
+  .doc-footer{
+    background:var(--ink-50); padding:22px 48px;
+    color:var(--ink-500); font-size:11.5px; display:flex;
+    justify-content:space-between; align-items:center; gap:16px;
+    border-top:1px solid var(--ink-150);
+  }
+  .doc-footer .stamp{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.5px}
+
+  /* Sign block */
+  .signature{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .sig{border-top:1px solid var(--ink-300);padding-top:8px}
+  .sig .lbl{font-size:11px;color:var(--ink-500);text-transform:uppercase;letter-spacing:2px;font-weight:700}
+  .sig .name{font-weight:600;margin-top:2px}
+
+  /* ============ Print ============ */
+  @media print {
+    @page { size: A4; margin: 12mm; }
+    body{background:white}
+    .toolbar{display:none !important}
+    .page{box-shadow:none;border-radius:0;margin:0;max-width:none}
+    .doc-hidden{display:none !important}
+    .pay-cta .actions .btn-ghost{display:none}
+    .section{padding:22px 32px}
+    .doc-header{padding:24px 32px 22px}
+    .doc-footer{padding:14px 32px}
+  }
+
+  @media (max-width:720px){
+    .parties,.rec-grid,.terms,.includes{grid-template-columns:1fr}
+    .section,.doc-header,.doc-footer{padding-left:24px;padding-right:24px}
+    .window{grid-template-columns:auto 1fr;}
+    .window .pill{grid-column:2}
+    .pay-cta{flex-direction:column;align-items:stretch}
+  }
+
+  /* Capacity card */
+  .capacity-card{
+    display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;
+    background:var(--brand-50);border:1px solid var(--brand-100);
+    border-radius:var(--r-lg); padding:16px 18px; margin:6px 0 18px;
+  }
+  .capacity-card__icon{
+    width:44px;height:44px;border-radius:10px;background:var(--brand-500);
+    color:white;display:grid;place-items:center;flex-shrink:0;
+    box-shadow:0 6px 14px rgba(255,106,61,.32);
+  }
+  .capacity-card__lbl{font-size:10.5px;font-weight:700;color:var(--brand-600);
+    letter-spacing:2px;text-transform:uppercase}
+  .capacity-card__lbl sup{font-size:8.5px;font-weight:700}
+  .capacity-card__val{font-size:15.5px;font-weight:700;letter-spacing:-.005em;margin-top:3px;color:var(--ink-900)}
+  .capacity-card__sub{font-size:12.5px;color:var(--ink-600);margin-top:2px}
+
+  /* Inline footnote markers in scope items */
+  .inc .d sup{font-size:9.5px;color:var(--brand-600);font-weight:700;margin-left:1px;vertical-align:super;line-height:0}
+
+
+  /* New "Limite de usuários" term marker */
+  .term .t sup{font-size:9px;color:var(--brand-600);font-weight:700;margin-left:2px}
+
+
+  /* Single-column rec-grid override (when ARR removed) */
+  .rec-grid--single{grid-template-columns:1fr !important;max-width:520px}
+
+  /* Limits */
+  .limits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
+  .limit-card{
+    border:1px solid var(--ink-200); border-radius:var(--r-lg);
+    padding:16px 18px; background:white; position:relative;
+  }
+  .limit-card__icon{
+    width:34px;height:34px;border-radius:9px;background:var(--brand-50);
+    color:var(--brand-600);display:grid;place-items:center;margin-bottom:10px;
+  }
+  .limit-card__lbl{font-size:10.5px;font-weight:700;color:var(--ink-500);letter-spacing:1.5px;text-transform:uppercase}
+  .limit-card__lbl sup{font-size:8.5px;color:var(--brand-600);margin-left:2px}
+  .limit-card__val{font-size:22px;font-weight:800;letter-spacing:-.015em;margin-top:4px;font-family:'JetBrains Mono',monospace;color:var(--ink-900)}
+  .limit-card__val .unit{font-size:11px;color:var(--ink-500);font-weight:600;letter-spacing:0;margin-left:4px;font-family:'Inter',sans-serif}
+  .limit-card__sub{font-size:12px;color:var(--ink-600);margin-top:6px;line-height:1.5}
+
+  /* Infra note */
+  .infra-note{
+    display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:flex-start;
+    margin-top:16px;padding:14px 16px;border-radius:var(--r-lg);
+    background:#FFF8F4;border:1px dashed var(--brand-100);
+  }
+  .infra-note__icon{width:32px;height:32px;border-radius:8px;background:var(--brand-500);
+    color:white;display:grid;place-items:center}
+  .infra-note__t{font-weight:700;font-size:13.5px;color:var(--ink-900)}
+  .infra-note__t sup{font-size:9px;color:var(--brand-600);font-weight:700;margin-left:2px}
+  .infra-note__d{font-size:12.5px;color:var(--ink-600);margin-top:4px;line-height:1.55}
+
+  @media (max-width:720px){
+    .limits-grid{grid-template-columns:1fr}
+  }
+
+  /* Magazine-style fine print */
+  .fineprint{background:#FAFAFB;border-top:1px solid var(--ink-150);padding-top:24px;padding-bottom:24px}
+  .fineprint .section-eyebrow{color:var(--ink-500);margin-bottom:10px;font-size:10px;letter-spacing:2.5px}
+  .fineprint .section-eyebrow .dot{background:var(--ink-400)}
+  .fp-disclaimer{font-size:10.5px;color:var(--ink-600);margin:0 0 14px;letter-spacing:.005em;line-height:1.55}
+  .fp-disclaimer b{color:var(--ink-800)}
+  .fp-cols{
+    column-count:3; column-gap:24px;
+    font-size:10px; line-height:1.55; color:var(--ink-500);
+    text-align:justify; hyphens:auto;
+  }
+  .fp-cols p{margin:0 0 7px;break-inside:avoid}
+  .fp-cols b{color:var(--ink-800);font-weight:650}
+  .fp-cols sup{font-size:8.5px;font-weight:700;color:var(--brand-600);margin-right:1px}
+  .fp-cols i{font-style:normal;border-bottom:1px dotted var(--ink-300)}
+  @media (max-width:880px){ .fp-cols{column-count:2} }
+  @media (max-width:560px){ .fp-cols{column-count:1} }
+  @media print { .fp-cols{column-count:3;font-size:8.5px;line-height:1.45} .fp-cols p{margin-bottom:5px} }
+
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="brand"><div class="mark">R</div> Ruptur OS · Proposta Comercial</div>
+  <div class="sep"></div>
+  <a class="print-btn" href="https://invoice.infinitepay.io/www-2dlcompany-com-br/RTk0ZAnGvC" target="_blank" rel="noopener" style="background:#FF6A3D;border-color:#FF6A3D;text-decoration:none">
+    Pagar agora
+  </a>
+  <button class="print-btn" onclick="window.print()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><rect x="6" y="14" width="12" height="8"/><path d="M6 18H2v-7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v7h-4"/></svg>
+    Imprimir / PDF
+  </button>
+</div>
+
+<!-- ============ PROPOSTA · A MAIS ============ -->
+<article class="page" id="doc-amais" data-screen-label="01 A Mais">
+  <header class="doc-header">
+    <div class="top">
+      <div class="doc-brand">
+        <div class="mark">R</div>
+        <div>
+          <div class="name">Ruptur OS</div>
+          <div class="tag">Sales OS · WhatsApp</div>
+        </div>
+      </div>
+      <div class="doc-meta">
+        Proposta nº <span class="num">RPT-2026-0526-AM</span><br>
+        Emitida em <span class="num">27/05/2026</span><br>
+        Válida até <span class="num">03/06/2026</span>
+      </div>
+    </div>
+    <div class="doc-title">
+      <div class="kicker">Proposta Comercial</div>
+      <h1>Implantação Ruptur OS para a <em>A Mais</em></h1>
+      <p class="sub">Pacote para 3 operadores (Nagila, Ana Paula e Diego), com janela proporcional de 40 dias e ativação imediata. Cada operador comporta até 2 usuários ativos no Ruptur OS.</p>
+    </div>
+  </header>
+
+  <!-- Parties -->
+  <section class="section">
+    <div class="section-eyebrow"><span class="dot"></span> Partes envolvidas</div>
+    <div class="parties">
+      <div class="party brand">
+        <div class="label">Fornecedor</div>
+        <div class="name">Ruptur OS</div>
+        <div class="who">Sistema operacional de receita para times que vendem pelo WhatsApp.<br><b style="color:var(--ink-800)">2DL Company Ltda</b> (Ruptur OS)<br>CNPJ: 52.604.024/0001-53<br>Diego I. L. da Silva · Fundador<br>WhatsApp: <strong>+55 31 98113-9540</strong><br>E-mail: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="16757978627762795664636662636438757a796372">[email&#160;protected]</a> · <a href="https://ruptur.cloud" target="_blank" rel="noopener" style="color:var(--brand-600);font-weight:600">ruptur.cloud</a></div>
+      </div>
+      <div class="party">
+        <div class="label">Aos cuidados de</div><div style="font-size:11px;font-weight:600;color:var(--ink-400);letter-spacing:.5px;margin-top:2px">A/C Nagila</div><div class="label" style="margin-top:12px">Cliente</div>
+        <div class="name">A Mais</div>
+        <div class="who">Operadores ativados nesta proposta:<br>Nagila · Ana Paula · Diego</div>
+      </div>
+    </div>
+
+    <div class="window">
+      <div class="icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </div>
+      <div class="txt">
+        <div class="k">Janela contratada</div>
+        <div class="v">01/06/2026 → 10/07/2026</div>
+      </div>
+      <div class="pill">40 DIAS</div>
+    </div>
+  </section>
+
+  <!-- Items -->
+  <section class="section">
+    <div class="section-eyebrow"><span class="dot"></span> Composição do pagamento</div>
+    <h2 class="section-title">Detalhamento da fatura inicial</h2>
+    <p class="section-lede">Fatura pré-paga referente à janela de implantação. A partir de 11/07/2026 entra o ciclo mensal recorrente (R$&nbsp;893,70/mês).</p>
+
+    <div class="items">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:48%">Item</th>
+            <th style="width:14%">Qtd.</th>
+            <th class="r" style="width:19%">Unitário</th>
+            <th class="r" style="width:19%">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="group"><td colspan="4">Mensalidade · 30 dias (01/06 → 30/06)</td></tr>
+          <tr>
+            <td>
+              <div class="item-title">Plano operador</div>
+              <div class="item-sub">Nagila, Ana Paula e Diego — acesso completo ao Ruptur OS</div>
+            </td>
+            <td>3</td>
+            <td class="r"><span class="num">R$ 250,00</span></td>
+            <td class="r"><span class="num">R$ 750,00</span></td>
+          </tr>
+
+          <tr class="group"><td colspan="4">Fração proporcional · 10 dias (01/07 → 10/07)</td></tr>
+          <tr>
+            <td>
+              <div class="item-title">Fração de 10 dias por operador</div>
+              <div class="item-sub">1/3 da mensalidade × 3 operadores — alinha o ciclo de cobrança</div>
+            </td>
+            <td>3</td>
+            <td class="r"><span class="num">R$ 83,33</span></td>
+            <td class="r"><span class="num">R$ 250,00</span></td>
+          </tr>
+
+          <tr class="group"><td colspan="4">Chips WhatsApp</td></tr>
+          <tr>
+            <td>
+              <div class="item-title">Chip Ruptur — Nagila</div>
+              <div class="item-sub">Número dedicado, aquecimento e proteção anti-ban</div>
+            </td>
+            <td>2</td>
+            <td class="r"><span class="num">R$ 47,90</span></td>
+            <td class="r"><span class="num">R$ 95,80</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="item-title">Chip Ruptur — Ana Paula</div>
+              <div class="item-sub">Número dedicado, aquecimento e proteção anti-ban</div>
+            </td>
+            <td>1</td>
+            <td class="r"><span class="num">R$ 47,90</span></td>
+            <td class="r"><span class="num">R$ 47,90</span></td>
+          </tr>
+
+          <tr class="subtotal">
+            <td colspan="3" style="text-align:right;color:var(--ink-600);font-size:12.5px;letter-spacing:.02em">Subtotal de chips</td>
+            <td class="r"><span class="num">R$ 143,70</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="total-box">
+      <div>
+        <div class="lbl">Total a pagar agora</div>
+        <div class="desc">Pagamento pré-pago · libera operação em até 24h</div>
+      </div>
+      <div class="val"><small>R$</small>1.143,70</div>
+    </div>
+  </section>
+
+  <!-- Recurring -->
+  <section class="section">
+    <div class="section-eyebrow"><span class="dot"></span> Receita recorrente</div>
+    <h2 class="section-title">Próximos ciclos</h2>
+    <p class="section-lede">A partir de 11/07/2026, a cobrança passa para o ciclo mensal cheio. Sem reajuste durante os 12 primeiros meses.</p>
+    <div class="rec-grid rec-grid--single">
+      <div class="rec-card mrr">
+        <div class="lbl">MRR · Mensalidade recorrente</div>
+        <div class="val">R$ 893,70<span style="font-size:13px;color:var(--brand-600);font-weight:600;letter-spacing:0;margin-left:6px">/mês</span></div>
+        <div class="sub">R$ 750 plano + R$ 143,70 chips</div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- Limites operacionais -->
+  <section class="section">
+    <div class="section-eyebrow"><span class="dot"></span> Limites operacionais</div>
+    <h2 class="section-title">Política de uso da plataforma</h2>
+    <p class="section-lede">Limites recomendados para preservar a reputação dos números e a estabilidade da operação. Valem por ciclo mensal contratado e reiniciam na renovação.</p>
+
+    <div class="limits-grid">
+      <div class="limit-card">
+        <div class="limit-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
+        </div>
+        <div class="limit-card__lbl">Envios por dia · por número<sup>¹⁰</sup></div>
+        <div class="limit-card__val">até 50<span class="unit">/dia</span></div>
+        <div class="limit-card__sub">Recomendação de boas práticas para reduzir risco de bloqueio. Aplica-se a cada um dos números conectados ao plano.</div>
+      </div>
+
+      <div class="limit-card">
+        <div class="limit-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <div class="limit-card__lbl">Teto operacional · mês contratado<sup>¹¹</sup></div>
+        <div class="limit-card__val">≈ 4.500<span class="unit">env./mês</span></div>
+        <div class="limit-card__sub">3 × 50/dia × 30 dias · referente a 3 números conectados (Nagila 2 + Ana Paula 1). O contador é reiniciado a cada ciclo mensal contratado.</div>
+      </div>
+
+      <div class="limit-card">
+        <div class="limit-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4Z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg>
+        </div>
+        <div class="limit-card__lbl">Janela de aquecimento</div>
+        <div class="limit-card__val">progressiva</div>
+        <div class="limit-card__sub">Nos primeiros dias o volume diário é menor — o warmup eleva o limite gradualmente até o teto recomendado.</div>
+      </div>
+    </div>
+
+    <div class="infra-note">
+      <div class="infra-note__icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      </div>
+      <div>
+        <div class="infra-note__t">Infraestrutura em modelo SaaS<sup>¹²</sup></div>
+        <div class="infra-note__d">A Ruptur opera em <b>regime de Software como Serviço (SaaS)</b>: a infraestrutura subjacente (servidores, gateways, conectividade e provedores de WhatsApp não-oficial) é <b>locada de fornecedores terceirizados</b>, não pertencendo à Ruptur nem ao Cliente. Os limites acima refletem essa realidade técnica e os termos dos provedores em vigor.</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Includes -->
+  <section class="section">
+    <div class="section-eyebrow"><span class="dot"></span> O que está incluído</div>
+    <h2 class="section-title">Escopo do plano A Mais</h2>
+    <p class="section-lede">Funcionalidades disponíveis para todos os usuários ativos do plano, sem limite de conversas ou contatos no CRM.</p>
+
+    <div class="capacity-card">
+      <div class="capacity-card__icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="capacity-card__body">
+        <div class="capacity-card__lbl">Capacidade de usuários<sup>¹</sup></div>
+        <div class="capacity-card__val">3 operadores contratados · até 2 usuários por operador</div>
+        <div class="capacity-card__sub">Total de até 6 usuários ativos simultâneos no escopo desta proposta.</div>
+      </div>
+    </div>
+
+    <div class="includes">
+      <div class="inc"><div class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="t">Inbox WhatsApp multi-número</div><div class="d">Caixa de entrada única para todos os chips conectados, com atribuição de conversa por atendente e histórico completo.</div></div></div>
+      <div class="inc"><div class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="t">CRM de conversas</div><div class="d">Cadastro do contato, etiquetas, anotações e organização do funil — sem perder o histórico ao trocar de operador.</div></div></div>
+      <div class="inc"><div class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="t">Warmup / Aquecimento de chips</div><div class="d">Rotina automatizada de aquecimento contínuo dos números conectados para preservar a reputação no WhatsApp.<sup>³</sup></div></div></div>
+      <div class="inc"><div class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="t">Campanhas de envio pelo WhatsApp</div><div class="d">Disparos segmentados a partir das listas do CRM, com controle de velocidade e variação de mensagem.<sup>⁴</sup></div></div></div>
+    </div>
+  </section>
+
+  <!-- Terms -->
+  <section class="section">
+    <div class="section-eyebrow"><span class="dot"></span> Condições comerciais</div>
+    <h2 class="section-title">Termos</h2>
+    <div class="terms">
+      <div class="term"><div class="t">Limite de usuários<sup>¹</sup></div><div class="d">Até 2 usuários ativos por operador (6 no total).</div></div>
+      <div class="term"><div class="t">Modalidade</div><div class="d">Pré-pago. Acesso liberado mediante confirmação do pagamento.</div></div>
+      <div class="term"><div class="t">Vigência da janela inicial</div><div class="d">01/06/2026 até 10/07/2026 (40 dias).</div></div>
+      <div class="term"><div class="t">Renovação</div><div class="d">Ciclo mensal automático a partir de 11/07/2026.</div></div>
+      <div class="term"><div class="t">Validade desta proposta</div><div class="d">Até 03/06/2026.</div></div>
+      <div class="term"><div class="t">Forma de pagamento</div><div class="d">PIX ou cartão via link seguro abaixo.</div></div>
+      <div class="term"><div class="t">Reajuste</div><div class="d">Sem reajuste nos primeiros 12 meses.</div></div>
+    </div>
+
+    <div class="pay-cta">
+      <div class="copy">
+        <h3>Pronto para fechar?</h3>
+        <p>Clique no botão para efetuar o pagamento de <strong>R$ 1.143,70</strong> e iniciar a operação no dia 01/06.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-ghost" href="/cdn-cgi/l/email-protection#76151918021702193604030602030458151a190312">Tenho dúvidas</a>
+        <a class="btn btn-primary" href="https://invoice.infinitepay.io/www-2dlcompany-com-br/RTk0ZAnGvC" data-pay="amais" target="_blank" rel="noopener">
+          Pagar agora
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="signature">
+      <div class="sig"><div class="lbl">Pela Ruptur OS</div><div class="name">Diego I. L. da Silva</div></div>
+      <div class="sig"><div class="lbl">Pela A Mais</div><div class="name">Responsável contratante</div></div>
+    </div>
+  </section>
+
+  <!-- Fine print · grandes magazines style -->
+  <section class="section fineprint">
+    <div class="section-eyebrow"><span class="dot"></span> Termos, observações e regulamento</div>
+    <p class="fp-disclaimer">Ao confirmar o pagamento desta fatura, o Cliente declara haver lido, compreendido e aceito integralmente as condições a seguir, que passam a integrar o contrato de prestação de serviço entre as partes. <b>Leia com atenção.</b></p>
+    <div class="fp-cols">
+      <p><sup>1</sup> <b>Capacidade de usuários por plano.</b> O limite de usuários ativos é o descrito na seção "Capacidade de usuários" desta proposta. Usuários adicionais podem ser contratados a qualquer momento, com cobrança proporcional ao ciclo vigente, conforme tabela comercial em vigor.</p>
+      <p><sup>2</sup> <b>LGPD — Tratamento de dados.</b> Nos termos da Lei nº 13.709/2018, o Cliente atua como <i>Controlador</i> dos dados pessoais inseridos na plataforma e a Ruptur como <i>Operadora</i>, tratando-os exclusivamente para a finalidade da prestação contratada. O Cliente é o responsável pela base legal, pelo consentimento quando aplicável e pelo atendimento aos direitos dos titulares.</p>
+      <p><sup>3</sup> <b>Risco residual no WhatsApp.</b> A Ruptur opera por meio de integrações com o WhatsApp e <b>não possui vínculo, parceria comercial ou homologação oficial com a Meta Platforms, Inc.</b> Os serviços de aquecimento/warmup e demais boas práticas reduzem, mas não eliminam, o risco de bloqueio, restrição ou suspensão de números — eventos fora do controle da Ruptur e que não geram direito a reembolso do ciclo em curso.</p>
+      <p><sup>4</sup> <b>Uso aceitável.</b> O Cliente compromete-se a não utilizar a plataforma para envio de spam, conteúdo ilícito, fraudulento, discurso de ódio ou qualquer prática que viole os Termos de Serviço do WhatsApp e a legislação brasileira aplicável. O descumprimento autoriza a Ruptur a suspender o serviço imediatamente, sem prejuízo de eventual responsabilização.</p>
+      <p><sup>5</sup> <b>Renovação e cancelamento.</b> Após a janela inicial, a cobrança passa a ser mensal e recorrente, com renovação automática. O cancelamento pode ser solicitado a qualquer momento, com antecedência mínima de 7 dias da próxima cobrança, via WhatsApp ou e-mail. Não há multa de rescisão; valores já pagos referentes ao ciclo em curso não são reembolsáveis.</p>
+      <p><sup>6</sup> <b>Chips e numeração.</b> Os chips fornecidos pela Ruptur são de uso exclusivo na plataforma contratada e ficam associados à operação do Cliente durante a vigência do contrato. A portabilidade dos números após o encerramento depende da operadora de telefonia e não é garantida pela Ruptur.</p>
+      <p><sup>7</sup> <b>Faturamento, tributos e nota fiscal.</b> Valores expressos em Reais (BRL) e referentes aos itens descritos nesta proposta. Tributos sobre o faturamento são de responsabilidade da Ruptur (2DL Company Ltda, CNPJ 52.604.024/0001-53). A nota fiscal de serviço é emitida após a confirmação do pagamento e enviada por e-mail.</p>
+      <p><sup>8</sup> <b>Suporte.</b> Atendimento via WhatsApp e e-mail informados nesta proposta, em horário comercial (segunda a sexta, das 9h às 18h, horário de Brasília), excluídos feriados nacionais.</p>
+      <p><sup>9</sup> <b>Vigência desta proposta.</b> Esta proposta tem validade até a data indicada no cabeçalho. Após esse prazo, valores e condições podem ser revistos. O aceite se dá pela confirmação do pagamento da fatura inicial.</p>
+      <p><sup>10</sup> <b>Limite diário por número.</b> Recomenda-se até <b>50 envios por dia, por número conectado</b>, como medida de proteção da reputação do chip junto ao WhatsApp. Diretriz operacional baseada em boas práticas; ultrapassar esse volume aumenta o risco de bloqueio, sem que isso configure mau funcionamento da plataforma.</p>
+      <p><sup>11</sup> <b>Limite por ciclo contratado.</b> O teto operacional indicado considera apenas a quantidade de números conectados e a média de 30 dias por mês. O contador de envios é controlado por ciclo mensal contratado e reinicia no início de cada nova janela. Volumes excedentes podem ser viabilizados mediante chips adicionais.</p>
+      <p><sup>12</sup> <b>Modelo SaaS e infraestrutura locada.</b> A Ruptur entrega seus serviços em modelo <i>Software como Serviço</i> (SaaS), apoiando-se em infraestrutura e provedores terceirizados (servidores em nuvem, gateways e provedores não oficiais de WhatsApp). Tal infraestrutura <b>não é de propriedade da Ruptur</b> e seu funcionamento está sujeito aos termos e indisponibilidades dos respectivos fornecedores, sem que isso caracterize descumprimento contratual.</p>
+      <p><sup>13</sup> <b>Termo de Responsabilidade pelo Uso (LGPD).</b> O Cliente declara, sob as penas da lei, que: (i) detém autorização e base legal válida — incluindo consentimento dos titulares quando aplicável — para o tratamento dos dados pessoais que inserir, importar ou processar na plataforma; (ii) utilizará o sistema exclusivamente para finalidades lícitas e compatíveis com a relação prévia mantida com os titulares dos contatos; (iii) é o único responsável pelo conteúdo das mensagens enviadas, pela atualização e exclusão de dados quando solicitada por titulares, e pelo cumprimento das obrigações da Lei nº 13.709/2018 (LGPD), do Marco Civil da Internet (Lei 12.965/2014) e demais normas aplicáveis; e (iv) <b>isenta a Ruptur (2DL Company Ltda, CNPJ 52.604.024/0001-53) de qualquer responsabilidade decorrente do uso indevido, abusivo ou ilícito da plataforma</b> pelo próprio Cliente ou por usuários a ele vinculados.</p>
+      <p><sup>14</sup> <b>Confidencialidade.</b> As partes se obrigam a manter sigilo sobre informações comerciais, técnicas e operacionais às quais tiverem acesso em razão deste contrato, salvo determinação legal ou judicial em contrário.</p>
+      <p><sup>15</sup> <b>Foro.</b> Fica eleito o foro da Comarca de Belo Horizonte/MG para dirimir quaisquer controvérsias decorrentes desta relação contratual, com renúncia expressa a qualquer outro, por mais privilegiado que seja.</p>
+    </div>
+  </section>
+
+  <footer class="doc-footer">
+    <div>Ruptur OS · 2DL Company Ltda · CNPJ 52.604.024/0001-53 · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f2919d9c8693869db2808782868780dc919e9d8796">[email&#160;protected]</a> · +55 31 98113-9540 · ruptur.cloud</div>
+    <div class="stamp">RPT-2026-0526-AM · v1</div>
+  </footer>
+</article>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

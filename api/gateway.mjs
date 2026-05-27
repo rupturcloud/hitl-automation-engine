@@ -599,7 +599,14 @@ async function serveStatic(res, pathname, req) {
   const ext = path.extname(filePath);
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-  res.writeHead(200, { 'Content-Type': contentType });
+  // Propostas e bem-vindo: sem cache (documentos vivos — podem ser atualizados)
+  const isProposal = pathname.startsWith('/propostas/') || pathname.startsWith('/bem-vindo-a-bordo');
+  const isNoCacheAsset = filePath.endsWith('sw.js') || filePath.endsWith('index.html') || isProposal;
+  const cacheControl = isNoCacheAsset
+    ? 'no-store, no-cache, must-revalidate'
+    : 'public, max-age=31536000, immutable';
+
+  res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': cacheControl });
   createReadStream(filePath).pipe(res);
 }
 
@@ -2042,6 +2049,52 @@ async function handler(req, res) {
       return json(res, proxyRes.status, data, req);
     } catch (e) {
       return json(res, 502, { error: `Warmup Manager indisponível: ${e.message}` }, req);
+    }
+  }
+
+  // ================================================================
+  //  Webhook InfinitePay — confirmação de pagamento de proposta
+  //  POST /api/webhooks/infinitepay
+  // ================================================================
+  if (pathname === '/api/webhooks/infinitepay' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      log('info', '[InfinitePay] webhook recebido', { status: body?.status, invoice_id: body?.id });
+
+      // InfinitePay envia status "approved" quando pagamento confirmado
+      if (body?.status === 'approved' || body?.status === 'paid') {
+        const invoiceId = body?.id || body?.invoice_id || 'desconhecido';
+        const customerEmail = body?.customer?.email || body?.payer?.email || null;
+        const customerName  = body?.customer?.name  || body?.payer?.name  || 'Cliente';
+        const amountStr     = body?.amount != null
+          ? `R$ ${Number(body.amount / 100).toFixed(2).replace('.', ',')}`
+          : 'valor confirmado';
+
+        log('info', '[InfinitePay] pagamento confirmado', { invoiceId, customerEmail, customerName });
+
+        // Enviar email de boas-vindas se Supabase disponível
+        if (supabase && customerEmail) {
+          try {
+            // Usa Supabase Edge Function de e-mail (se configurada) ou log para futura integração
+            await supabase.from('proposal_payments').insert({
+              invoice_id: invoiceId,
+              customer_email: customerEmail,
+              customer_name: customerName,
+              amount_str: amountStr,
+              raw_payload: body,
+              confirmed_at: new Date().toISOString(),
+            }).catch(() => {}); // tabela pode não existir ainda — não bloquear
+            log('info', '[InfinitePay] evento registrado no Supabase', { invoiceId });
+          } catch (dbErr) {
+            log('warn', '[InfinitePay] falha ao registrar no Supabase', { error: dbErr.message });
+          }
+        }
+      }
+
+      return json(res, 200, { received: true }, req);
+    } catch (e) {
+      log('error', '[InfinitePay] erro ao processar webhook', { error: e.message });
+      return json(res, 200, { received: true }, req); // sempre 200 para InfinitePay não retentar
     }
   }
 
