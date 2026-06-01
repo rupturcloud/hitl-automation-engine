@@ -15,12 +15,19 @@ import './MessageThread.css';
  * - Indicadores de digitação
  */
 
+/**
+ * MessageThread — aceita prop `fetchFn` opcional para substituir o endpoint padrão.
+ * Quando fetchFn é fornecida, é chamada com (offset, limit) e deve retornar
+ * { messages: [], has_more: bool }. Usada pelo InboxV2 para apontar ao novo
+ * gateway /api/inbox/messages em vez do legado /api/messages.
+ */
 const MessageThread = ({
   chatId,
   instanceId,
   tenantId,
   onNewMessage,
   pubSubClient,
+  fetchFn,        // opcional — sobreescreve o fetch padrão
 }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,24 +50,25 @@ const MessageThread = ({
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `/api/messages?chat_id=${chatId}&instance_id=${instanceId}&tenant_id=${tenantId}&limit=50&offset=0`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      let data;
+      if (fetchFn) {
+        // Novo caminho: InboxV2 injeta fetchFn → /api/inbox/messages
+        data = await fetchFn(0, 50);
+      } else {
+        // Legado: /api/messages (mantido para compatibilidade)
+        const response = await fetch(
+          `/api/messages?chat_id=${chatId}&instance_id=${instanceId}&tenant_id=${tenantId}&limit=50&offset=0`,
+          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+        );
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${response.status}`);
         }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        data = await response.json();
       }
 
-      const data = await response.json();
       setMessages(data.messages || []);
-      setHasMore(data.has_more || false);
+      setHasMore(data.has_more || data.hasMore || false);
       setUnreadCount(data.unread_count || 0);
     } catch (err) {
       console.error('[MessageThread] Erro ao carregar mensagens:', err);
@@ -68,7 +76,7 @@ const MessageThread = ({
     } finally {
       setLoading(false);
     }
-  }, [chatId, instanceId, tenantId]);
+  }, [chatId, instanceId, tenantId, fetchFn]);
 
   /**
    * Carregar mais mensagens (lazy-load)
@@ -82,23 +90,20 @@ const MessageThread = ({
       setIsLoadingMore(true);
 
       const offset = messages.length;
-      const response = await fetch(
-        `/api/messages?chat_id=${chatId}&instance_id=${instanceId}&tenant_id=${tenantId}&limit=50&offset=${offset}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Erro ao carregar mais mensagens');
+      let data;
+      if (fetchFn) {
+        data = await fetchFn(offset, 50);
+      } else {
+        const response = await fetch(
+          `/api/messages?chat_id=${chatId}&instance_id=${instanceId}&tenant_id=${tenantId}&limit=50&offset=${offset}`,
+          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+        );
+        if (!response.ok) throw new Error('Erro ao carregar mais mensagens');
+        data = await response.json();
       }
 
-      const data = await response.json();
       setMessages((prev) => [...(data.messages || []), ...prev]);
-      setHasMore(data.has_more || false);
+      setHasMore(data.has_more || data.hasMore || false);
     } catch (err) {
       console.error('[MessageThread] Erro ao carregar mais:', err);
     } finally {

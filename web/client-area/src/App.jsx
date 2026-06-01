@@ -23,7 +23,8 @@ import Onboarding from './pages/Onboarding';
 import DashboardHome from './pages/DashboardHome';
 import Campaigns from './pages/Campaigns';
 import Wallet from './pages/Wallet';
-import Inbox from './pages/Inbox';
+// InboxV2: inbox nativo via UAZAPI (substitui iframe Bubble do Inbox.jsx legado)
+import InboxV2 from './pages/InboxV2';
 import Instances from './pages/Instances';
 import Warmup from './pages/Warmup';
 import MessageLibrary from './pages/MessageLibrary';
@@ -31,6 +32,7 @@ import ClientLogs from './pages/ClientLogs';
 import Reports from './pages/Reports';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import UsersPage from './pages/UsersPage';
 import AcceptAdminInvite from './pages/AcceptAdminInvite';
 import AccessDenied from './pages/AccessDenied';
 import Health from './pages/Health';
@@ -74,7 +76,8 @@ function App() {
             <Route path="/mensagens" element={<MessageLibrary />} />
             <Route path="/relatorios" element={<Reports />} />
             <Route path="/logs" element={<ClientLogs />} />
-            <Route path="/inbox" element={<Inbox />} />
+            {/* InboxV2: nativo UAZAPI via gateway (substituiu iframe Bubble) */}
+            <Route path="/inbox" element={<InboxV2 />} />
           </Route>
         </Route>
 
@@ -86,6 +89,7 @@ function App() {
         {/* Rotas autenticadas — Superadmin */}
         <Route element={<ProtectedRoute requirePlatformAdmin />}>
           <Route path="/admin/superadmin" element={<SuperAdminDashboard />} />
+          <Route path="/admin/usuarios" element={<UsersPage />} />
         </Route>
 
         {/* Fallback: rotas desconhecidas → home */}

@@ -36,6 +36,7 @@ import { handleAdminTenantRoutes } from './routes-admin-tenants.mjs';
 import * as instanceRoutes from './routes-instances.mjs';
 import * as bubbleRoutes from './routes-bubble.mjs';
 import { handleMessageRoutes } from './routes-messages.mjs';
+import * as inboxRoutes from './routes-inbox.mjs';
 import TenantService from '../modules/tenants/service.js';
 import { extractAndValidateTenantId } from '../middleware/tenant-security.mjs';
 import {
@@ -1356,6 +1357,61 @@ async function handler(req, res) {
     }
   }
 
+  // --- Admin: Listar todos os tenants (super admin) ---
+  if (pathname === '/api/admin/platform/tenants' && req.method === 'GET') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    try {
+      const { data, error } = await supabase
+        .from('tenants')
+        .select('id, slug, name, plan, status')
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return json(res, 200, { tenants: data || [] }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
+  // --- Admin: Confirmar email de usuário ---
+  const confirmEmailMatch = pathname.match(/^\/api\/admin\/platform\/users\/([a-f0-9-]{36})\/confirm-email$/);
+  if (confirmEmailMatch && req.method === 'POST') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    const userId = confirmEmailMatch[1];
+    try {
+      const { data, error } = await supabase.auth.admin.updateUserById(userId, { email_confirm: true });
+      if (error) throw error;
+      log('info', '[Admin] email confirmado', { userId, by: adminUser.id });
+      return json(res, 200, { ok: true, email: data?.user?.email }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
+  // --- Admin: Reset de senha (envia email de recuperação) ---
+  const resetPasswordMatch = pathname.match(/^\/api\/admin\/platform\/users\/([a-f0-9-]{36})\/reset-password$/);
+  if (resetPasswordMatch && req.method === 'POST') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    const userId = resetPasswordMatch[1];
+    try {
+      // Buscar email do usuário
+      const { data: userData } = await supabase.auth.admin.getUserById(userId);
+      if (!userData?.user?.email) return json(res, 404, { error: 'Usuário não encontrado' }, req);
+      // Enviar magic link / reset
+      const { error } = await supabase.auth.admin.generateLink({
+        type: 'recovery',
+        email: userData.user.email,
+      });
+      if (error) throw error;
+      log('info', '[Admin] reset de senha enviado', { userId, email: userData.user.email, by: adminUser.id });
+      return json(res, 200, { ok: true, email: userData.user.email }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
   // --- Admin: Estatísticas operacionais ---
   if (pathname === '/api/admin/stats' && req.method === 'GET') {
     const adminUser = await requirePlatformAdmin(req, res);
@@ -2050,6 +2106,111 @@ async function handler(req, res) {
     } catch (e) {
       return json(res, 502, { error: `Warmup Manager indisponível: ${e.message}` }, req);
     }
+  }
+
+  // ================================================================
+  //  Inbox — Proxy autenticado para UAZAPI (tenant isolation)
+  //  Spec UAZAPI: /chat/find, /message/find, /send/text, /send/media,
+  //               /message/markread, /message/react, /chat/labels,
+  //               /chat/editLead, /group/list, /sse
+  // ================================================================
+
+  // GET /api/inbox/instances — lista instâncias do tenant (sidebar do inbox)
+  if (pathname === '/api/inbox/instances' && req.method === 'GET') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    req.user = user;
+    return inboxRoutes.handleGetInstances(req, res, json, supabase);
+  }
+
+  // POST /api/inbox/chats — busca chats com filtros (spec: /chat/find)
+  if (pathname === '/api/inbox/chats' && req.method === 'POST') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    const body = await parseBody(req);
+    req.user = user; req.body = body;
+    return inboxRoutes.handleFindChats(req, res, json, supabase);
+  }
+
+  // POST /api/inbox/messages — histórico de mensagens de um chat (spec: /message/find)
+  if (pathname === '/api/inbox/messages' && req.method === 'POST') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    const body = await parseBody(req);
+    req.user = user; req.body = body;
+    return inboxRoutes.handleFindMessages(req, res, json, supabase);
+  }
+
+  // POST /api/inbox/send — envia mensagem texto ou mídia (spec: /send/text, /send/media)
+  if (pathname === '/api/inbox/send' && req.method === 'POST') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    const body = await parseBody(req);
+    req.user = user; req.body = body;
+    return inboxRoutes.handleSendMessage(req, res, json, supabase);
+  }
+
+  // POST /api/inbox/markread — marca mensagens como lidas (spec: /message/markread)
+  if (pathname === '/api/inbox/markread' && req.method === 'POST') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    const body = await parseBody(req);
+    req.user = user; req.body = body;
+    return inboxRoutes.handleMarkRead(req, res, json, supabase);
+  }
+
+  // POST /api/inbox/react — reação a mensagem (spec: /message/react)
+  if (pathname === '/api/inbox/react' && req.method === 'POST') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    const body = await parseBody(req);
+    req.user = user; req.body = body;
+    return inboxRoutes.handleReact(req, res, json, supabase);
+  }
+
+  // POST /api/inbox/lead — edita dados do lead (spec: /chat/editLead)
+  if (pathname === '/api/inbox/lead' && req.method === 'POST') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    const body = await parseBody(req);
+    req.user = user; req.body = body;
+    return inboxRoutes.handleEditLead(req, res, json, supabase);
+  }
+
+  // GET /api/inbox/labels/:instanceKey — etiquetas da instância (spec: /chat/labels)
+  const inboxLabelsMatch = pathname.match(/^\/api\/inbox\/labels\/([^/]+)$/);
+  if (inboxLabelsMatch && req.method === 'GET') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    req.user = user; req.params = { instanceKey: inboxLabelsMatch[1] };
+    return inboxRoutes.handleGetLabels(req, res, json, supabase);
+  }
+
+  // GET /api/inbox/groups/:instanceKey — grupos da instância (spec: /group/list)
+  const inboxGroupsMatch = pathname.match(/^\/api\/inbox\/groups\/([^/]+)$/);
+  if (inboxGroupsMatch && req.method === 'GET') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    req.user = user; req.params = { instanceKey: inboxGroupsMatch[1] };
+    return inboxRoutes.handleGetGroups(req, res, json, supabase);
+  }
+
+  // GET /api/inbox/sse/:instanceKey — SSE relay tempo real (spec: /sse)
+  // EventSource não suporta headers → JWT via query param ?token=
+  const inboxSSEMatch = pathname.match(/^\/api\/inbox\/sse\/([^/]+)$/);
+  if (inboxSSEMatch && req.method === 'GET') {
+    if (!supabase) { res.writeHead(503); return res.end('Supabase não configurado'); }
+    req.params = { instanceKey: inboxSSEMatch[1] };
+    return inboxRoutes.handleSSERelay(req, res, supabase, extractUser);
   }
 
   // ================================================================
