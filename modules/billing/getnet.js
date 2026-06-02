@@ -261,7 +261,7 @@ class BillingService {
    * @param {object} customer  - { customerId, firstName, lastName, email, documentType, documentNumber }
    * @returns {{ paymentId, status }}
    */
-  async createCheckoutPreference(tenantId, packageId, cardData = {}, customer = {}) {
+  async createCheckoutPreference(tenantId, packageId, cardData = {}, customer = {}, options = {}) {
     const pkg = this.getPackage(packageId);
 
     const orderId = `${tenantId}-${packageId}-${Date.now()}`;
@@ -367,10 +367,10 @@ class BillingService {
         billing_address: customer.billingAddress || {},
       },
       credit: {
-        delayed: false,
+        delayed: options.delayed === true,
         save_card_data: false,
-        transaction_type: 'FULL',
-        number_installments: 1,
+        transaction_type: options.transactionType || ((options.installments > 1) ? 'INSTALL_NO_INTEREST' : 'FULL_PAYMENT'),
+        number_installments: options.installments || 1,
         card: {
           number_token: cardData.numberToken,
           cardholder_name: cardData.holderName,
@@ -640,6 +640,15 @@ class BillingService {
 
       case 'SUBSCRIPTION_CANCELLED':
         return this.handleSubscriptionCancelled(body);
+
+      case 'CANCEL_REQUEST_APPROVED':
+        // Cancelamento tardio aprovado pela adquirente — marcar como cancelado
+        return this.handlePaymentDenied(body);
+
+      case 'CANCEL_REQUEST_DENIED':
+        // Cancelamento tardio negado — registrar e retornar sem ação
+        console.log('[Billing:Getnet] Cancelamento negado:', body.payment_id || body.data?.payment_id);
+        return { ok: true, action: 'cancellation_denied', paymentId: body.payment_id || body.data?.payment_id };
 
       default:
         console.log(`[Billing:Getnet] Evento ignorado: ${eventType}`);
@@ -1507,6 +1516,128 @@ class BillingService {
         ...reconciliationResult,
       };
     }
+  }
+  // ========================================================================
+  //  Cancelamento de Pagamento (D+0 e D+1+)
+  // ========================================================================
+
+  /**
+   * Cancelar pagamento no mesmo dia (D+0)
+   * @param {string} paymentId - ID do pagamento na Getnet
+   * @param {number} [amountCents] - Valor a cancelar em centavos (padrão: valor original)
+   * @returns {{ payment_id, status }}
+   */
+  async cancelPayment(paymentId, amountCents) {
+    let amount = amountCents;
+
+    if (!amount && this.supabase) {
+      const { data: dbPayment } = await this.supabase
+        .from('payments')
+        .select('amount_cents')
+        .eq('getnet_payment_id', paymentId)
+        .single();
+
+      if (dbPayment) {
+        amount = dbPayment.amount_cents;
+      }
+    }
+
+    if (!amount) {
+      throw new Error(`cancelPayment: amountCents não fornecido e pagamento ${paymentId} não encontrado no banco`);
+    }
+
+    console.log('[Billing:Getnet] Cancelando pagamento (D+0)', { paymentId, amount });
+
+    const result = await this.apiFetch(`/dpm/payments-gwproxy/v2/payments/${paymentId}/cancel`, {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    });
+
+    if (this.supabase) {
+      await this.supabase
+        .from('payments')
+        .update({ status: 'CANCELLED' })
+        .eq('getnet_payment_id', paymentId);
+    }
+
+    console.log('[Billing:Getnet] Pagamento cancelado (D+0)', { paymentId });
+
+    return result;
+  }
+
+  /**
+   * Solicitar cancelamento tardio (D+1+)
+   * @param {string} paymentId - ID do pagamento na Getnet
+   * @param {number} amountCents - Valor a cancelar em centavos
+   * @param {string} [reason] - Motivo do cancelamento
+   * @returns {{ cancel_request_id, status }}
+   */
+  async requestCancellation(paymentId, amountCents, reason = 'Cancelamento solicitado pelo cliente') {
+    const cancelCustomKey = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${paymentId}`;
+
+    console.log('[Billing:Getnet] Solicitando cancelamento (D+1+)', { paymentId, amountCents });
+
+    const result = await this.apiFetch('/dpm/payments-gwproxy/v2/payments/cancel/request', {
+      method: 'POST',
+      body: JSON.stringify({
+        payment_id: paymentId,
+        amount: amountCents,
+        cancel_custom_key: cancelCustomKey,
+        reason_cancel: reason,
+      }),
+    });
+
+    if (this.supabase) {
+      await this.supabase
+        .from('payments')
+        .update({ status: 'CANCELLATION_REQUESTED' })
+        .eq('getnet_payment_id', paymentId);
+    }
+
+    return {
+      cancel_request_id: result.cancel_request_id || result.cancellation_request_id,
+      status: result.status,
+    };
+  }
+
+  /**
+   * Consultar status de solicitação de cancelamento (D+1+)
+   * @param {string} cancelRequestId - ID da solicitação de cancelamento
+   * @returns {object} Status da solicitação
+   */
+  async getCancellationStatus(cancelRequestId) {
+    console.log('[Billing:Getnet] Consultando status de cancelamento', { cancelRequestId });
+    return this.apiFetch(`/dpm/payments-gwproxy/v2/payments/cancel/request/${cancelRequestId}`);
+  }
+
+  // ========================================================================
+  //  Pré-autorização — Captura posterior
+  // ========================================================================
+
+  /**
+   * Capturar pagamento pré-autorizado
+   * @param {string} paymentId - ID do pagamento pré-autorizado
+   * @param {number} amountCents - Valor a capturar em centavos (igual ou menor ao autorizado)
+   * @returns {{ payment_id, status }}
+   */
+  async capturePreauthPayment(paymentId, amountCents) {
+    console.log('[Billing:Getnet] Capturando pré-autorização', { paymentId, amountCents });
+
+    const result = await this.apiFetch(`/dpm/payments-gwproxy/v2/payments/${paymentId}/capture`, {
+      method: 'POST',
+      body: JSON.stringify({ amount: amountCents }),
+    });
+
+    if (this.supabase) {
+      await this.supabase
+        .from('payments')
+        .update({ status: 'APPROVED' })
+        .eq('getnet_payment_id', paymentId);
+    }
+
+    console.log('[Billing:Getnet] Pré-autorização capturada', { paymentId });
+
+    return result;
   }
 }
 

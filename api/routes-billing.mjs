@@ -916,6 +916,114 @@ export async function getBoletoStatus(req, res, paymentId, billingService, json)
   }
 }
 
+// ========================================================================
+// Cancelamento e Captura — Rotas Getnet V2 Global
+// ========================================================================
+
+/**
+ * Cancelar pagamento no mesmo dia (D+0)
+ *
+ * @param {Object} req - Request HTTP
+ * @param {Object} res - Response HTTP
+ * @param {string} tenantId - ID do tenant
+ * @param {Object} billingService - Instância de BillingService
+ * @param {Function} json - Função para serializar resposta
+ * @returns {Promise<Object>} Resultado do cancelamento
+ *
+ * @example
+ *   POST /api/billing/payments/:paymentId/cancel
+ *   Body: { amountCents: 4900 }
+ *   Response: { payment_id, status }
+ */
+export async function cancelPayment(req, res, tenantId, billingService, json) {
+  try {
+    const body = req.body || {};
+    const { paymentId, amountCents } = body;
+
+    if (!paymentId) {
+      return json(res, 400, { error: 'paymentId é obrigatório' }, null);
+    }
+
+    const result = await billingService.cancelPayment(paymentId, amountCents);
+    return json(res, 200, result, null);
+  } catch (e) {
+    console.error('[Routes:Billing] Erro ao cancelar pagamento (D+0):', e.message);
+    return json(res, e.status || 500, { error: e.message }, null);
+  }
+}
+
+/**
+ * Solicitar cancelamento tardio (D+1+)
+ *
+ * @param {Object} req - Request HTTP
+ * @param {Object} res - Response HTTP
+ * @param {string} tenantId - ID do tenant
+ * @param {Object} billingService - Instância de BillingService
+ * @param {Function} json - Função para serializar resposta
+ * @returns {Promise<Object>} { cancel_request_id, status }
+ *
+ * @example
+ *   POST /api/billing/payments/cancel-request
+ *   Body: { paymentId, amountCents, reason? }
+ *   Response: { cancel_request_id, status }
+ */
+export async function requestCancellation(req, res, tenantId, billingService, json) {
+  try {
+    const body = req.body || {};
+    const { paymentId, amountCents, reason } = body;
+
+    if (!paymentId) {
+      return json(res, 400, { error: 'paymentId é obrigatório' }, null);
+    }
+
+    if (!amountCents || typeof amountCents !== 'number' || amountCents <= 0) {
+      return json(res, 400, { error: 'amountCents é obrigatório e deve ser um número positivo' }, null);
+    }
+
+    const result = await billingService.requestCancellation(paymentId, amountCents, reason);
+    return json(res, 200, result, null);
+  } catch (e) {
+    console.error('[Routes:Billing] Erro ao solicitar cancelamento (D+1+):', e.message);
+    return json(res, e.status || 500, { error: e.message }, null);
+  }
+}
+
+/**
+ * Capturar pagamento pré-autorizado
+ *
+ * @param {Object} req - Request HTTP
+ * @param {Object} res - Response HTTP
+ * @param {string} tenantId - ID do tenant
+ * @param {Object} billingService - Instância de BillingService
+ * @param {Function} json - Função para serializar resposta
+ * @returns {Promise<Object>} Resultado da captura
+ *
+ * @example
+ *   POST /api/billing/payments/:paymentId/capture
+ *   Body: { paymentId, amountCents }
+ *   Response: { payment_id, status }
+ */
+export async function capturePreauthPayment(req, res, tenantId, billingService, json) {
+  try {
+    const body = req.body || {};
+    const { paymentId, amountCents } = body;
+
+    if (!paymentId) {
+      return json(res, 400, { error: 'paymentId é obrigatório' }, null);
+    }
+
+    if (!amountCents || typeof amountCents !== 'number' || amountCents <= 0) {
+      return json(res, 400, { error: 'amountCents é obrigatório e deve ser um número positivo' }, null);
+    }
+
+    const result = await billingService.capturePreauthPayment(paymentId, amountCents);
+    return json(res, 200, result, null);
+  } catch (e) {
+    console.error('[Routes:Billing] Erro ao capturar pré-autorização:', e.message);
+    return json(res, e.status || 500, { error: e.message }, null);
+  }
+}
+
 export async function handleWebhookGetnetWithQueue(req, res, webhookQueueIntegration, pathname, json) {
   if (pathname !== '/api/webhooks/getnet' || req.method !== 'POST') {
     return null;
