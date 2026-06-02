@@ -37,8 +37,9 @@ import * as instanceRoutes from './routes-instances.mjs';
 import * as bubbleRoutes from './routes-bubble.mjs';
 import { handleMessageRoutes } from './routes-messages.mjs';
 import * as inboxRoutes from './routes-inbox.mjs';
+import { registerWhatsappRoutes } from '../modules/whatsapp/routes.js';
 import TenantService from '../modules/tenants/service.js';
-import { extractAndValidateTenantId } from '../middleware/tenant-security.mjs';
+import { extractAndValidateTenantId, getDefaultTenantForUser } from '../middleware/tenant-security.mjs';
 import {
   BillingSchemas,
   ReferralSchemas,
@@ -1358,16 +1359,204 @@ async function handler(req, res) {
   }
 
   // --- Admin: Listar todos os tenants (super admin) ---
+  // ================================================================
+  //  Admin CRUD de Tenants — gestão completa pela plataforma
+  // ================================================================
+
+  // GET /api/admin/platform/tenants — listar todos com dados ricos
   if (pathname === '/api/admin/platform/tenants' && req.method === 'GET') {
     const adminUser = await requirePlatformAdmin(req, res);
     if (!adminUser) return;
     try {
-      const { data, error } = await supabase
-        .from('tenants')
-        .select('id, slug, name, plan, status')
-        .order('created_at', { ascending: true });
+      const search = url.searchParams.get('search') || '';
+      const clients = await listAdminClients(search);
+      return json(res, 200, { tenants: clients, total: clients.length }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
+  // POST /api/admin/platform/tenants — criar novo tenant
+  if (pathname === '/api/admin/platform/tenants' && req.method === 'POST') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    try {
+      const body = await parseBody(req);
+      const { slug, name, email, plan = 'trial', status = 'active', credits_balance = 0, max_instances = 5 } = body;
+      if (!slug?.trim()) return json(res, 400, { error: 'slug obrigatório' }, req);
+      if (!name?.trim()) return json(res, 400, { error: 'name obrigatório' }, req);
+
+      const { data, error } = await supabase.from('tenants').insert({
+        slug: slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+        name: name.trim(),
+        email: email?.trim() || null,
+        plan,
+        status,
+        credits_balance: Number(credits_balance),
+        max_instances: Number(max_instances),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }).select('id, slug, name, email, plan, status, credits_balance, max_instances, created_at').single();
       if (error) throw error;
-      return json(res, 200, { tenants: data || [] }, req);
+
+      log('info', '[Admin] tenant criado', { slug: data.slug, by: adminUser.id });
+      return json(res, 201, { tenant: data }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
+  // GET /api/admin/platform/tenants/:id — detalhes de um tenant
+  const tenantDetailMatch = pathname.match(/^\/api\/admin\/platform\/tenants\/([a-f0-9-]{36})$/);
+  if (tenantDetailMatch && req.method === 'GET') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    const tenantId = tenantDetailMatch[1];
+    try {
+      const { data: tenant, error } = await supabase
+        .from('tenants')
+        .select('*')
+        .eq('id', tenantId)
+        .single();
+      if (error || !tenant) return json(res, 404, { error: 'Tenant não encontrado' }, req);
+
+      // Memberships
+      const { data: members } = await supabase
+        .from('user_tenant_memberships')
+        .select('user_id, role')
+        .eq('tenant_id', tenantId);
+
+      const userIds = (members || []).map(m => m.user_id);
+      let authUsers = [];
+      if (userIds.length > 0) {
+        const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+        authUsers = (users || []).filter(u => userIds.includes(u.id)).map(u => ({
+          id: u.id, email: u.email,
+          role: members.find(m => m.user_id === u.id)?.role || 'member',
+        }));
+      }
+
+      return json(res, 200, { tenant: { ...tenant, members: authUsers } }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
+  // PATCH /api/admin/platform/tenants/:id — atualizar tenant
+  if (tenantDetailMatch && req.method === 'PATCH') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    const tenantId = tenantDetailMatch[1];
+    try {
+      const body = await parseBody(req);
+      const allowed = ['name', 'email', 'plan', 'status', 'credits_balance', 'max_instances', 'monthly_credits'];
+      const updates = {};
+      for (const key of allowed) {
+        if (body[key] !== undefined) updates[key] = body[key];
+      }
+      updates.updated_at = new Date().toISOString();
+
+      const { data, error } = await supabase.from('tenants')
+        .update(updates).eq('id', tenantId)
+        .select('id, slug, name, email, plan, status, credits_balance, max_instances').single();
+      if (error) throw error;
+
+      log('info', '[Admin] tenant atualizado', { tenantId, updates: Object.keys(updates), by: adminUser.id });
+      return json(res, 200, { tenant: data }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
+  // DELETE /api/admin/platform/tenants/:id — suspender tenant (soft delete)
+  if (tenantDetailMatch && req.method === 'DELETE') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    const tenantId = tenantDetailMatch[1];
+    try {
+      const { error } = await supabase.from('tenants')
+        .update({ status: 'suspended', updated_at: new Date().toISOString() })
+        .eq('id', tenantId);
+      if (error) throw error;
+      log('info', '[Admin] tenant suspenso', { tenantId, by: adminUser.id });
+      return json(res, 200, { ok: true }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
+  // GET /api/admin/platform/tenants/:id/members — listar membros
+  const tenantMembersMatch = pathname.match(/^\/api\/admin\/platform\/tenants\/([a-f0-9-]{36})\/members$/);
+  if (tenantMembersMatch && req.method === 'GET') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    const tenantId = tenantMembersMatch[1];
+    try {
+      const { data: members } = await supabase
+        .from('user_tenant_memberships')
+        .select('user_id, role').eq('tenant_id', tenantId);
+      const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+      const ids = (members || []).map(m => m.user_id);
+      const result = (users || []).filter(u => ids.includes(u.id)).map(u => ({
+        id: u.id, email: u.email,
+        role: members.find(m => m.user_id === u.id)?.role || 'member',
+      }));
+      return json(res, 200, { members: result }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
+  // POST /api/admin/platform/tenants/:id/members — adicionar membro
+  if (tenantMembersMatch && req.method === 'POST') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    const tenantId = tenantMembersMatch[1];
+    try {
+      const body = await parseBody(req);
+      const { email, role = 'member' } = body;
+      if (!email) return json(res, 400, { error: 'email obrigatório' }, req);
+
+      // Buscar ou criar usuário no Supabase Auth
+      const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+      let user = (users || []).find(u => u.email === email);
+      if (!user) {
+        const tempPass = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2).toUpperCase() + '!';
+        const { data: created, error: createErr } = await supabase.auth.admin.createUser({
+          email, password: tempPass, email_confirm: true,
+        });
+        if (createErr) throw createErr;
+        user = created.user;
+      }
+
+      // Vincular ao tenant
+      await supabase.from('user_tenant_memberships').upsert({
+        user_id: user.id, tenant_id: tenantId, role,
+      }, { onConflict: 'user_id,tenant_id' });
+
+      // Garantir entrada em users
+      await supabase.from('users').upsert({
+        id: user.id, tenant_id: tenantId, email: user.email, role,
+      }, { onConflict: 'id' });
+
+      log('info', '[Admin] membro adicionado ao tenant', { tenantId, email, role, by: adminUser.id });
+      return json(res, 201, { ok: true, userId: user.id, email: user.email, role }, req);
+    } catch (e) {
+      return json(res, 500, { error: e.message }, req);
+    }
+  }
+
+  // DELETE /api/admin/platform/tenants/:id/members/:userId — remover membro
+  const tenantMemberDelMatch = pathname.match(/^\/api\/admin\/platform\/tenants\/([a-f0-9-]{36})\/members\/([a-f0-9-]{36})$/);
+  if (tenantMemberDelMatch && req.method === 'DELETE') {
+    const adminUser = await requirePlatformAdmin(req, res);
+    if (!adminUser) return;
+    const [, tenantId, userId] = tenantMemberDelMatch;
+    try {
+      await supabase.from('user_tenant_memberships').delete()
+        .eq('tenant_id', tenantId).eq('user_id', userId);
+      log('info', '[Admin] membro removido do tenant', { tenantId, userId, by: adminUser.id });
+      return json(res, 200, { ok: true }, req);
     } catch (e) {
       return json(res, 500, { error: e.message }, req);
     }
@@ -2088,7 +2277,7 @@ async function handler(req, res) {
   }
 
   // --- Proxy: Dashboard Stats, Campaigns, Wallet, Inbox → Warmup Manager ---
-  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/billing') && !pathname.startsWith('/api/tenants') && !pathname.startsWith('/api/webhooks') && !pathname.startsWith('/api/referrals') && !pathname.startsWith('/api/admin') && !pathname.startsWith('/api/notifications') && !pathname.startsWith('/api/users') && !pathname.startsWith('/api/bubble') && !pathname.startsWith('/api/instances') && !pathname.startsWith('/api/messages') && !pathname.startsWith('/api/analytics') && !pathname.startsWith('/api/onboarding')) {
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/v1/') && !pathname.startsWith('/api/billing') && !pathname.startsWith('/api/tenants') && !pathname.startsWith('/api/webhooks') && !pathname.startsWith('/api/referrals') && !pathname.startsWith('/api/admin') && !pathname.startsWith('/api/notifications') && !pathname.startsWith('/api/users') && !pathname.startsWith('/api/bubble') && !pathname.startsWith('/api/instances') && !pathname.startsWith('/api/messages') && !pathname.startsWith('/api/analytics') && !pathname.startsWith('/api/onboarding')) {
     // Proxy para o Warmup Manager existente
     try {
       const proxyUrl = `${WARMUP_URL}${pathname}${url.search}`;
@@ -2257,6 +2446,58 @@ async function handler(req, res) {
       log('error', '[InfinitePay] erro ao processar webhook', { error: e.message });
       return json(res, 200, { received: true }, req); // sempre 200 para InfinitePay não retentar
     }
+  }
+
+  // ================================================================
+  //  WhatsApp V1 Routes — /api/v1/whatsapp/*
+  //  (Numbers.jsx, Inbox, chats, messages, SSE)
+  // ================================================================
+  if (pathname.startsWith('/api/v1/whatsapp/')) {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+
+    // Resolver tenantId: header X-Tenant-Id > query param > tenant padrão do usuário
+    const tenantId = req.headers['x-tenant-id']
+      || url.searchParams.get('tenant_id')
+      || await getDefaultTenantForUser(user, supabase);
+
+    if (!tenantId) return json(res, 403, { error: 'Tenant não encontrado para este usuário' }, req);
+
+    const body = ['POST', 'PUT', 'PATCH'].includes(req.method) ? await parseBody(req) : undefined;
+    req.user = user;
+    req.tenantId = tenantId;
+    if (body) req.body = body;
+
+    // Credenciais UAZAPI: busca o provider_account do tenant via uazapiAccountService
+    let uazapiCredentials = null;
+    if (uazapiAccountService) {
+      try {
+        const accounts = await uazapiAccountService.listAccounts();
+        if (accounts?.length) {
+          uazapiCredentials = {
+            serverUrl: accounts[0].serverUrl || process.env.UAZAPI_BASE_URL || 'https://ruptur.uazapi.com',
+            adminToken: accounts[0].adminToken,
+          };
+        }
+      } catch { /* sem credenciais — controller retorna 503 */ }
+    }
+    if (!uazapiCredentials) {
+      uazapiCredentials = {
+        serverUrl: process.env.UAZAPI_BASE_URL || 'https://ruptur.uazapi.com',
+        adminToken: process.env.UAZAPI_TOKEN || process.env.UAZAPI_ADMIN_TOKEN,
+      };
+    }
+
+    const matched = await registerWhatsappRoutes({
+      req,
+      res,
+      pathname,
+      method: req.method,
+      ctx: { supabase, uazapiCredentials },
+    });
+    if (matched) return;
+    return json(res, 404, { error: 'Rota não encontrada' }, req);
   }
 
   // ================================================================

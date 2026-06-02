@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import TenantManager from './TenantManager';
 import { motion } from 'framer-motion';
-import { Activity, CreditCard, Database, Loader2, Plus, RefreshCw, Search, Server, Shield, Smartphone, Users, Zap } from 'lucide-react';
+import { Activity, Building2, CreditCard, Database, Loader2, Plus, RefreshCw, Search, Server, Shield, Smartphone, Users, Zap } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import EnvironmentSwitcher from '../components/EnvironmentSwitcher';
@@ -8,13 +9,15 @@ import { STATUS_MAP } from '../utils/status';
 
 const ADMIN_VIEW_TITLES = {
   overview: 'Visão Geral',
-  clients: 'Gestão de Clientes',
+  tenants: 'Gestão de Tenants',   // CRUD completo — TenantManager.jsx
+  clients: 'Clientes (legado)',
   instances: 'Instâncias',
   providers: 'APIs UAZAPI',
   gateways: 'Gateways de Pagamento',
   commercial: 'Comercial & Ofertas',
   tracking: 'Tracking & Pixels',
   support: 'Suporte & Sustentação',
+  users: 'Usuários & Times',
 };
 
 const GATEWAY_OPTIONS = {
@@ -222,7 +225,7 @@ function money(cents) {
 }
 
 export default function AdminDashboard() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, session } = useAuth();
   const [activeView, setActiveView] = useState('overview');
   const [stats, setStats] = useState(null);
   const [clients, setClients] = useState([]);
@@ -488,6 +491,7 @@ export default function AdminDashboard() {
 
         <nav className="admin-nav">
           <button className={`admin-nav-btn ${activeView === 'overview' ? 'active' : ''}`} onClick={() => setActiveView('overview')}><Activity size={18} /> Visão Geral</button>
+          <button className={`admin-nav-btn ${activeView === 'tenants' ? 'active' : ''}`} onClick={() => setActiveView('tenants')}><Building2 size={18} /> Tenants</button>
           <button className={`admin-nav-btn ${activeView === 'clients' ? 'active' : ''}`} onClick={() => setActiveView('clients')}><Users size={18} /> Clientes & Usuários</button>
           <button className={`admin-nav-btn ${activeView === 'instances' ? 'active' : ''}`} onClick={() => setActiveView('instances')}><Smartphone size={18} /> Instâncias</button>
           <button className={`admin-nav-btn ${activeView === 'providers' ? 'active' : ''}`} onClick={() => setActiveView('providers')}><Server size={18} /> APIs UAZAPI</button>
@@ -495,6 +499,7 @@ export default function AdminDashboard() {
           <button className={`admin-nav-btn ${activeView === 'commercial' ? 'active' : ''}`} onClick={() => setActiveView('commercial')}><Zap size={18} /> Comercial</button>
           <button className={`admin-nav-btn ${activeView === 'tracking' ? 'active' : ''}`} onClick={() => setActiveView('tracking')}><Activity size={18} /> Tracking</button>
           <button className={`admin-nav-btn ${activeView === 'support' ? 'active' : ''}`} onClick={() => setActiveView('support')}><Shield size={18} /> Suporte</button>
+          <button className={`admin-nav-btn ${activeView === 'users' ? 'active' : ''}`} onClick={() => setActiveView('users')}><Users size={18} /> Usuários & Times</button>
         </nav>
 
         <button className="admin-logout-btn" onClick={signOut}>Sair</button>
@@ -534,6 +539,9 @@ export default function AdminDashboard() {
                 <ClientRows clients={clients.slice(0, 6)} onCredit={setCreditTenant} />
               </div>
             </>
+          ) : activeView === 'tenants' ? (
+            /* CRUD completo de tenants — componente TenantManager */
+            <TenantManager />
           ) : activeView === 'clients' ? (
             <>
               <Toolbar search={search} setSearch={setSearch} />
@@ -624,6 +632,8 @@ export default function AdminDashboard() {
               onCreate={handleCreateTracking}
               onStatus={handleCommercialStatus}
             />
+          ) : activeView === 'users' ? (
+            <UsersPanel session={session} />
           ) : (
             <SupportPanel
               clients={clients}
@@ -1075,6 +1085,238 @@ function SupportPanel({ clients, tickets, migrationPending, ticketForm, setTicke
 function StatusBadge({ status }) {
   const st = STATUS_MAP[status] || { label: status || '—', color: '#94a3b8', bg: 'rgba(148,163,184,0.1)', border: 'rgba(148,163,184,0.25)' };
   return <span className="cell-status" style={{ color: st.color, background: st.bg, borderColor: st.border }}>{st.label}</span>;
+}
+
+// ============================================================
+//  UsersPanel — Gestão de Usuários & Times
+// ============================================================
+const ROLE_OPTS = ['owner', 'admin', 'member'];
+const ROLE_STYLE = {
+  owner:  { color: '#FF6A3D', bg: 'rgba(255,106,61,.15)',  border: 'rgba(255,106,61,.3)' },
+  admin:  { color: '#818CF8', bg: 'rgba(99,102,241,.15)',  border: 'rgba(99,102,241,.3)' },
+  member: { color: '#94a3b8', bg: 'rgba(148,163,184,.1)',  border: 'rgba(148,163,184,.25)' },
+};
+
+function RolePill({ role }) {
+  const s = ROLE_STYLE[role] || ROLE_STYLE.member;
+  return (
+    <span className="cell-status" style={{ color: s.color, background: s.bg, borderColor: s.border }}>
+      {role}
+    </span>
+  );
+}
+
+function UsersPanel({ session }) {
+  const [tenants, setTenants] = useState([]);
+  const [selectedTenantId, setSelectedTenantId] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [loadingTenants, setLoadingTenants] = useState(true);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+  const [actionState, setActionState] = useState({}); // { [userId]: 'saving' | 'ok' | 'error' }
+  const [roleEditing, setRoleEditing] = useState(null); // userId com dropdown aberto
+
+  const h = { Authorization: `Bearer ${session?.access_token}`, 'Content-Type': 'application/json' };
+
+  // Carregar tenants
+  useEffect(() => {
+    if (!session?.access_token) return;
+    fetch('/api/admin/platform/tenants', { headers: h })
+      .then(r => r.ok ? r.json() : { tenants: [] })
+      .then(d => {
+        const list = d.tenants || [];
+        setTenants(list);
+        const ruptur = list.find(t => t.slug === 'ruptur-os') || list[0];
+        if (ruptur) setSelectedTenantId(ruptur.id);
+      })
+      .finally(() => setLoadingTenants(false));
+  }, [session?.access_token]);
+
+  // Carregar membros do tenant selecionado
+  useEffect(() => {
+    if (!selectedTenantId || !session?.access_token) return;
+    setLoadingMembers(true);
+    fetch(`/api/admin/tenants/${selectedTenantId}/members?includeInactive=true`, { headers: h })
+      .then(r => r.ok ? r.json() : { members: [] })
+      .then(d => setMembers(d.members || []))
+      .finally(() => setLoadingMembers(false));
+  }, [selectedTenantId, session?.access_token]);
+
+  const doAction = async (userId, path, body = null) => {
+    setActionState(s => ({ ...s, [userId]: 'saving' }));
+    try {
+      const opts = { method: 'POST', headers: h };
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(path, opts);
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `Erro ${res.status}`);
+      setActionState(s => ({ ...s, [userId]: 'ok' }));
+      setTimeout(() => setActionState(s => { const n = { ...s }; delete n[userId]; return n; }), 2500);
+      // Recarregar membros
+      const fresh = await fetch(`/api/admin/tenants/${selectedTenantId}/members?includeInactive=true`, { headers: h });
+      if (fresh.ok) setMembers((await fresh.json()).members || []);
+    } catch (e) {
+      setActionState(s => ({ ...s, [userId]: 'error:' + e.message }));
+      setTimeout(() => setActionState(s => { const n = { ...s }; delete n[userId]; return n; }), 3500);
+    }
+  };
+
+  const changeRole = (userId, role) => {
+    setRoleEditing(null);
+    doAction(userId, `/api/admin/tenants/${selectedTenantId}/members/${userId}/role`, { role });
+  };
+  const confirmEmail = (userId) => doAction(userId, `/api/admin/platform/users/${userId}/confirm-email`);
+  const resetPassword = (userId) => doAction(userId, `/api/admin/platform/users/${userId}/reset-password`);
+
+  const selectedTenant = tenants.find(t => t.id === selectedTenantId);
+  const confirmed = members.filter(m => m.email_confirmed);
+  const pending = members.filter(m => !m.email_confirmed);
+
+  return (
+    <>
+      {/* Selector de tenant */}
+      {!loadingTenants && tenants.length > 1 && (
+        <div className="clients-toolbar" style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ color: '#9AA2AE', fontSize: 12, fontWeight: 600 }}>Tenant:</span>
+            {tenants.map(t => (
+              <button
+                key={t.id}
+                onClick={() => setSelectedTenantId(t.id)}
+                className={selectedTenantId === t.id ? 'btn-primary' : 'btn-secondary'}
+                style={{ padding: '4px 12px', fontSize: 12 }}
+              >
+                {t.name || t.slug}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Painel de membros */}
+      <div className="panel glass">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+          <h3 style={{ margin: 0 }}>
+            <Users size={18} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+            {selectedTenant?.name || 'Tenant'} — {members.length} membro{members.length !== 1 ? 's' : ''}
+          </h3>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <span className="cell-status" style={{ color: '#34D399', background: 'rgba(52,211,153,.1)', borderColor: 'rgba(52,211,153,.25)' }}>
+              {confirmed.length} ativo{confirmed.length !== 1 ? 's' : ''}
+            </span>
+            {pending.length > 0 && (
+              <span className="cell-status" style={{ color: '#FCD34D', background: 'rgba(252,211,77,.1)', borderColor: 'rgba(252,211,77,.25)' }}>
+                {pending.length} e-mail pendente{pending.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {loadingMembers && (
+          <div className="admin-loading"><Loader2 className="spin" size={20} /> Carregando membros...</div>
+        )}
+
+        {!loadingMembers && (
+          <>
+            <div className="table-header" style={{ gridTemplateColumns: '2fr 2fr 1fr 1fr auto' }}>
+              <span>Membro</span>
+              <span>E-mail</span>
+              <span>Role</span>
+              <span>E-mail</span>
+              <span style={{ textAlign: 'right' }}>Ações</span>
+            </div>
+
+            {members.map(m => {
+              const state = actionState[m.user_id];
+              const saving = state === 'saving';
+              const ok = state === 'ok';
+              const err = state?.startsWith?.('error:') ? state.slice(6) : null;
+
+              return (
+                <div className="table-row" key={m.user_id}
+                  style={{ gridTemplateColumns: '2fr 2fr 1fr 1fr auto', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 600 }}>
+                    {m.full_name || m.email?.split('@')[0] || 'Sem nome'}
+                  </span>
+                  <span style={{ color: '#9AA2AE', fontSize: 12 }}>{m.email}</span>
+
+                  {/* Role com dropdown */}
+                  <span style={{ position: 'relative' }}>
+                    <button
+                      className="action-btn"
+                      onClick={() => setRoleEditing(roleEditing === m.user_id ? null : m.user_id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+                    >
+                      <RolePill role={m.role} />
+                      <span style={{ fontSize: 10 }}>▾</span>
+                    </button>
+                    {roleEditing === m.user_id && (
+                      <div style={{
+                        position: 'absolute', top: '110%', left: 0, zIndex: 99,
+                        background: '#1C2230', border: '1px solid rgba(255,255,255,.1)',
+                        borderRadius: 8, padding: 6, minWidth: 120,
+                        boxShadow: '0 8px 24px rgba(0,0,0,.5)',
+                      }}>
+                        {ROLE_OPTS.filter(r => r !== m.role).map(r => (
+                          <button
+                            key={r}
+                            onClick={() => changeRole(m.user_id, r)}
+                            className="action-btn"
+                            style={{ display: 'block', width: '100%', textAlign: 'left', marginBottom: 2 }}
+                          >
+                            <RolePill role={r} />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </span>
+
+                  {/* Status de e-mail */}
+                  <span>
+                    {m.email_confirmed
+                      ? <span className="cell-status" style={{ color: '#34D399', background: 'rgba(52,211,153,.1)', borderColor: 'rgba(52,211,153,.2)' }}>✓ Confirmado</span>
+                      : <span className="cell-status" style={{ color: '#FCD34D', background: 'rgba(252,211,77,.1)', borderColor: 'rgba(252,211,77,.2)' }}>Pendente</span>
+                    }
+                  </span>
+
+                  {/* Ações */}
+                  <span className="row-actions">
+                    {saving && <Loader2 className="spin" size={14} />}
+                    {ok && <span style={{ color: '#34D399', fontSize: 12 }}>✓ Salvo</span>}
+                    {err && <span style={{ color: '#F87171', fontSize: 11 }}>{err}</span>}
+                    {!saving && !ok && !err && (
+                      <>
+                        {!m.email_confirmed && (
+                          <button className="action-btn" onClick={() => confirmEmail(m.user_id)}>
+                            Confirmar e-mail
+                          </button>
+                        )}
+                        <button className="action-btn" onClick={() => resetPassword(m.user_id)}>
+                          Reset senha
+                        </button>
+                      </>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+
+            {members.length === 0 && (
+              <div className="empty-table">Nenhum membro encontrado neste tenant.</div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Legenda */}
+      <div style={{ display: 'flex', gap: 16, marginTop: 12, flexWrap: 'wrap' }}>
+        {[['owner','Acesso total + gestão de membros'], ['admin','Acesso operacional'], ['member','Acesso básico']].map(([r, d]) => (
+          <div key={r} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <RolePill role={r} />
+            <span style={{ fontSize: 11, color: '#6B7280' }}>{d}</span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
 }
 
 const css = `

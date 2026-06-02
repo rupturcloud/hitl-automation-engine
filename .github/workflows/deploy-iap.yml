@@ -1,0 +1,218 @@
+name: Ruptur SaaS — Build, Test & Deploy via IAP
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Pular testes (emergência)'
+        required: false
+        default: 'false'
+
+env:
+  NODE_VERSION: '22'
+  GCP_ZONE: 'southamerica-east1-b'
+  GCP_INSTANCE: 'ruptur-shipyard-01'
+  GCP_PROJECT: 'ruptur-jarvis-v1-68358'
+  REMOTE_PATH: '/opt/ruptur/saas'
+
+jobs:
+  # ─── 1. CI: Lint + Testes ────────────────────────────────────────────────────
+  ci:
+    name: CI — Lint & Testes
+    runs-on: ubuntu-latest
+    if: github.event.inputs.skip_tests != 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Instalar dependências (raiz)
+        run: npm ci --prefer-offline
+
+      - name: Instalar dependências (frontend)
+        run: npm ci --prefer-offline --prefix web/client-area
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Testes unitários
+        run: npm test -- --runInBand --passWithNoTests
+        env:
+          NODE_ENV: test
+
+      - name: Syntax check gateway
+        run: node --check api/gateway.mjs
+
+      - name: Syntax check routes-inbox
+        run: node --check api/routes-inbox.mjs
+
+  # ─── 2. Build frontend ───────────────────────────────────────────────────────
+  build:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    needs: ci
+    if: always() && (needs.ci.result == 'success' || needs.ci.result == 'skipped')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Instalar dependências frontend
+        run: npm ci --prefer-offline --prefix web/client-area
+
+      - name: Build Vite
+        run: npm run build --prefix web/client-area
+        env:
+          NODE_ENV: production
+
+      - name: Upload dist-client como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-client
+          path: dist-client/
+          retention-days: 3
+
+  # ─── 3. Deploy via gcloud IAP ────────────────────────────────────────────────
+  deploy:
+    name: Deploy → Production (IAP)
+    runs-on: ubuntu-latest
+    needs: [ci, build]
+    if: always() && needs.build.result == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Baixar artefato dist-client
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-client
+          path: dist-client/
+
+      - name: Autenticar no GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configurar gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT }}
+
+      - name: Empacotar para deploy
+        run: |
+          tar \
+            --exclude='node_modules' \
+            --exclude='.env' \
+            --exclude='.env.local' \
+            --exclude='.git' \
+            --exclude='*.log' \
+            --exclude='coverage' \
+            -czf /tmp/ruptur-saas-deploy.tar.gz \
+            api/ \
+            modules/ \
+            middleware/ \
+            migrations/ \
+            web/client-area/public/ \
+            dist-client/ \
+            package.json \
+            package-lock.json \
+            Dockerfile \
+            docker-compose.yml \
+            .dockerignore \
+            2>/dev/null || true
+          echo "Tamanho do pacote: $(du -sh /tmp/ruptur-saas-deploy.tar.gz | cut -f1)"
+
+      - name: Copiar pacote para VM via IAP
+        run: |
+          gcloud compute scp /tmp/ruptur-saas-deploy.tar.gz \
+            ${{ env.GCP_INSTANCE }}:/tmp/ruptur-saas-deploy.tar.gz \
+            --zone=${{ env.GCP_ZONE }} \
+            --tunnel-through-iap \
+            --quiet
+
+      - name: Deploy na VM
+        run: |
+          gcloud compute ssh ${{ env.GCP_INSTANCE }} \
+            --zone=${{ env.GCP_ZONE }} \
+            --tunnel-through-iap \
+            --quiet \
+            --command="
+              set -e
+              cd ${{ env.REMOTE_PATH }}
+
+              echo '── Backup do estado atual ──'
+              cp -r dist-client /tmp/dist-client-backup-\$(date +%Y%m%d%H%M%S) 2>/dev/null || true
+
+              echo '── Extraindo novo pacote ──'
+              tar -xzf /tmp/ruptur-saas-deploy.tar.gz 2>/dev/null | grep -v 'LIBARCHIVE\|xattr' || true
+              echo 'Extração ok'
+
+              echo '── npm ci (sem devDependencies) ──'
+              npm ci --omit=dev --prefer-offline 2>&1 | tail -5
+
+              echo '── Rebuild e restart container ──'
+              docker compose up -d --build saas-web 2>&1 | tail -5
+
+              echo '── Aguardando container ──'
+              sleep 5
+
+              echo '── Health check interno ──'
+              curl -sf http://localhost:3001/api/health | head -c 80
+              echo ''
+              echo 'Deploy concluído'
+            "
+
+      - name: Smoke test externo
+        run: |
+          sleep 8
+          STATUS=$(curl -sf -o /dev/null -w '%{http_code}' https://ruptur.cloud/api/health || echo 000)
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Smoke test falhou (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ Produção saudável"
+
+      - name: Notificar sucesso (Slack)
+        if: success() && env.SLACK_WEBHOOK != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -sf -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"✅ Ruptur SaaS deployado\",
+              \"blocks\": [{
+                \"type\": \"section\",
+                \"text\": {
+                  \"type\": \"mrkdwn\",
+                  \"text\": \"*✅ Deploy concluído*\n*Build:* #${{ github.run_number }}\n*Branch:* ${{ github.ref_name }}\n*Commit:* \`${{ github.sha }}\`\n*URL:* https://ruptur.cloud\"
+                }
+              }]
+            }" \
+            "$SLACK_WEBHOOK" || true
+
+      - name: Notificar falha (Slack)
+        if: failure() && env.SLACK_WEBHOOK != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -sf -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"❌ Deploy Ruptur SaaS falhou (build #${{ github.run_number }})\"
+            }" \
+            "$SLACK_WEBHOOK" || true
