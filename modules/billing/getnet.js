@@ -31,14 +31,29 @@ const packageEnvSuffix = (packageId) => String(packageId || '')
 
 class BillingService {
   constructor(config = {}) {
-    this.clientId       = config.clientId       || process.env.GETNET_CLIENT_ID;
-    this.clientSecret   = config.clientSecret   || process.env.GETNET_CLIENT_SECRET;
-    this.sellerId       = config.sellerId       || process.env.GETNET_SELLER_ID;
+    // ── Modo homologação V2 Global (Santander/Getnet) ─────────────────────
+    // GETNET_USE_HOMOLOG=true → usa creds GETNET_HOMOLOG_* e URL dedicada.
+    // Distinto do sandbox V1 BR (api-sandbox.getnet.com.br).
+    const useHomolog = truthyEnv(config.useHomolog ?? process.env.GETNET_USE_HOMOLOG);
+
+    if (useHomolog) {
+      this.clientId     = config.clientId     || process.env.GETNET_HOMOLOG_CLIENT_ID;
+      this.clientSecret = config.clientSecret || process.env.GETNET_HOMOLOG_CLIENT_SECRET;
+      this.sellerId     = config.sellerId     || process.env.GETNET_HOMOLOG_SELLER_ID;
+      this.baseUrl      = process.env.GETNET_HOMOLOG_BASE_URL || 'https://api.pre.globalgetnet.com';
+      this.isSandbox    = false;
+    } else {
+      this.clientId     = config.clientId     || process.env.GETNET_CLIENT_ID;
+      this.clientSecret = config.clientSecret || process.env.GETNET_CLIENT_SECRET;
+      this.sellerId     = config.sellerId     || process.env.GETNET_SELLER_ID;
+      this.isSandbox    = (config.sandbox ?? process.env.GETNET_SANDBOX !== 'false');
+      this.baseUrl      = this.isSandbox
+        ? 'https://api-sandbox.getnet.com.br'
+        : 'https://api.getnet.com.br';
+    }
+
+    this.useHomolog     = useHomolog;
     this.webhookSecret  = config.webhookSecret  || process.env.GETNET_WEBHOOK_SECRET;
-    this.isSandbox      = (config.sandbox ?? process.env.GETNET_SANDBOX !== 'false');
-    this.baseUrl        = this.isSandbox
-      ? 'https://api-sandbox.getnet.com.br'
-      : 'https://api.getnet.com.br';
     this.supabase       = config.supabase || null;
     this.caktoClientId  = config.caktoClientId  || process.env.CAKTO_CLIENT_ID;
     this.caktoSecret    = config.caktoSecret    || process.env.CAKTO_CLIENT_SECRET;
@@ -126,7 +141,9 @@ class BillingService {
       return this._token;
     }
 
-    const credentials = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
+    // A Getnet BR rejeita o prefixo "cid_" no Basic Auth (máx. 36 chars = UUID puro).
+    const cleanClientId = this.clientId?.replace(/^cid_/, '') || this.clientId;
+    const credentials = Buffer.from(`${cleanClientId}:${this.clientSecret}`).toString('base64');
 
     const res = await fetch(`${this.baseUrl}/auth/oauth/v2/token`, {
       method: 'POST',
@@ -580,16 +597,23 @@ class BillingService {
     const signature = headers['x-signature'] || headers['X-Signature'];
     const rawBody = headers['_rawBody']; // Deve ser injetado pelo middleware
 
+    const allowUnsigned = truthyEnv(process.env.GETNET_WEBHOOK_ALLOW_UNSIGNED);
+    if (allowUnsigned) {
+      console.warn('[Webhook] ⚠️  GETNET_WEBHOOK_ALLOW_UNSIGNED=true — NUNCA usar em prod/homolog');
+    }
+
     if (signature && rawBody) {
+      if (!this.webhookSecret) {
+        throw new Error('GETNET_WEBHOOK_SECRET não configurado');
+      }
       const isValid = this.validateWebhookSignature(rawBody, signature);
       if (!isValid) {
-        console.error('[Webhook] Assinatura inválida - webhook rejeitado');
+        console.error('[Webhook] ❌ Assinatura HMAC inválida — rejeitado');
         throw new Error('Invalid webhook signature');
       }
-      console.log('[Webhook] ✅ Assinatura validada');
-    } else if (!process.env.ENABLE_DEV_MODE) {
-      // Em produção, assinatura é obrigatória
-      console.error('[Webhook] Assinatura obrigatória em produção');
+      console.log('[Webhook] ✅ Assinatura HMAC validada');
+    } else if (!allowUnsigned) {
+      console.error('[Webhook] ❌ Assinatura ausente — obrigatória em prod/homolog');
       throw new Error('Missing webhook signature');
     }
 

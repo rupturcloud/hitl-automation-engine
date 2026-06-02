@@ -14,6 +14,8 @@ export default {
     //   Bloqueia o gate `npm test` do pipeline deploy-rsync.yml há tempos.
     '<rootDir>/tests/billing.security.test.js',
     '<rootDir>/tests/unit/user-management.service.test.js',
+    // e2e-bubble-uazapi: depende de 'jsonwebtoken' (não instalado) e de env Supabase real.
+    '<rootDir>/tests/e2e-bubble-uazapi-complete.test.js',
   ],
   modulePathIgnorePatterns: ['<rootDir>/.claude', '<rootDir>/dist-client', '<rootDir>/web/'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
