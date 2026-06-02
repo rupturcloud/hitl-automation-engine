@@ -189,7 +189,7 @@ export default function InboxV2() {
         if (chat?.wa_chatid === cid) {
           window.dispatchEvent(new CustomEvent('inbox:newmsg', { detail: p }));
         }
-      } catch {}
+      } catch { /* ignorar erros de parse de mensagem SSE */ }
     });
     sseRef.current = es;
   }
@@ -211,7 +211,7 @@ export default function InboxV2() {
           body: JSON.stringify({ instanceKey: sel.key, messageIds: [c.wa_chatid] }),
         });
         setChats(prev => prev.map(x => x.wa_chatid === c.wa_chatid ? { ...x, wa_unreadCount: 0 } : x));
-      } catch {}
+      } catch { /* ignorar erros de markread */ }
     }
   }
 

@@ -631,6 +631,10 @@ class BillingService {
       case 'PAYMENT_CANCELLED':
         return this.handlePaymentDenied(body);
 
+      case 'PAYMENT_RECEIVED_PIX':
+      case 'PAYMENT_RECEIVED_BANK_SLIP':
+        return this.handlePaymentApproved(body);
+
       case 'SUBSCRIPTION_PAYMENT':
         return this.handleSubscriptionPayment(body);
 
@@ -1108,6 +1112,206 @@ class BillingService {
    */
   async getPaymentStatus(paymentId) {
     return this.apiFetch(`/v1/payments/credit/${paymentId}`);
+  }
+
+  // ========================================================================
+  //  PIX — Pagamento Instantâneo
+  // ========================================================================
+
+  /**
+   * Criar cobrança PIX (QR Code)
+   * @param {string} tenantId
+   * @param {number} amountCents - Valor em centavos
+   * @param {object} customer - { customer_id, first_name, last_name, email, document_type, document_number, phone_number }
+   * @param {number} expirationMinutes - Tempo de expiração em minutos (padrão: 60)
+   * @returns {{ payment_id, qr_code, qr_code_image, status, amount }}
+   */
+  async createPixCharge(tenantId, amountCents, customer = {}, expirationMinutes = 60) {
+    const orderId = this.newInternalPaymentId('pix', tenantId, 'charge');
+
+    const expirationDate = new Date(Date.now() + expirationMinutes * 60 * 1000).toISOString();
+
+    const payload = {
+      seller_id: this.sellerId,
+      amount: amountCents,
+      currency: 'BRL',
+      order: {
+        order_id: orderId,
+        sales_tax: 0,
+        product_type: 'service',
+      },
+      customer: {
+        customer_id: customer.customer_id || tenantId,
+        first_name: customer.first_name || 'Cliente',
+        last_name: customer.last_name || 'Ruptur',
+        email: customer.email || '',
+        document_type: customer.document_type || 'CPF',
+        document_number: customer.document_number || '',
+        phone_number: customer.phone_number || '',
+      },
+      qr_code: {
+        expiration_date: expirationDate,
+      },
+    };
+
+    console.log('[Billing:Getnet] Criando cobrança PIX', { tenantId, amountCents, orderId });
+
+    const payment = await this.apiFetch('/dpm/payments-gwproxy/v2/payments/qrcode', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (this.supabase) {
+      await this.supabase.from('payments').upsert({
+        getnet_payment_id: payment.payment_id,
+        tenant_id: tenantId,
+        status: payment.status || 'PENDING',
+        status_detail: 'Aguardando pagamento via PIX',
+        amount_cents: amountCents,
+        payment_type: 'credit_purchase',
+        method: 'pix',
+        credits_granted: 0,
+        metadata: {
+          order_id: orderId,
+          provider: 'getnet',
+          expiration_date: expirationDate,
+        },
+      }, { onConflict: 'getnet_payment_id' });
+    }
+
+    return {
+      payment_id: payment.payment_id,
+      qr_code: payment.qr_code,
+      qr_code_image: payment.qr_code_image,
+      status: payment.status || 'PENDING',
+      amount: amountCents,
+    };
+  }
+
+  /**
+   * Consultar status de cobrança PIX
+   * @param {string} paymentId
+   */
+  async getPixStatus(paymentId) {
+    console.log('[Billing:Getnet] Consultando status PIX', { paymentId });
+    return this.apiFetch(`/dpm/payments-gwproxy/v2/payments/qrcode/${paymentId}`);
+  }
+
+  /**
+   * Estornar cobrança PIX
+   * @param {string} paymentId
+   * @param {number} amountCents - Valor a estornar em centavos
+   */
+  async refundPix(paymentId, amountCents) {
+    console.log('[Billing:Getnet] Estornando PIX', { paymentId, amountCents });
+    return this.apiFetch(`/dpm/payments-gwproxy/v2/payments/qrcode/${paymentId}/refund`, {
+      method: 'POST',
+      body: JSON.stringify({ amount: amountCents }),
+    });
+  }
+
+  // ========================================================================
+  //  Boleto — Pagamento por Código de Barras
+  // ========================================================================
+
+  /**
+   * Criar cobrança via Boleto Bancário
+   * @param {string} tenantId
+   * @param {number} amountCents - Valor em centavos
+   * @param {object} customer - { customer_id, first_name, last_name, email, document_type, document_number, phone_number }
+   * @param {string} dueDate - Data de vencimento no formato YYYY-MM-DD
+   * @returns {{ payment_id, typeful_line, pdf, bar_code, status }}
+   */
+  async createBoletoCharge(tenantId, amountCents, customer = {}, dueDate) {
+    const orderId = this.newInternalPaymentId('boleto', tenantId, 'charge');
+
+    if (!dueDate) {
+      const dt = new Date();
+      dt.setDate(dt.getDate() + 3);
+      dueDate = dt.toISOString().slice(0, 10);
+    }
+
+    const documentNumber = String(Date.now()).slice(-8);
+
+    const payload = {
+      seller_id: this.sellerId,
+      amount: amountCents,
+      currency: 'BRL',
+      order: {
+        order_id: orderId,
+        sales_tax: 0,
+        product_type: 'service',
+      },
+      customer: {
+        customer_id: customer.customer_id || tenantId,
+        first_name: customer.first_name || 'Cliente',
+        last_name: customer.last_name || 'Ruptur',
+        email: customer.email || '',
+        document_type: customer.document_type || 'CPF',
+        document_number: customer.document_number || '',
+        phone_number: customer.phone_number || '',
+      },
+      boleto: {
+        document_number: documentNumber,
+        bank: '033',
+        instructions: 'Não receber após o vencimento',
+        due_date: dueDate,
+      },
+    };
+
+    console.log('[Billing:Getnet] Criando cobrança Boleto', { tenantId, amountCents, orderId, dueDate });
+
+    const payment = await this.apiFetch('/dpm/payments-gwproxy/v2/payments/boleto', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (this.supabase) {
+      await this.supabase.from('payments').upsert({
+        getnet_payment_id: payment.payment_id,
+        tenant_id: tenantId,
+        status: payment.status || 'PENDING',
+        status_detail: 'Aguardando pagamento do boleto',
+        amount_cents: amountCents,
+        payment_type: 'credit_purchase',
+        method: 'boleto',
+        credits_granted: 0,
+        metadata: {
+          order_id: orderId,
+          provider: 'getnet',
+          due_date: dueDate,
+          document_number: documentNumber,
+        },
+      }, { onConflict: 'getnet_payment_id' });
+    }
+
+    return {
+      payment_id: payment.payment_id,
+      typeful_line: payment.typeful_line,
+      pdf: payment.pdf,
+      bar_code: payment.bar_code,
+      status: payment.status || 'PENDING',
+    };
+  }
+
+  /**
+   * Consultar status de cobrança Boleto
+   * @param {string} paymentId
+   */
+  async getBoletoStatus(paymentId) {
+    console.log('[Billing:Getnet] Consultando status Boleto', { paymentId });
+    return this.apiFetch(`/dpm/payments-gwproxy/v2/payments/boleto/${paymentId}`);
+  }
+
+  /**
+   * Cancelar cobrança Boleto
+   * @param {string} paymentId
+   */
+  async cancelBoleto(paymentId) {
+    console.log('[Billing:Getnet] Cancelando Boleto', { paymentId });
+    return this.apiFetch(`/dpm/payments-gwproxy/v2/payments/boleto/${paymentId}/cancel`, {
+      method: 'POST',
+    });
   }
 
   // ========================================================================

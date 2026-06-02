@@ -2,8 +2,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Search, RefreshCw, X, Users, Loader2, Edit3, Trash2,
-  CheckCircle, XCircle, UserPlus, UserMinus, Shield, Database,
-  Building2, CreditCard, Zap,
+  CheckCircle, XCircle, UserPlus, UserMinus, Database,
+  Building2, Zap,
 } from 'lucide-react';
 import { authFetch } from '../services/api';
 
@@ -312,6 +312,7 @@ export default function TenantManager() {
     finally { setLoading(false); }
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(''); }, []);
   useEffect(() => {
     const t = setTimeout(() => load(search), 300);

@@ -796,6 +796,126 @@ export async function validateFeature(req, res, tenantId, supabase, json) {
  *
  * @throws {Error} Se não conseguir enfileirar o job
  */
+// ========================================================================
+// PIX — Rotas de Pagamento Instantâneo
+// ========================================================================
+
+/**
+ * Criar cobrança PIX (QR Code)
+ *
+ * @param {Object} req - Request HTTP
+ * @param {Object} res - Response HTTP
+ * @param {string} tenantId - ID do tenant
+ * @param {Object} billingService - Instância de BillingService
+ * @param {Function} json - Função para serializar resposta
+ * @returns {Promise<Object>} { payment_id, qr_code, qr_code_image, status, amount }
+ *
+ * @example
+ *   POST /api/billing/pix
+ *   Body: { amountCents: 4900, customer: {...}, expirationMinutes: 60 }
+ *   Response: { payment_id, qr_code, qr_code_image, status, amount }
+ */
+export async function createPix(req, res, tenantId, billingService, json) {
+  try {
+    const body = req.body || {};
+    const { amountCents, customer, expirationMinutes } = body;
+
+    if (!amountCents || typeof amountCents !== 'number' || amountCents <= 0) {
+      return json(res, 400, { error: 'amountCents é obrigatório e deve ser um número positivo' }, null);
+    }
+
+    const result = await billingService.createPixCharge(tenantId, amountCents, customer || {}, expirationMinutes);
+    return json(res, 201, result, null);
+  } catch (e) {
+    console.error('[Routes:PIX] Erro ao criar cobrança PIX:', e.message);
+    return json(res, e.status || 500, { error: e.message }, null);
+  }
+}
+
+/**
+ * Consultar status de cobrança PIX
+ *
+ * @param {Object} req - Request HTTP
+ * @param {Object} res - Response HTTP
+ * @param {string} paymentId - ID do pagamento PIX
+ * @param {Object} billingService - Instância de BillingService
+ * @param {Function} json - Função para serializar resposta
+ * @returns {Promise<Object>} Status atual do pagamento
+ *
+ * @example
+ *   GET /api/billing/pix/:paymentId
+ *   Response: { payment_id, status, amount, ... }
+ */
+export async function getPixStatus(req, res, paymentId, billingService, json) {
+  try {
+    const result = await billingService.getPixStatus(paymentId);
+    return json(res, 200, result, null);
+  } catch (e) {
+    console.error('[Routes:PIX] Erro ao consultar status PIX:', e.message);
+    return json(res, e.status || 500, { error: e.message }, null);
+  }
+}
+
+// ========================================================================
+// Boleto — Rotas de Pagamento por Código de Barras
+// ========================================================================
+
+/**
+ * Criar cobrança via Boleto Bancário
+ *
+ * @param {Object} req - Request HTTP
+ * @param {Object} res - Response HTTP
+ * @param {string} tenantId - ID do tenant
+ * @param {Object} billingService - Instância de BillingService
+ * @param {Function} json - Função para serializar resposta
+ * @returns {Promise<Object>} { payment_id, typeful_line, pdf, bar_code, status }
+ *
+ * @example
+ *   POST /api/billing/boleto
+ *   Body: { amountCents: 4900, customer: {...}, dueDate: '2026-06-10' }
+ *   Response: { payment_id, typeful_line, pdf, bar_code, status }
+ */
+export async function createBoleto(req, res, tenantId, billingService, json) {
+  try {
+    const body = req.body || {};
+    const { amountCents, customer, dueDate } = body;
+
+    if (!amountCents || typeof amountCents !== 'number' || amountCents <= 0) {
+      return json(res, 400, { error: 'amountCents é obrigatório e deve ser um número positivo' }, null);
+    }
+
+    const result = await billingService.createBoletoCharge(tenantId, amountCents, customer || {}, dueDate);
+    return json(res, 201, result, null);
+  } catch (e) {
+    console.error('[Routes:Boleto] Erro ao criar Boleto:', e.message);
+    return json(res, e.status || 500, { error: e.message }, null);
+  }
+}
+
+/**
+ * Consultar status de cobrança Boleto
+ *
+ * @param {Object} req - Request HTTP
+ * @param {Object} res - Response HTTP
+ * @param {string} paymentId - ID do pagamento Boleto
+ * @param {Object} billingService - Instância de BillingService
+ * @param {Function} json - Função para serializar resposta
+ * @returns {Promise<Object>} Status atual do Boleto
+ *
+ * @example
+ *   GET /api/billing/boleto/:paymentId
+ *   Response: { payment_id, status, amount, due_date, ... }
+ */
+export async function getBoletoStatus(req, res, paymentId, billingService, json) {
+  try {
+    const result = await billingService.getBoletoStatus(paymentId);
+    return json(res, 200, result, null);
+  } catch (e) {
+    console.error('[Routes:Boleto] Erro ao consultar status Boleto:', e.message);
+    return json(res, e.status || 500, { error: e.message }, null);
+  }
+}
+
 export async function handleWebhookGetnetWithQueue(req, res, webhookQueueIntegration, pathname, json) {
   if (pathname !== '/api/webhooks/getnet' || req.method !== 'POST') {
     return null;
