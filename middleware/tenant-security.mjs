@@ -5,9 +5,11 @@
  * - Usuário está autenticado (JWT válido)
  * - tenantId é resolvido APENAS de contexto autenticado
  * - Usuário tem permissão no tenant acessado
+ * - Tenant está ativo (não suspenso/cancelado) — via assertTenantActive
  *
  * Nunca aceita tenantId de query param, header ou metadados não validados
  */
+import { assertTenantActive } from './tenant-active.mjs';
 
 /**
  * Extrai e valida o tenantId do contexto autenticado do usuário
@@ -38,6 +40,14 @@ export async function validateTenantAccess(user, requestedTenantId, supabase) {
     if (error || !memberships) {
       console.warn(`[Tenant Security] Usuário ${user.id} sem acesso a tenant ${requestedTenantId}`);
       return null; // Usuário não tem acesso a este tenant
+    }
+
+    // Verificar se o tenant está ativo (não suspenso/cancelado)
+    // Cache de 60s — máximo 60s de lag ao suspender
+    const { error: statusError } = await assertTenantActive(supabase, requestedTenantId);
+    if (statusError) {
+      console.warn(`[Tenant Security] Tenant bloqueado: ${statusError}`);
+      return null;
     }
 
     // Validação passou: retornar o tenantId

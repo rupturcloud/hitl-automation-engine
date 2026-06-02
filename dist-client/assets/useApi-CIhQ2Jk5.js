@@ -1,0 +1,1 @@
+import{n as e,s as t}from"./jsx-runtime-2UHhqg_S.js";var n=t(e(),1),r=e=>{let[t,r]=(0,n.useState)(null),[i,a]=(0,n.useState)(!1),[o,s]=(0,n.useState)(null);return{data:t,loading:i,error:o,request:(0,n.useCallback)(async(...t)=>{a(!0),s(null);try{let n=await e(...t);return r(n),n}catch(e){throw s(e.message||`Erro inesperado`),e}finally{a(!1)}},[e]),setData:r}};export{r as t};

@@ -37,6 +37,9 @@ import * as instanceRoutes from './routes-instances.mjs';
 import * as bubbleRoutes from './routes-bubble.mjs';
 import { handleMessageRoutes } from './routes-messages.mjs';
 import * as inboxRoutes from './routes-inbox.mjs';
+import { handleUAZAPIWebhookNative } from './routes-webhook-uazapi.mjs';
+import { assertTenantActive, invalidateTenantStatusCache } from '../middleware/tenant-active.mjs';
+import { rateLimitTenant, getRateLimitHeaders, isExemptRoute } from './modules/rate-limiter/tenant-rate-limiter.js';
 import { registerWhatsappRoutes } from '../modules/whatsapp/routes.js';
 import TenantService from '../modules/tenants/service.js';
 import { extractAndValidateTenantId, getDefaultTenantForUser } from '../middleware/tenant-security.mjs';
@@ -1479,6 +1482,8 @@ async function handler(req, res) {
         .eq('id', tenantId);
       if (error) throw error;
       log('info', '[Admin] tenant suspenso', { tenantId, by: adminUser.id });
+      // Invalida cache de status — força re-verificação na próxima request do tenant
+      invalidateTenantStatusCache(tenantId);
       return json(res, 200, { ok: true }, req);
     } catch (e) {
       return json(res, 500, { error: e.message }, req);
@@ -2400,6 +2405,17 @@ async function handler(req, res) {
     if (!supabase) { res.writeHead(503); return res.end('Supabase não configurado'); }
     req.params = { instanceKey: inboxSSEMatch[1] };
     return inboxRoutes.handleSSERelay(req, res, supabase, extractUser);
+  }
+
+  // ================================================================
+  //  Webhook UAZAPI Nativo — eventos de mensagem, status e conexão
+  //  Substitui /api/bubble/validate para recebimento de eventos
+  //  POST /api/webhooks/uazapi
+  // ================================================================
+  if (pathname === '/api/webhooks/uazapi' && req.method === 'POST') {
+    if (!supabase) return json(res, 200, { received: true }, req); // sempre 200
+    const body = await parseBody(req);
+    return handleUAZAPIWebhookNative(req, res, json, body, supabase);
   }
 
   // ================================================================

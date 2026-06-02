@@ -1,0 +1,21 @@
+import{n as e,s as t,t as n}from"./jsx-runtime-2UHhqg_S.js";import{t as r}from"./history-DyOR3cb4.js";import{t as i}from"./refresh-cw-qBxrYwIX.js";import{z as a}from"./index-BPxAC5Go.js";var o=t(e(),1),s=n();function c(e){if(!e)return`—`;let t=new Date(e);return Number.isNaN(t.getTime())?`—`:t.toLocaleString(`pt-BR`)}function l(){let[e,t]=(0,o.useState)(null),[n,l]=(0,o.useState)(!0),[u,d]=(0,o.useState)(``);async function f(){l(!0),d(``);try{t(await a.getWarmupState())}catch(e){d(e.message||`Não foi possível carregar os logs.`)}finally{l(!1)}}(0,o.useEffect)(()=>{Promise.resolve().then(()=>f())},[]);let p=e?.recentLogs||[],m=e?.auditTrail||[];return(0,s.jsxs)(`div`,{className:`global-page`,children:[(0,s.jsxs)(`header`,{className:`page-header`,children:[(0,s.jsxs)(`div`,{children:[(0,s.jsxs)(`h1`,{children:[`Logs & `,(0,s.jsx)(`span`,{children:`Auditoria`})]}),(0,s.jsx)(`p`,{children:`Central global para acompanhar eventos operacionais do cliente.`})]}),(0,s.jsxs)(`button`,{className:`btn-secondary`,onClick:f,children:[(0,s.jsx)(i,{size:18}),` Atualizar`]})]}),u&&(0,s.jsx)(`div`,{className:`alert error`,children:u}),(0,s.jsxs)(`section`,{className:`glass panel`,children:[(0,s.jsxs)(`h2`,{children:[(0,s.jsx)(r,{size:18}),` Eventos recentes`]}),n?(0,s.jsx)(`p`,{children:`Carregando logs...`}):p.length===0?(0,s.jsx)(`p`,{className:`muted`,children:`Nenhum evento recente.`}):(0,s.jsx)(`div`,{className:`table-wrap`,children:(0,s.jsxs)(`table`,{children:[(0,s.jsx)(`thead`,{children:(0,s.jsxs)(`tr`,{children:[(0,s.jsx)(`th`,{children:`Quando`}),(0,s.jsx)(`th`,{children:`Tipo`}),(0,s.jsx)(`th`,{children:`Status`}),(0,s.jsx)(`th`,{children:`Origem`}),(0,s.jsx)(`th`,{children:`Mensagem`})]})}),(0,s.jsx)(`tbody`,{children:p.map((e,t)=>(0,s.jsxs)(`tr`,{children:[(0,s.jsx)(`td`,{children:c(e.timestamp)}),(0,s.jsx)(`td`,{children:e.type||`—`}),(0,s.jsx)(`td`,{children:(0,s.jsx)(`span`,{className:`badge ${e.status||``}`,children:e.status||`info`})}),(0,s.jsx)(`td`,{children:e.instanceName||e.originToken||`Runtime`}),(0,s.jsx)(`td`,{children:e.message||e.details||`—`})]},`${e.timestamp}-${t}`))})]})})]}),(0,s.jsxs)(`section`,{className:`glass panel`,children:[(0,s.jsx)(`h2`,{children:`Auditoria`}),m.length===0?(0,s.jsx)(`p`,{className:`muted`,children:`Nenhum registro de auditoria.`}):(0,s.jsx)(`div`,{className:`audit-list`,children:m.map((e,t)=>(0,s.jsxs)(`div`,{className:`audit-item`,children:[(0,s.jsx)(`strong`,{children:e.action||e.type}),(0,s.jsxs)(`span`,{children:[e.actor||`Sistema`,` · `,c(e.timestamp)]}),(0,s.jsx)(`p`,{children:e.details||`—`})]},`${e.timestamp}-${t}`))})]}),(0,s.jsx)(`style`,{children:`
+        .global-page { display:flex; flex-direction:column; gap:24px; }
+        .page-header { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; }
+        .page-header h1 span { color:var(--primary); }
+        .page-header p, .muted { color:var(--text-muted); }
+        .panel { padding:18px; border-radius:20px; }
+        .panel h2 { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+        .table-wrap { overflow:auto; }
+        table { width:100%; border-collapse:collapse; min-width:760px; }
+        th, td { padding:12px; border-bottom:1px solid rgba(255,255,255,0.08); text-align:left; }
+        th { color:var(--text-dim); font-size:.75rem; text-transform:uppercase; }
+        .badge { padding:4px 9px; border-radius:999px; background:rgba(255,255,255,.08); color:white; font-size:.75rem; }
+        .badge.success { background:rgba(0,255,122,.12); color:#78ffb5; }
+        .badge.error { background:rgba(255,0,80,.12); color:#ff8aa8; }
+        .audit-list { display:grid; gap:10px; }
+        .audit-item { padding:12px; border:1px solid var(--border-glass); border-radius:14px; background:rgba(255,255,255,.04); }
+        .audit-item span { display:block; color:var(--text-muted); font-size:.8rem; margin-top:4px; }
+        .audit-item p { margin-top:8px; color:var(--text-dim); }
+        .alert.error { padding:12px 14px; border-radius:12px; background:rgba(255,0,80,.12); color:#ff8aa8; }
+        @media (max-width:768px) { .page-header { align-items:stretch; flex-direction:column; } }
+      `})]})}export{l as default};
