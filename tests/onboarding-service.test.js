@@ -306,8 +306,11 @@ describe('OnboardingService', () => {
 
   describe('_formatProgress', () => {
     it('deve calcular daysRemaining corretamente (7 dias)', () => {
+      // Adiciona um pequeno offset (+1s) para evitar o caso de fronteira em
+      // que o tempo decorrido entre montar o dbRow e chamar _formatProgress
+      // faz Math.floor cair de 7 para 6 (teste flaky em CI sob carga).
       const now = new Date();
-      const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000 + 1000);
 
       const dbRow = {
         tenant_id: 'tenant-123',

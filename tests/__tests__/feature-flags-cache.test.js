@@ -308,29 +308,27 @@ describe('FeatureFlagsService Cache', () => {
   // Testes de Fallback (sem Supabase)
   // =========================================================================
 
-  describe('Fallback (sem Supabase)', () => {
-    test('deve retornar "trial" se supabase é null', async () => {
+  // IMPORTANTE #1 FIX (alinhado com modules/billing/feature-flags.service.js):
+  // getPlan() não silencia mais a ausência de supabase com fallback 'trial' —
+  // lança erro para que chamadores saibam que a infra está indisponível.
+  describe('Erro (sem Supabase)', () => {
+    test('deve lançar erro se supabase é null', async () => {
       const serviceNoDb = new FeatureFlagsService(null);
-
-      const plan = await serviceNoDb.getPlan('tenant-123');
-      expect(plan).toBe('trial');
+      await expect(serviceNoDb.getPlan('tenant-123'))
+        .rejects.toThrow('Supabase client not initialized');
     });
 
-    test('deve retornar "trial" se supabase é undefined', async () => {
+    test('deve lançar erro se supabase é undefined', async () => {
       const serviceNoDb = new FeatureFlagsService(undefined);
-
-      const plan = await serviceNoDb.getPlan('tenant-123');
-      expect(plan).toBe('trial');
+      await expect(serviceNoDb.getPlan('tenant-123'))
+        .rejects.toThrow('Supabase client not initialized');
     });
 
     test('não deve cachear quando supabase é null', async () => {
       const serviceNoDb = new FeatureFlagsService(null);
-
-      const plan1 = await serviceNoDb.getPlan('tenant-123');
-      const plan2 = await serviceNoDb.getPlan('tenant-123');
-
-      expect(plan1).toBe('trial');
-      expect(plan2).toBe('trial');
+      // Duas chamadas independentes: ambas devem lançar (nenhuma cacheada).
+      await expect(serviceNoDb.getPlan('tenant-123')).rejects.toThrow();
+      await expect(serviceNoDb.getPlan('tenant-123')).rejects.toThrow();
       expect(serviceNoDb.planCache.size).toBe(0);
     });
   });

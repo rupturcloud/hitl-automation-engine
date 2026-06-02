@@ -40,24 +40,88 @@ import './App.css';
 
 import LandingPage from './pages/LandingPage';
 
-function App() {
-  // Registrar Service Worker para Web Push Notifications (Fase 7)
+// V2 — Ruptur SaaS · WhatsApp Sales OS (handoff portado em paralelo)
+import { ToastProvider as RupturToastProvider } from './ds/index.js';
+import AppShellV2 from './v2/layout/AppShell.jsx';
+import LandingV2 from './v2/pages/Landing.jsx';
+import DashboardV2 from './v2/pages/Dashboard.jsx';
+import PlaceholderV2 from './v2/pages/Placeholder.jsx';
+
+const V2_PENDING = [
+  'personas', 'onboarding', 'pricing', 'leads', 'pipeline',
+  'accounts', 'inbox', 'campaigns', 'flows', 'numbers',
+  'playbooks', 'billing', 'insights', 'indicacoes', 'admin',
+  'sprints', 'founder',
+];
+
+// / e /v0 -> Standalone Ruptur OS v3.9.1 (full mock do handoff)
+// O HTML auto-contido vive em public/v0/index.html e é servido pelo Vite/web
+// como estático. React Router só faz o redirect — fora do SPA.
+function RedirectToV0() {
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .then(reg => {
-          console.log('✅ Service Worker registrado com sucesso:', reg.scope);
-        })
-        .catch(err => {
-          console.error('❌ Erro ao registrar Service Worker:', err);
-        });
+    // Apontar direto para o asset estático evita o SPA fallback do Vite/dev
+// reescrever /v0/ -> index.html do React Router.
+window.location.replace('/v0/index.html');
+  }, []);
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: '#0E1116', color: '#9aa3b2', fontFamily: 'Inter, sans-serif',
+    }}>
+      Abrindo Ruptur OS…
+    </div>
+  );
+}
+
+// /v1/warmup -> Warmup Manager (frontlindona)
+// Em produção, Traefik faz proxy de app.ruptur.cloud/warmup/* para o service warmup:4173.
+// Em dev, apontamos direto para o warmup runtime local em :8787.
+function WarmupRedirect() {
+  useEffect(() => {
+    const target = import.meta.env.DEV
+      ? 'http://localhost:8787/warmup/'
+      : '/warmup/';
+    window.location.replace(target);
+  }, []);
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: '#0E1116', color: '#9aa3b2', fontFamily: 'Inter, sans-serif',
+    }}>
+      Abrindo Warmup Manager…
+    </div>
+  );
+}
+
+function App() {
+  // Service Worker — só em produção. Em dev o cache-first do sw.js sequestra
+  // navegações HTML e serve bundle congelado, atrapalhando hot reload e
+  // mascarando mudanças de código (rotas, lazy imports, etc.).
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    if (import.meta.env.DEV) {
+      // Em dev: garantir que nenhum SW antigo continue rodando.
+      navigator.serviceWorker.getRegistrations()
+        .then(regs => regs.forEach(r => r.unregister()))
+        .catch(() => {});
+      return;
     }
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
+      .catch(err => console.error('❌ Erro ao registrar Service Worker:', err));
   }, []);
   return (
     <BrowserRouter>
       <Routes>
-        {/* Rotas públicas */}
-        <Route path="/" element={<LandingPage />} />
+        {/* Home pública (versão 02 — Ruptur OS v3.9.1 full mock):
+            serve o Standalone HTML em /v0/. A landing antiga (RUPTURCLOUD dark)
+            fica em /v1 (versão 01 — atual original com app Supabase real). */}
+        <Route path="/" element={<RedirectToV0 />} />
+        <Route path="/v0" element={<RedirectToV0 />} />
+        <Route path="/v1" element={<LandingPage />} />
+        {/* /v1/warmup -> redirect ao Warmup Manager (frontlindona) */}
+        <Route path="/v1/warmup" element={<WarmupRedirect />} />
+        <Route path="/v1/warmup/*" element={<WarmupRedirect />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/admin/accept-invite" element={<AcceptAdminInvite />} />
@@ -91,6 +155,26 @@ function App() {
           <Route path="/admin/superadmin" element={<SuperAdminDashboard />} />
           <Route path="/admin/usuarios" element={<UsersPage />} />
         </Route>
+
+        {/* V2 — Ruptur SaaS · WhatsApp Sales OS (preview paralelo, sem auth) */}
+        <Route
+          path="/v2/*"
+          element={
+            <RupturToastProvider>
+              <Routes>
+                <Route index element={<Navigate to="landing" replace />} />
+                <Route path="landing" element={<LandingV2 />} />
+                <Route element={<AppShellV2 />}>
+                  <Route path="dashboard" element={<DashboardV2 />} />
+                  {V2_PENDING.map(id => (
+                    <Route key={id} path={id} element={<PlaceholderV2 name={id} />} />
+                  ))}
+                </Route>
+                <Route path="*" element={<Navigate to="landing" replace />} />
+              </Routes>
+            </RupturToastProvider>
+          }
+        />
 
         {/* Fallback: rotas desconhecidas → home */}
         <Route path="*" element={<Navigate to="/" replace />} />
