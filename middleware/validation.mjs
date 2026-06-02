@@ -86,15 +86,45 @@ export async function parseBodyWithValidation(req, schema) {
 // SCHEMAS PREDEFINIDOS (reutilizáveis)
 // ============================================================================
 
+const CardDataSchema = z.object({
+  numberToken:  z.string().min(1),
+  holderName:   z.string().min(1),
+  securityCode: z.string().min(3).max(4),
+  brand:        z.string().min(1),
+  expMonth:     z.string().length(2),
+  expYear:      z.string().length(2),
+}).optional();
+
+const CustomerSchema = z.object({
+  firstName:      z.string().optional(),
+  lastName:       z.string().optional(),
+  email:          z.string().email().optional().or(z.literal('')),
+  documentType:   z.enum(['CPF', 'CNPJ']).optional(),
+  documentNumber: z.string().optional(),
+}).optional();
+
 export const BillingSchemas = {
   checkout: z.object({
-    tenantId: z.string().uuid('tenantId deve ser UUID válido'),
+    tenantId:  z.string().uuid('tenantId deve ser UUID válido'),
     packageId: z.string().min(1, 'packageId obrigatório'),
+    cardData:  CardDataSchema,
+    customer:  CustomerSchema,
   }),
 
   subscribe: z.object({
     tenantId: z.string().uuid('tenantId deve ser UUID válido'),
-    planId: z.string().min(1, 'planId obrigatório'),
+    planId:   z.string().min(1, 'planId obrigatório'),
+    cardData: CardDataSchema,
+    customer: CustomerSchema,
+  }),
+
+  tokenizeCard: z.object({
+    tenantId:    z.string().uuid(),
+    cardNumber:  z.string().min(13).max(19),
+    holderName:  z.string().min(1),
+    expiryMonth: z.string().length(2),
+    expiryYear:  z.string().length(2),
+    cvv:         z.string().min(3).max(4),
   }),
 };
 

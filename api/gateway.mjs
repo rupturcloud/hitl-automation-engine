@@ -726,6 +726,55 @@ async function handler(req, res) {
     return billingRoutes.validateFeature(req, res, tenantId, supabase, json);
   }
 
+  // ── Tokenizar cartão (step 1 do checkout Getnet direto) ─────────────────
+  if (pathname === '/api/billing/tokenize-card' && req.method === 'POST') {
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+
+    const validation = await BillingSchemas.tokenizeCard.safeParseAsync(await parseBody(req));
+    if (!validation.success) {
+      return json(res, 400, { error: 'Dados inválidos', details: validation.error.errors }, req);
+    }
+
+    const { tenantId, cardNumber, holderName, expiryMonth, expiryYear, cvv } = validation.data;
+
+    const validatedTenantId = await extractAndValidateTenantId(url, req, user, supabase);
+    if (!validatedTenantId || validatedTenantId !== tenantId) {
+      return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
+    }
+
+    if (!billing.hasGetnetCredentials()) {
+      return json(res, 503, { error: 'Gateway de pagamento não configurado' }, req);
+    }
+
+    try {
+      const tokenData = await billing.tokenizeCard({
+        cardNumber: cardNumber.replace(/\s/g, ''),
+        customerId: tenantId,
+      });
+
+      // Detectar bandeira pelo número
+      const n = cardNumber.replace(/\s/g, '');
+      let brand = 'MASTERCARD';
+      if (/^4/.test(n)) brand = 'VISA';
+      else if (/^3[47]/.test(n)) brand = 'AMEX';
+      else if (/^(636368|438935|504175|451416|636297|5067|4576|4011)/.test(n)) brand = 'ELO';
+      else if (/^(606282|3841)/.test(n)) brand = 'HIPERCARD';
+
+      return json(res, 200, {
+        numberToken: tokenData.number_token,
+        brand,
+        holderName,
+        expMonth: expiryMonth,
+        expYear:  expiryYear,
+      }, req);
+    } catch (e) {
+      log('error', '[Billing] Tokenização falhou', { error: e.message, tenantId });
+      return json(res, 422, { error: `Cartão inválido: ${e.message}` }, req);
+    }
+  }
+
+  // ── Checkout de créditos avulsos ─────────────────────────────────────────
   if (pathname === '/api/billing/checkout' && req.method === 'POST') {
     const user = await extractUser(req);
     if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
@@ -748,7 +797,7 @@ async function handler(req, res) {
       }, req);
     }
 
-    const { tenantId, packageId } = validation.data;
+    const { tenantId, packageId, cardData, customer } = validation.data;
 
     // SECURITY: Validar que o usuário tem acesso ao tenant
     const validatedTenantId = await extractAndValidateTenantId(url, req, user, supabase);
@@ -762,7 +811,7 @@ async function handler(req, res) {
     }
 
     try {
-      const result = await billing.createCheckoutPreference(tenantId, packageId);
+      const result = await billing.createCheckoutPreference(tenantId, packageId, cardData, customer);
       return json(res, 200, result, req);
     } catch (e) {
       return json(res, 500, { error: e.message }, req);
