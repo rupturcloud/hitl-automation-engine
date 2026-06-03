@@ -138,7 +138,9 @@ class TenantService {
       .order('created_at', { ascending: false });
 
     if (search) {
-      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,slug.ilike.%${search}%`);
+      // Sanitiza reservados do PostgREST para evitar injeção de filtro
+      const safe = String(search).replace(/[,()."*:%_\\]/g, ' ').trim();
+      if (safe) query = query.or(`name.ilike.%${safe}%,email.ilike.%${safe}%,slug.ilike.%${safe}%`);
     }
 
     const { data } = await query;

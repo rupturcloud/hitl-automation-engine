@@ -18,6 +18,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import http from 'node:http';
+import crypto from 'node:crypto';
 import { createReadStream, existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
@@ -42,7 +43,7 @@ import { assertTenantActive, invalidateTenantStatusCache } from '../middleware/t
 import { rateLimitTenant, getRateLimitHeaders, isExemptRoute } from './modules/rate-limiter/tenant-rate-limiter.js';
 import { registerWhatsappRoutes } from '../modules/whatsapp/routes.js';
 import TenantService from '../modules/tenants/service.js';
-import { extractAndValidateTenantId, getDefaultTenantForUser } from '../middleware/tenant-security.mjs';
+import { extractAndValidateTenantId, getDefaultTenantForUser, validateTenantAccess } from '../middleware/tenant-security.mjs';
 import {
   BillingSchemas,
   ReferralSchemas,
@@ -222,13 +223,61 @@ function log(level, msg, meta = {}) {
 // --- Helpers ---
 const MAX_BODY_SIZE = 1_048_576; // 1MB limite de body
 
+/**
+ * Headers de segurança aplicados a TODA resposta (JSON e estática).
+ * Auditoria 2026-06: produção não enviava CSP/HSTS/Referrer-Policy/Permissions-Policy.
+ *  - HSTS: força HTTPS por 2 anos (Cloudflare já termina TLS; reforço defense-in-depth)
+ *  - Referrer-Policy no-referrer: evita vazar JWT do SSE (?token=) via header Referer
+ *  - CSP: restringe origens de script/conexão (mantém 'unsafe-inline' p/ estilos inline do V0)
+ *  - Permissions-Policy: desabilita APIs sensíveis não usadas
+ */
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  'Referrer-Policy': 'no-referrer',
+  'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=(self)',
+  'Content-Security-Policy':
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.sentry.io; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com data:; " +
+    "img-src 'self' data: blob: https:; " +
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.uazapi.com https://*.sentry.io https://api.ruptur.cloud; " +
+    "frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+};
+
+/**
+ * Comparação de segredos em tempo constante (anti timing-attack).
+ * Retorna true só se ambas as strings existem e são idênticas.
+ */
+function safeSecretEqual(a, b) {
+  if (!a || !b) return false;
+  const ba = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  if (ba.length !== bb.length) return false;
+  try { return crypto.timingSafeEqual(ba, bb); } catch { return false; }
+}
+
+/**
+ * Valida o segredo compartilhado de um webhook.
+ * - Se `envSecret` não está configurado: loga aviso e PERMITE (não quebra o fluxo
+ *   antes do operador configurar). Reforçado automaticamente quando o secret é setado.
+ * - Se configurado: exige que o header `x-webhook-secret` OU query `?wsecret=` bata.
+ * Retorna { ok, configured }.
+ */
+function checkWebhookSecret(req, url, envSecret) {
+  if (!envSecret) return { ok: true, configured: false };
+  const provided = req.headers['x-webhook-secret'] || url.searchParams.get('wsecret');
+  return { ok: safeSecretEqual(provided, envSecret), configured: true };
+}
+
 function json(res, status, data, req) {
   const origin = req ? corsOrigin(req) : null;
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'X-XSS-Protection': '1; mode=block',
+    ...SECURITY_HEADERS,
   };
 
   // Apenas enviar CORS headers se origin está na whitelist
@@ -511,7 +560,9 @@ async function listAdminClients(search = '') {
     .order('created_at', { ascending: false });
 
   if (search) {
-    query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,slug.ilike.%${search}%`);
+    // Sanitiza caracteres reservados do PostgREST (,()."*:%_\) para evitar injeção de filtro
+    const safe = String(search).replace(/[,()."*:%_\\]/g, ' ').trim();
+    if (safe) query = query.or(`name.ilike.%${safe}%,email.ilike.%${safe}%,slug.ilike.%${safe}%`);
   }
 
   const { data: tenants, error } = await query;
@@ -611,13 +662,21 @@ async function serveStatic(res, pathname, req) {
     ? 'no-store, no-cache, must-revalidate'
     : 'public, max-age=31536000, immutable';
 
-  res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': cacheControl });
+  // Headers de segurança em TODA resposta estática (HTML, JS, CSS) — não só JSON
+  res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': cacheControl, ...SECURITY_HEADERS });
   createReadStream(filePath).pipe(res);
 }
 
 // --- Request Handler ---
 async function handler(req, res) {
-  const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+  // IP confiável: atrás do Cloudflare, CF-Connecting-IP é setado pelo CF e não é forjável
+  // pelo cliente externo. X-Forwarded-For[0] é controlado pelo cliente (bypass de rate-limit
+  // e memory-leak no _hits Map) — só usar como fallback junto ao socket remoto.
+  const clientIp =
+    req.headers['cf-connecting-ip']?.trim() ||
+    req.socket.remoteAddress ||
+    req.headers['x-forwarded-for']?.split(',').pop()?.trim() ||
+    'unknown';
 
   // Rate Limiter — bloqueia antes de qualquer processamento
   if (!rateLimit(clientIp)) {
@@ -2139,13 +2198,26 @@ async function handler(req, res) {
   // POST /api/messages/send - Enviar mensagem
   if (pathname === '/api/messages/send' && req.method === 'POST') {
     if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    // FIX IDOR: exigir auth e validar que o tenant_id do body pertence ao usuário
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
     const body = await parseBody(req);
+    const tid = body?.tenant_id || body?.tenantId;
+    const validTid = await validateTenantAccess(user, tid, supabase);
+    if (!validTid) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
+    req.user = user;
     return handleMessageRoutes(req, res, json, supabase, body);
   }
 
   // GET /api/messages - Listar mensagens de um chat
   if (pathname === '/api/messages' && req.method === 'GET') {
     if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
+    // FIX IDOR: exigir auth e validar tenant do query param
+    const user = await extractUser(req);
+    if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+    const tid = await extractAndValidateTenantId(url, req, user, supabase);
+    if (!tid) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
+    req.user = user;
     return handleMessageRoutes(req, res, json, supabase);
   }
 
@@ -2198,11 +2270,12 @@ async function handler(req, res) {
 
     try {
       const body = await parseBody(req);
+      // FIX IDOR: exigir auth e validar membership (antes aceitava qualquer tenantId)
       const user = await extractUser(req);
-
-      // Validar tenantId
+      if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
       const tenantId = body.tenantId || body.properties?.tenantId;
-      if (!tenantId) return json(res, 400, { error: 'tenantId obrigatório' }, req);
+      const validTid = await validateTenantAccess(user, tenantId, supabase);
+      if (!validTid) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
 
       // Rastrear evento
       const result = await analyticsService.track(body.event, {
@@ -2225,8 +2298,10 @@ async function handler(req, res) {
     if (!analyticsService) return json(res, 503, { error: 'Analytics não configurado' }, req);
 
     try {
-      const tenantId = url.searchParams.get('tenantId');
-      if (!tenantId) return json(res, 400, { error: 'tenantId obrigatório' }, req);
+      const user = await extractUser(req);
+      if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+      const tenantId = await extractAndValidateTenantId(url, req, user, supabase);
+      if (!tenantId) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
 
       const metrics = await analyticsService.getDashboardMetrics(tenantId);
       return json(res, 200, metrics, req);
@@ -2241,8 +2316,10 @@ async function handler(req, res) {
     if (!analyticsService) return json(res, 503, { error: 'Analytics não configurado' }, req);
 
     try {
-      const tenantId = url.searchParams.get('tenantId');
-      if (!tenantId) return json(res, 400, { error: 'tenantId obrigatório' }, req);
+      const user = await extractUser(req);
+      if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+      const tenantId = await extractAndValidateTenantId(url, req, user, supabase);
+      if (!tenantId) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
 
       const startDate = url.searchParams.get('startDate');
       const endDate = url.searchParams.get('endDate');
@@ -2264,11 +2341,14 @@ async function handler(req, res) {
     if (!analyticsService) return json(res, 503, { error: 'Analytics não configurado' }, req);
 
     try {
-      const tenantId = url.searchParams.get('tenantId');
-      if (!tenantId) return json(res, 400, { error: 'tenantId obrigatório' }, req);
+      const user = await extractUser(req);
+      if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+      const tenantId = await extractAndValidateTenantId(url, req, user, supabase);
+      if (!tenantId) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
 
       const eventType = url.searchParams.get('eventType');
-      const limit = parseInt(url.searchParams.get('limit')) || 100;
+      // Cap de limite: cliente não pode pedir páginas gigantes (DoS)
+      const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit')) || 100, 1), 200);
       const offset = parseInt(url.searchParams.get('offset')) || 0;
 
       const events = await analyticsService.getEventHistory(tenantId, { eventType, limit, offset });
@@ -2284,8 +2364,10 @@ async function handler(req, res) {
     if (!onboardingService) return json(res, 503, { error: 'Onboarding não configurado' }, req);
 
     try {
-      const tenantId = url.searchParams.get('tenantId');
-      if (!tenantId) return json(res, 400, { error: 'tenantId obrigatório' }, req);
+      const user = await extractUser(req);
+      if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+      const tenantId = await extractAndValidateTenantId(url, req, user, supabase);
+      if (!tenantId) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
 
       const progress = await onboardingService.getProgress(tenantId);
       return json(res, 200, progress, req);
@@ -2302,8 +2384,11 @@ async function handler(req, res) {
     try {
       const body = await parseBody(req);
       const { tenantId, stepId, metadata } = body;
-
-      if (!tenantId) return json(res, 400, { error: 'tenantId obrigatório' }, req);
+      // FIX IDOR: escrita — validar membership antes de avançar onboarding
+      const user = await extractUser(req);
+      if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+      const validTid = await validateTenantAccess(user, tenantId, supabase);
+      if (!validTid) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
       if (!stepId) return json(res, 400, { error: 'stepId obrigatório' }, req);
 
       const progress = await onboardingService.completeStep(tenantId, stepId, metadata || {});
@@ -2319,8 +2404,10 @@ async function handler(req, res) {
     if (!onboardingService) return json(res, 503, { error: 'Onboarding não configurado' }, req);
 
     try {
-      const tenantId = url.searchParams.get('tenantId');
-      if (!tenantId) return json(res, 400, { error: 'tenantId obrigatório' }, req);
+      const user = await extractUser(req);
+      if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+      const tenantId = await extractAndValidateTenantId(url, req, user, supabase);
+      if (!tenantId) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
 
       const status = await onboardingService.getTrialStatus(tenantId);
       return json(res, 200, status, req);
@@ -2463,6 +2550,13 @@ async function handler(req, res) {
   // ================================================================
   if (pathname === '/api/webhooks/uazapi' && req.method === 'POST') {
     if (!supabase) return json(res, 200, { received: true }, req); // sempre 200
+    // Validação de segredo compartilhado (configure UAZAPI_WEBHOOK_SECRET + ?wsecret= na URL do webhook)
+    const wh = checkWebhookSecret(req, url, process.env.UAZAPI_WEBHOOK_SECRET);
+    if (!wh.ok) {
+      log('warn', '[UAZAPI webhook] segredo inválido — rejeitado', { ip: clientIp });
+      return json(res, 401, { error: 'unauthorized' }, req);
+    }
+    if (!wh.configured) log('warn', '[UAZAPI webhook] SEM UAZAPI_WEBHOOK_SECRET — aceitando sem validação (configure já)');
     const body = await parseBody(req);
     return handleUAZAPIWebhookNative(req, res, json, body, supabase);
   }
@@ -2473,6 +2567,14 @@ async function handler(req, res) {
   // ================================================================
   if (pathname === '/api/webhooks/infinitepay' && req.method === 'POST') {
     try {
+      // Validação de segredo (configure INFINITEPAY_WEBHOOK_SECRET + ?wsecret= na URL do webhook)
+      const wh = checkWebhookSecret(req, url, process.env.INFINITEPAY_WEBHOOK_SECRET);
+      if (!wh.ok) {
+        log('warn', '[InfinitePay] segredo inválido — rejeitado', { ip: clientIp });
+        return json(res, 401, { error: 'unauthorized' }, req);
+      }
+      if (!wh.configured) log('warn', '[InfinitePay] SEM INFINITEPAY_WEBHOOK_SECRET — aceitando sem validação (configure já)');
+
       const body = await parseBody(req);
       log('info', '[InfinitePay] webhook recebido', { status: body?.status, invoice_id: body?.id });
 
@@ -2485,23 +2587,22 @@ async function handler(req, res) {
           ? `R$ ${Number(body.amount / 100).toFixed(2).replace('.', ',')}`
           : 'valor confirmado';
 
-        log('info', '[InfinitePay] pagamento confirmado', { invoiceId, customerEmail, customerName });
+        log('info', '[InfinitePay] pagamento confirmado', { invoiceId }); // não logar PII (email/nome)
 
-        // Enviar email de boas-vindas se Supabase disponível
+        // Idempotência: upsert por invoice_id evita duplicar em retry/replay
         if (supabase && customerEmail) {
           try {
-            // Usa Supabase Edge Function de e-mail (se configurada) ou log para futura integração
-            await supabase.from('proposal_payments').insert({
+            await supabase.from('proposal_payments').upsert({
               invoice_id: invoiceId,
               customer_email: customerEmail,
               customer_name: customerName,
               amount_str: amountStr,
               raw_payload: body,
               confirmed_at: new Date().toISOString(),
-            }).catch(() => {}); // tabela pode não existir ainda — não bloquear
-            log('info', '[InfinitePay] evento registrado no Supabase', { invoiceId });
+            }, { onConflict: 'invoice_id' }).catch(() => {}); // tabela pode não existir ainda
+            log('info', '[InfinitePay] evento registrado', { invoiceId });
           } catch (dbErr) {
-            log('warn', '[InfinitePay] falha ao registrar no Supabase', { error: dbErr.message });
+            log('warn', '[InfinitePay] falha ao registrar', { error: dbErr.message });
           }
         }
       }
@@ -2523,9 +2624,15 @@ async function handler(req, res) {
     if (!supabase) return json(res, 503, { error: 'Supabase não configurado' }, req);
 
     // Resolver tenantId: header X-Tenant-Id > query param > tenant padrão do usuário
-    const tenantId = req.headers['x-tenant-id']
-      || url.searchParams.get('tenant_id')
-      || await getDefaultTenantForUser(user, supabase);
+    // FIX IDOR: se vier de header/query, VALIDAR membership; senão usar o padrão do usuário
+    const requestedTid = req.headers['x-tenant-id'] || url.searchParams.get('tenant_id');
+    let tenantId;
+    if (requestedTid) {
+      tenantId = await validateTenantAccess(user, requestedTid, supabase);
+      if (!tenantId) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
+    } else {
+      tenantId = await getDefaultTenantForUser(user, supabase);
+    }
 
     if (!tenantId) return json(res, 403, { error: 'Tenant não encontrado para este usuário' }, req);
 

@@ -146,7 +146,9 @@ export async function handleFindChats(req, res, json, supabase) {
   const tenantId = req.user?.tenantId || req.tenantId;
   if (!tenantId) return json(res, 403, { error: 'Tenant não identificado' }, req);
 
-  const { instanceKey, filters = {}, sort = '-wa_lastMsgTimestamp', limit = 30, offset = 0 } = req.body || {};
+  const { instanceKey, filters = {}, sort = '-wa_lastMsgTimestamp', offset = 0 } = req.body || {};
+  // Cap de limite: cliente não pode forçar resposta gigante (DoS de memória/banda)
+  const limit = Math.min(Math.max(parseInt(req.body?.limit) || 30, 1), 100);
   if (!instanceKey) return json(res, 400, { error: 'instanceKey obrigatório' }, req);
 
   try {
@@ -191,7 +193,9 @@ export async function handleFindMessages(req, res, json, supabase) {
   const tenantId = req.user?.tenantId || req.tenantId;
   if (!tenantId) return json(res, 403, { error: 'Tenant não identificado' }, req);
 
-  const { instanceKey, chatId, limit = 50, offset = 0 } = req.body || {};
+  const { instanceKey, chatId, offset = 0 } = req.body || {};
+  // Cap de limite (DoS)
+  const limit = Math.min(Math.max(parseInt(req.body?.limit) || 50, 1), 100);
   if (!instanceKey) return json(res, 400, { error: 'instanceKey obrigatório' }, req);
   if (!chatId) return json(res, 400, { error: 'chatId obrigatório' }, req);
 
@@ -453,10 +457,14 @@ export async function handleSSERelay(req, res, supabase, extractUser) {
     const uazapiSSEUrl = `${resolved.serverUrl}/sse`;
     let upstreamReader;
 
+    // Teto de 15 min por conexão (evita socket/memória presos indefinidamente).
+    // O cliente (EventSource) reconecta automaticamente ao fechar.
+    const SSE_MAX_MS = 15 * 60 * 1000;
+
     try {
       const upstream = await fetch(uazapiSSEUrl, {
         headers: { token: resolved.token },
-        signal: AbortSignal.timeout(0), // sem timeout — conexão longa
+        signal: AbortSignal.timeout(SSE_MAX_MS),
       });
 
       if (!upstream.ok) {
