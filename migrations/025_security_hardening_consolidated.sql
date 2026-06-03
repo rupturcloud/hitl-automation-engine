@@ -120,9 +120,10 @@ SET search_path = public AS $$
   );
 $$;
 -- Recriar as políticas usando a função (sem subquery recursiva)
-DROP POLICY IF EXISTS platform_admins_read  ON public.platform_admins;
-DROP POLICY IF EXISTS platform_admins_write ON public.platform_admins;
-DROP POLICY IF EXISTS platform_admins_self  ON public.platform_admins;
+DROP POLICY IF EXISTS platform_admins_read   ON public.platform_admins;
+DROP POLICY IF EXISTS platform_admins_write  ON public.platform_admins;
+DROP POLICY IF EXISTS platform_admins_self   ON public.platform_admins;
+DROP POLICY IF EXISTS platform_admins_select ON public.platform_admins;  -- a recursiva (EXISTS SELECT FROM platform_admins)
 -- service_role (backend) faz tudo:
 DROP POLICY IF EXISTS platform_admins_service ON public.platform_admins;
 CREATE POLICY platform_admins_service ON public.platform_admins
