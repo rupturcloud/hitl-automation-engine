@@ -2419,6 +2419,24 @@ async function handler(req, res) {
 
   // --- Proxy: Dashboard Stats, Campaigns, Wallet, Inbox → Warmup Manager ---
   if (pathname.startsWith('/api/') && !pathname.startsWith('/api/v1/') && !pathname.startsWith('/api/billing') && !pathname.startsWith('/api/tenants') && !pathname.startsWith('/api/webhooks') && !pathname.startsWith('/api/referrals') && !pathname.startsWith('/api/admin') && !pathname.startsWith('/api/notifications') && !pathname.startsWith('/api/users') && !pathname.startsWith('/api/bubble') && !pathname.startsWith('/api/instances') && !pathname.startsWith('/api/messages') && !pathname.startsWith('/api/analytics') && !pathname.startsWith('/api/onboarding')) {
+    // FIX (auditoria): rotas sensíveis proxypadas ao warmup-core (campanhas, wallet,
+    // warmup, dashboard) NÃO exigiam auth — qualquer um disparava campanha/spam em
+    // nome de qualquer tenant. Agora exige JWT válido e injeta o tenant resolvido
+    // do TOKEN como header confiável (X-Auth-Tenant-Id), não confiando em tenantId do body.
+    const SENSITIVE_PROXY = ['/api/campaigns', '/api/wallet', '/api/warmup', '/api/dashboard', '/api/leads', '/api/contacts'];
+    let authTenantId = null;
+    if (SENSITIVE_PROXY.some(p => pathname.startsWith(p))) {
+      const user = await extractUser(req);
+      if (!user) return json(res, 401, { error: 'Não autenticado' }, req);
+      authTenantId = await getDefaultTenantForUser(user, supabase);
+      // Se o cliente pediu um tenant específico (query/header), validar membership
+      const requestedTid = req.headers['x-tenant-id'] || url.searchParams.get('tenantId') || url.searchParams.get('tenant_id');
+      if (requestedTid) {
+        const valid = await validateTenantAccess(user, requestedTid, supabase);
+        if (!valid) return json(res, 403, { error: 'Acesso negado ao tenant' }, req);
+        authTenantId = valid;
+      }
+    }
     // Proxy para o Warmup Manager existente
     try {
       const proxyUrl = `${WARMUP_URL}${pathname}${url.search}`;
@@ -2427,6 +2445,7 @@ async function handler(req, res) {
         headers: {
           'Content-Type': 'application/json',
           ...( req.headers.authorization ? { 'Authorization': req.headers.authorization } : {}),
+          ...( authTenantId ? { 'X-Auth-Tenant-Id': authTenantId } : {}),
         },
         body: ['POST', 'PUT', 'PATCH'].includes(req.method) ? JSON.stringify(await parseBody(req)) : undefined,
       });
