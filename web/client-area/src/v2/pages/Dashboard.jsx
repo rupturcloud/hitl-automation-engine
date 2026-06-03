@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon, Button, Card, KPI, Badge, AIChip, useToast, fireConfetti } from '../../ds/index.js';
-import { ALERTS, ACTIVITIES, STAGES, DEALS } from '../../mocks/ruptur.js';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 
 const DASH_CSS = `
   .cock-crumbs { font-size: 12px; color: var(--ink-500); margin-bottom: 6px; }
@@ -138,40 +138,47 @@ function FunnelChart() {
 }
 
 function StageBars() {
-  const byStage = STAGES.filter(s => s.id !== 'lost').map(s => {
-    const deals = DEALS.filter(d => d.stage === s.id);
-    const sum = deals.reduce((a, b) => a + b.amount, 0);
-    return { ...s, count: deals.length, sum };
-  });
-  const max = Math.max(...byStage.map(s => s.sum), 1);
+  // Pipeline será populado à medida que leads forem inseridos no CRM
   return (
-    <div className="stack" style={{ gap: 8 }}>
-      {byStage.map(s => (
-        <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '110px 1fr 100px', gap: 12, alignItems: 'center', fontSize: 13 }}>
-          <span style={{ fontWeight: 550 }}>{s.label}</span>
-          <div style={{ height: 18, background: 'var(--ink-100)', borderRadius: 6, overflow: 'hidden' }}>
-            <div style={{
-              width: (s.sum / max * 100) + '%', height: '100%',
-              background: s.id === 'won' ? 'var(--success)' : 'var(--brand-500)',
-              opacity: .85, borderRadius: 6, transition: 'width .3s',
-            }} />
-          </div>
-          <span className="tabular" style={{ textAlign: 'right', fontWeight: 600 }}>
-            R$ {(s.sum / 1000).toFixed(1)}k <span className="muted" style={{ fontWeight: 400 }}>· {s.count}</span>
-          </span>
-        </div>
-      ))}
+    <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--ink-400)', fontSize: 13 }}>
+      <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
+      <div style={{ fontWeight: 600, marginBottom: 4 }}>Sem deals no pipeline ainda</div>
+      <div style={{ fontSize: 12 }}>Adicione leads e mova-os pelo funil para ver os estágios aqui.</div>
     </div>
   );
 }
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const go = (r) => navigate(`/v2/${r}`);
+  const go = (r) => navigate(`/v0/${r}`);
   const toast = useToast();
 
+  const { session, tenant } = useAuth();
   const [activation, setActivation] = useState(loadActivation);
-  const [stats, setStats] = useState({ replies: 137, qualified: 9, hours: 4.2, value: 8420 });
+  const [stats, setStats] = useState({ replies: 0, qualified: 0, hours: 0, value: 0 });
+  const [alerts, setAlerts] = useState([]);
+  const [activities, setActivities] = useState([]);
+
+  // Buscar métricas reais do dashboard
+  useEffect(() => {
+    if (!session?.access_token || !tenant?.id) return;
+    fetch(`/api/analytics/dashboard?tenantId=${tenant.id}`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d) return;
+        if (d.stats) setStats(s => ({
+          replies:   d.stats.messagesDelivered ?? s.replies,
+          qualified: d.stats.leadsQualified    ?? s.qualified,
+          hours:     d.stats.avgResponseTime   ?? s.hours,
+          value:     d.stats.revenueEstimate   ?? s.value,
+        }));
+        if (d.alerts)     setAlerts(d.alerts);
+        if (d.activities) setActivities(d.activities);
+      })
+      .catch(() => {});
+  }, [session?.access_token, tenant?.id]);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -347,7 +354,7 @@ export default function Dashboard() {
         <div className="stack" style={{ gap: 16 }}>
           <Card title="Alertas IA & SLA" action={<Badge tone="danger">3 críticos</Badge>}>
             <div className="alert-list">
-              {ALERTS.map((a, i) => (
+              {alerts.map((a, i) => (
                 <div key={i} className={`alert-row ${a.tone}`}>
                   <div className="ic"><Icon name={iconForAlert(a.kind)} size={14} /></div>
                   <div className="text">{a.text}<small>regra: {reasonForAlert(a.kind)}</small></div>
@@ -367,7 +374,7 @@ export default function Dashboard() {
             }
           >
             <div className="activity-list">
-              {ACTIVITIES.map(a => (
+              {activities.map(a => (
                 <div key={a.id} className="activity-item">
                   <div className={`activity-ic ${a.tone}`}><Icon name={iconForActivity(a.kind)} size={12} /></div>
                   <div className="activity-text">{a.text}<small>{a.who}</small></div>
