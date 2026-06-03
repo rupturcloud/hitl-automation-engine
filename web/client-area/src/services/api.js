@@ -79,19 +79,27 @@ export const apiService = {
     return authFetch('/api/billing/packages');
   },
 
+  /** Tokenizar cartão via Getnet (step 1 do checkout direto) */
+  async tokenizeCard(tenantId, cardData) {
+    return authFetch('/api/billing/tokenize-card', {
+      method: 'POST',
+      body: JSON.stringify({ tenantId, ...cardData }),
+    });
+  },
+
   /** Criar checkout de compra de créditos avulsos */
-  async createCheckout(tenantId, packageId) {
+  async createCheckout(tenantId, packageId, cardData = null, customer = null) {
     return authFetch('/api/billing/checkout', {
       method: 'POST',
-      body: JSON.stringify({ tenantId, packageId }),
+      body: JSON.stringify({ tenantId, packageId, cardData, customer }),
     });
   },
 
   /** Criar assinatura recorrente */
-  async createSubscription(tenantId, planId) {
+  async createSubscription(tenantId, planId, cardData = null, customer = null) {
     return authFetch('/api/billing/subscribe', {
       method: 'POST',
-      body: JSON.stringify({ tenantId, planId }),
+      body: JSON.stringify({ tenantId, planId, cardData, customer }),
     });
   },
 
