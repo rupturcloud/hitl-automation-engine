@@ -36,7 +36,7 @@ const NAV = [
 
 function Sidebar({ collapsed, onToggle, onSignOut }) {
   const navigate = useNavigate();
-  const { session, tenant } = useAuth();
+  const { session, tenant, isPlatformAdmin } = useAuth();
 
   const userName =
     session?.user?.user_metadata?.full_name ||
@@ -194,6 +194,46 @@ function Sidebar({ collapsed, onToggle, onSignOut }) {
             </nav>
           </div>
         ))}
+
+        {/* Seção Plataforma — só para super admins (platform_admin) */}
+        {isPlatformAdmin && (
+          <div style={{ marginBottom: 4 }}>
+            {!collapsed && (
+              <div style={{
+                fontSize: 10, fontWeight: 600, color: '#FF8C69',
+                textTransform: 'uppercase', letterSpacing: '0.08em',
+                padding: '10px 14px 4px', whiteSpace: 'nowrap',
+              }}>
+                Plataforma
+              </div>
+            )}
+            {collapsed && <div style={{ height: 8 }} />}
+            <nav>
+              {[
+                { to: '/admin', label: 'Painel Admin', icon: 'settings' },
+                { to: '/admin/superadmin', label: 'Super Admin', icon: 'shield' },
+              ].map(it => (
+                <a
+                  key={it.to}
+                  href={it.to}
+                  title={collapsed ? it.label : undefined}
+                  style={{
+                    display: 'flex', alignItems: 'center',
+                    gap: collapsed ? 0 : 9,
+                    padding: collapsed ? '9px 0' : '7px 12px',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    margin: '0 4px', borderRadius: 7, textDecoration: 'none',
+                    color: '#9CA3AF', fontSize: 13, fontWeight: 500,
+                    whiteSpace: 'nowrap', overflow: 'hidden',
+                  }}
+                >
+                  <Icon name={it.icon} size={15} />
+                  {!collapsed && <span style={{ flex: 1 }}>{it.label}</span>}
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
       </div>
 
       {/* Rodapé fixo com perfil do usuário — NUNCA some da viewport */}

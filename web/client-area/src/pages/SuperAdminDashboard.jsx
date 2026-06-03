@@ -116,7 +116,7 @@ const SuperAdminDashboard = ({ onLogout }) => {
         <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1 style={{ fontSize: '32px', fontWeight: '800', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Shield size={32} style={{ color: '#667eea' }} />
+              <Shield size={32} style={{ color: '#FF6A3D' }} />
               Gerenciamento de Superadmin
             </h1>
             <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0 }}>
@@ -159,8 +159,8 @@ const SuperAdminDashboard = ({ onLogout }) => {
                 padding: '10px 16px',
                 borderRadius: '8px',
                 border: 'none',
-                background: activeTab === tab.key ? 'rgba(0,242,255,0.08)' : 'transparent',
-                color: activeTab === tab.key ? '#00f2ff' : 'var(--text-muted)',
+                background: activeTab === tab.key ? 'rgba(255,106,61,0.08)' : 'transparent',
+                color: activeTab === tab.key ? '#FF6A3D' : 'var(--text-muted)',
                 fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer',
@@ -177,8 +177,8 @@ const SuperAdminDashboard = ({ onLogout }) => {
             <div style={{
               width: 40,
               height: 40,
-              border: '3px solid rgba(0,242,255,0.2)',
-              borderTop: '3px solid #00f2ff',
+              border: '3px solid rgba(255,106,61,0.2)',
+              borderTop: '3px solid #FF6A3D',
               borderRadius: '50%',
               animation: 'spin 0.8s linear infinite',
               margin: '0 auto 16px',
@@ -197,7 +197,7 @@ const SuperAdminDashboard = ({ onLogout }) => {
                   padding: '12px 20px',
                   borderRadius: '8px',
                   border: 'none',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #FF6A3D 0%, #F0531F 100%)',
                   color: 'white',
                   fontSize: '14px',
                   fontWeight: '600',
@@ -243,7 +243,7 @@ const SuperAdminDashboard = ({ onLogout }) => {
                         width: '40px',
                         height: '40px',
                         borderRadius: '8px',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        background: 'linear-gradient(135deg, #FF6A3D 0%, #F0531F 100%)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -424,7 +424,7 @@ const SuperAdminDashboard = ({ onLogout }) => {
                 />
               </div>
 
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '20px', padding: '12px', background: 'rgba(0,242,255,0.05)', borderRadius: '8px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '20px', padding: '12px', background: 'rgba(255,106,61,0.05)', borderRadius: '8px' }}>
                 Um convite será criado para este email. Se o serviço de email não estiver configurado, copie o link gerado abaixo.
               </div>
 
@@ -442,8 +442,8 @@ const SuperAdminDashboard = ({ onLogout }) => {
                       minHeight: '76px',
                       padding: '10px 14px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(0,242,255,0.25)',
-                      background: 'rgba(0,242,255,0.05)',
+                      border: '1px solid rgba(255,106,61,0.25)',
+                      background: 'rgba(255,106,61,0.05)',
                       color: 'white',
                       fontSize: '12px',
                       fontFamily: 'monospace',
@@ -479,7 +479,7 @@ const SuperAdminDashboard = ({ onLogout }) => {
                     padding: '10px',
                     borderRadius: '8px',
                     border: 'none',
-                    background: inviting || !inviteEmail.trim() ? 'rgba(0,242,255,0.2)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: inviting || !inviteEmail.trim() ? 'rgba(255,106,61,0.2)' : 'linear-gradient(135deg, #FF6A3D 0%, #F0531F 100%)',
                     color: 'white',
                     fontSize: '14px',
                     fontWeight: '600',
