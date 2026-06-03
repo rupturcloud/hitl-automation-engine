@@ -1,0 +1,233 @@
+/**
+ * WhatsApp controller — HTTP boundary.
+ *
+ * Recebe req/res do gateway, extrai input, chama service, formata response
+ * no padrão Ruptur { ok, data, meta, error }.
+ *
+ * Não conhece UAZAPI, não conhece Supabase, não conhece regra de negócio.
+ */
+import { BusinessError } from './service.js';
+
+export class WhatsappController {
+  constructor({ service }) {
+    if (!service) throw new Error('WhatsappController requer service');
+    this.service = service;
+  }
+
+  async listNumbers(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const data = await this.service.listNumbers({ tenantId });
+      return { data };
+    });
+  }
+
+  async createNumber(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { name, label } = req.body || {};
+      const data = await this.service.createNumber({ tenantId, name, label });
+      return { data, status: 201 };
+    });
+  }
+
+  async connect(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      // phone = número no formato internacional (ex: 5511999999999)
+      // quando presente → pairing code; ausente → QR code
+      const phone = req.body?.phone || null;
+      const data = await this.service.connect({ tenantId, id, phone });
+      return { data };
+    });
+  }
+
+  async reconnect(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const phone = req.body?.phone || null;
+      const data = await this.service.reconnect({ tenantId, id, phone });
+      return { data };
+    });
+  }
+
+  async getStatus(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.getStatus({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async getHealth(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.getHealth({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async getWarmupStatus(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.getWarmupStatus({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async startWarmup(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const config = req.body?.config || {};
+      const data = await this.service.startWarmup({ tenantId, id, config });
+      return { data };
+    });
+  }
+
+  async stopWarmup(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.stopWarmup({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async updateNumber(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const patch = req.body || {};
+      const data = await this.service.updateNumber({ tenantId, id, patch });
+      return { data };
+    });
+  }
+
+  async deleteNumber(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.deleteNumber({ tenantId, id });
+      return { data, status: 200 };
+    });
+  }
+
+  async updateWarmupConfig(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const config = req.body?.config || {};
+      const data = await this.service.updateWarmupConfig({ tenantId, id, config });
+      return { data };
+    });
+  }
+
+  async disconnect(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.disconnect({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async getWebhook(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const data = await this.service.getWebhook({ tenantId, id });
+      return { data };
+    });
+  }
+
+  async setWebhook(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const config = req.body?.config ?? req.body ?? {};
+      const data = await this.service.setWebhook({ tenantId, id, config });
+      return { data };
+    });
+  }
+
+  async getChats(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const limit = req.query?.limit ? Number(req.query.limit) : 20;
+      const data = await this.service.getChats({ tenantId, id, limit });
+      return { data };
+    });
+  }
+
+  async getMessages(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const chatId = req.query?.chatId;
+      const limit  = req.query?.limit ? Number(req.query.limit) : 50;
+      if (!chatId) throw new BusinessError('ERR_MISSING_PARAM', 'chatId é obrigatório.', 400);
+      const data = await this.service.getMessages({ tenantId, id, chatId, limit });
+      return { data };
+    });
+  }
+
+  async sendMessage(req, res) {
+    return this._handle(res, async () => {
+      const tenantId = req.tenantId;
+      const { id } = req.params;
+      const { chatId, text } = req.body || {};
+      if (!chatId || !text) {
+        throw new BusinessError('ERR_MISSING_PARAM', 'chatId e text são obrigatórios.', 400);
+      }
+      const data = await this.service.sendMessage({ tenantId, id, chatId, text });
+      return { data, status: 201 };
+    });
+  }
+
+  async streamSSE(req, res) {
+    const tenantId = req.tenantId;
+    const { id } = req.params;
+    try {
+      await this.service.streamSSE({ tenantId, id, req, res });
+    } catch (e) {
+      if (!res.headersSent) {
+        res.writeHead(e.status || 500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: { code: e.code || 'ERR_SSE', message: e.message } }));
+      }
+    }
+  }
+
+  async _handle(res, fn) {
+    try {
+      const { data, meta = {}, status = 200 } = await fn();
+      this._send(res, status, { ok: true, data, meta, error: null });
+    } catch (e) {
+      const code = e.code || 'ERR_INTERNAL';
+      const status = e.status || 500;
+      const message = e.message || 'Erro inesperado.';
+      // P2 pilar: mensagem para o cliente é humana.
+      // Loga código técnico no servidor.
+      // eslint-disable-next-line no-console
+      console.error(`[whatsapp.controller] ${code}: ${message}`, e.details || {});
+      this._send(res, status, {
+        ok: false, data: null, meta: {},
+        error: { code, message, details: e.details || {} },
+      });
+    }
+  }
+
+  _send(res, status, body) {
+    res.statusCode = status;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.end(JSON.stringify(body));
+  }
+}
+
+export default WhatsappController;
