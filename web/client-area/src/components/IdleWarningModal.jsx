@@ -8,7 +8,6 @@ export default function IdleWarningModal({ secondsLeft, onStay, onLeave }) {
   const [count, setCount] = useState(secondsLeft);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza contagem inicial ao mudar prop
     setCount(secondsLeft);
     const interval = setInterval(() => {
       setCount(prev => {

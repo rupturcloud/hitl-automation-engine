@@ -1,185 +1,119 @@
 /**
- * App.jsx — Roteamento principal com React Router
+ * App.jsx — Roteamento principal
  *
- * Domínio: saas.ruptur.cloud
- * Estrutura:
- *   /login       → LoginScreen
- *   /signup      → SignUp (criar conta)
- *   /onboarding  → Wizard 3 passos (pós sign-up)
- *   /dashboard   → Dashboard do cliente
- *   /campanhas   → Gestão de campanhas
- *   /carteira    → Wallet + comprar créditos
- *   /inbox       → Mensagens
- *   /config      → Configurações
- *   /admin       → Painel administrativo (apenas admins)
+ * Layout oficial: V0 LARANJA — AppShellV2 em /v0/*
+ * NUNCA usar /v2/* — obsoleto. Toda nova rota vai em /v0/*.
  */
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import DashboardLayout from './components/DashboardLayout';
+import { ToastProvider as RupturToastProvider } from './ds/index.js';
 import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './contexts/AuthContext';
+
+// Público
 import LoginScreen from './pages/LoginScreen';
 import SignUp from './pages/SignUp';
-import Onboarding from './pages/Onboarding';
-import DashboardHome from './pages/DashboardHome';
-import Campaigns from './pages/Campaigns';
-import Wallet from './pages/Wallet';
-// InboxV2: inbox nativo via UAZAPI (substitui iframe Bubble do Inbox.jsx legado)
-import InboxV2 from './pages/InboxV2';
-import Instances from './pages/Instances';
-import Warmup from './pages/Warmup';
-import MessageLibrary from './pages/MessageLibrary';
-import ClientLogs from './pages/ClientLogs';
-import Reports from './pages/Reports';
-import AdminDashboard from './pages/AdminDashboard';
-import SuperAdminDashboard from './pages/SuperAdminDashboard';
-import UsersPage from './pages/UsersPage';
 import AcceptAdminInvite from './pages/AcceptAdminInvite';
 import AccessDenied from './pages/AccessDenied';
 import Health from './pages/Health';
-import './App.css';
 
-import LandingPage from './pages/LandingPage';
-
-// V2 — Ruptur SaaS · WhatsApp Sales OS (handoff portado em paralelo)
-import { ToastProvider as RupturToastProvider } from './ds/index.js';
+// V0 Layout + Landing
 import AppShellV2 from './v2/layout/AppShell.jsx';
 import LandingV2 from './v2/pages/Landing.jsx';
-import DashboardV2 from './v2/pages/Dashboard.jsx';
-import PlaceholderV2 from './v2/pages/Placeholder.jsx';
 
-const V2_PENDING = [
-  'personas', 'onboarding', 'pricing', 'leads', 'pipeline',
-  'accounts', 'inbox', 'campaigns', 'flows', 'numbers',
-  'playbooks', 'billing', 'insights', 'indicacoes', 'admin',
-  'sprints', 'founder',
+// V0 Páginas (lazy)
+const DashboardV2    = lazy(() => import('./v2/pages/Dashboard.jsx'));
+const NumbersV2      = lazy(() => import('./v2/pages/Numbers.jsx'));
+const AdminV2        = lazy(() => import('./v2/pages/Admin.jsx'));
+const AquecimentoV2  = lazy(() => import('./v2/pages/Aquecimento.jsx'));
+const InboxV2        = lazy(() => import('./v2/pages/Inbox.jsx'));
+const IntegrationsV2 = lazy(() => import('./v2/pages/Integrations.jsx'));
+const BillingV2      = lazy(() => import('./v2/pages/Billing.jsx'));
+const PlaceholderV2  = lazy(() => import('./v2/pages/Placeholder.jsx'));
+
+// Admin plataforma (super admin)
+const AdminDashboard      = lazy(() => import('./pages/AdminDashboard.jsx'));
+const SuperAdminDashboard = lazy(() => import('./pages/SuperAdminDashboard.jsx'));
+
+const V0_STUBS = [
+  'personas','pricing','leads','pipeline','accounts','campaigns',
+  'flows','playbooks','insights','indicacoes','sprints',
+  'founder','remarketing','outreach','grupos','canais',
+  'rede-coletiva','business','growth',
 ];
 
-// / e /v0 -> Standalone Ruptur OS v3.9.1 (full mock do handoff)
-// O HTML auto-contido vive em public/v0/index.html e é servido pelo Vite/web
-// como estático. React Router só faz o redirect — fora do SPA.
-function RedirectToV0() {
-  useEffect(() => {
-    // Apontar direto para o asset estático evita o SPA fallback do Vite/dev
-// reescrever /v0/ -> index.html do React Router.
-window.location.replace('/v0/index.html');
-  }, []);
+function LoadingScreen() {
   return (
     <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: '#0E1116', color: '#9aa3b2', fontFamily: 'Inter, sans-serif',
-    }}>
-      Abrindo Ruptur OS…
-    </div>
+      minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',
+      background:'#0E1116',color:'#9aa3b2',fontFamily:'Inter,sans-serif',fontSize:14,
+    }}>Carregando…</div>
   );
 }
 
-// /v1/warmup -> Warmup Manager (frontlindona)
-// Em produção, Traefik faz proxy de app.ruptur.cloud/warmup/* para o service warmup:4173.
-// Em dev, apontamos direto para o warmup runtime local em :8787.
-function WarmupRedirect() {
-  useEffect(() => {
-    const target = import.meta.env.DEV
-      ? 'http://localhost:8787/warmup/'
-      : '/warmup/';
-    window.location.replace(target);
-  }, []);
-  return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: '#0E1116', color: '#9aa3b2', fontFamily: 'Inter, sans-serif',
-    }}>
-      Abrindo Warmup Manager…
-    </div>
-  );
+function RootRedirect() {
+  const { session, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  return <Navigate to={session ? '/v0/dashboard' : '/v0/landing'} replace />;
 }
 
 function App() {
-  // Service Worker — só em produção. Em dev o cache-first do sw.js sequestra
-  // navegações HTML e serve bundle congelado, atrapalhando hot reload e
-  // mascarando mudanças de código (rotas, lazy imports, etc.).
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     if (import.meta.env.DEV) {
-      // Em dev: garantir que nenhum SW antigo continue rodando.
-      navigator.serviceWorker.getRegistrations()
-        .then(regs => regs.forEach(r => r.unregister()))
-        .catch(() => {});
+      navigator.serviceWorker.getRegistrations().then(r => r.forEach(x => x.unregister())).catch(() => {});
       return;
     }
     navigator.serviceWorker.register('/sw.js', { scope: '/' })
-      .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
-      .catch(err => console.error('❌ Erro ao registrar Service Worker:', err));
+      .then(r => console.log('SW:', r.scope))
+      .catch(e => console.error('SW erro:', e));
   }, []);
+
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Home pública (versão 02 — Ruptur OS v3.9.1 full mock):
-            serve o Standalone HTML em /v0/. A landing antiga (RUPTURCLOUD dark)
-            fica em /v1 (versão 01 — atual original com app Supabase real). */}
-        <Route path="/" element={<RedirectToV0 />} />
-        <Route path="/v0" element={<RedirectToV0 />} />
-        <Route path="/v1" element={<LandingPage />} />
-        {/* /v1/warmup -> redirect ao Warmup Manager (frontlindona) */}
-        <Route path="/v1/warmup" element={<WarmupRedirect />} />
-        <Route path="/v1/warmup/*" element={<WarmupRedirect />} />
-        <Route path="/login" element={<LoginScreen />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/admin/accept-invite" element={<AcceptAdminInvite />} />
-        <Route path="/403" element={<AccessDenied />} />
-        <Route path="/health" element={<Health />} />
+    <RupturToastProvider>
+      <BrowserRouter>
+        <Suspense fallback={<LoadingScreen />}>
+          <Routes>
+            <Route path="/"       element={<RootRedirect />} />
+            <Route path="/login"  element={<LoginScreen />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/admin/accept-invite" element={<AcceptAdminInvite />} />
+            <Route path="/403"    element={<AccessDenied />} />
+            <Route path="/health" element={<Health />} />
 
-        {/* Rotas autenticadas — Cliente */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<DashboardHome />} />
-            <Route path="/campanhas" element={<Campaigns />} />
-            <Route path="/carteira" element={<Wallet />} />
-            <Route path="/instancias" element={<Instances />} />
-            <Route path="/aquecimento" element={<Warmup />} />
-            <Route path="/mensagens" element={<MessageLibrary />} />
-            <Route path="/relatorios" element={<Reports />} />
-            <Route path="/logs" element={<ClientLogs />} />
-            {/* InboxV2: nativo UAZAPI via gateway (substituiu iframe Bubble) */}
-            <Route path="/inbox" element={<InboxV2 />} />
-          </Route>
-        </Route>
+            {/* V0 landing pública */}
+            <Route path="/v0/landing" element={<LandingV2 />} />
+            <Route path="/v0"         element={<Navigate to="/v0/landing" replace />} />
 
-        {/* Rotas autenticadas — Admin operacional da plataforma */}
-        <Route element={<ProtectedRoute requirePlatformAdmin />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Route>
+            {/* V0 app autenticado */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/v0" element={<AppShellV2 />}>
+                <Route path="dashboard"   element={<DashboardV2 />} />
+                <Route path="numbers"     element={<NumbersV2 />} />
+                <Route path="admin"       element={<AdminV2 />} />
+                <Route path="aquecimento" element={<AquecimentoV2 />} />
+                <Route path="inbox"       element={<InboxV2 />} />
+                <Route path="integracoes" element={<IntegrationsV2 />} />
+                <Route path="billing"     element={<BillingV2 />} />
+                {V0_STUBS.map(id => (
+                  <Route key={id} path={id} element={<PlaceholderV2 name={id} />} />
+                ))}
+                <Route path="*" element={<Navigate to="/v0/dashboard" replace />} />
+              </Route>
+            </Route>
 
-        {/* Rotas autenticadas — Superadmin */}
-        <Route element={<ProtectedRoute requirePlatformAdmin />}>
-          <Route path="/admin/superadmin" element={<SuperAdminDashboard />} />
-          <Route path="/admin/usuarios" element={<UsersPage />} />
-        </Route>
+            {/* Admin plataforma */}
+            <Route element={<ProtectedRoute requirePlatformAdmin />}>
+              <Route path="/admin"            element={<AdminDashboard />} />
+              <Route path="/admin/superadmin" element={<SuperAdminDashboard />} />
+            </Route>
 
-        {/* V2 — Ruptur SaaS · WhatsApp Sales OS (preview paralelo, sem auth) */}
-        <Route
-          path="/v2/*"
-          element={
-            <RupturToastProvider>
-              <Routes>
-                <Route index element={<Navigate to="landing" replace />} />
-                <Route path="landing" element={<LandingV2 />} />
-                <Route element={<AppShellV2 />}>
-                  <Route path="dashboard" element={<DashboardV2 />} />
-                  {V2_PENDING.map(id => (
-                    <Route key={id} path={id} element={<PlaceholderV2 name={id} />} />
-                  ))}
-                </Route>
-                <Route path="*" element={<Navigate to="landing" replace />} />
-              </Routes>
-            </RupturToastProvider>
-          }
-        />
-
-        {/* Fallback: rotas desconhecidas → home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </RupturToastProvider>
   );
 }
 
